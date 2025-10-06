@@ -6,6 +6,8 @@
     <title>$50 QuickGiveaway</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Telegram WebApp Script -->
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <!-- Ad SDK Script -->
     <script src='//libtl.com/sdk.js' data-zone='9980483' data-sdk='show_9980483'></script>
     <style>
@@ -481,6 +483,18 @@
             0% { background-position: 200% 0; }
             100% { background-position: -200% 0; }
         }
+        
+        .telegram-info {
+            position: fixed;
+            bottom: 20px;
+            left: 20px;
+            background: rgba(0, 0, 0, 0.8);
+            color: white;
+            padding: 8px 12px;
+            border-radius: 8px;
+            font-size: 12px;
+            z-index: 1000;
+        }
     </style>
 </head>
 <body>
@@ -828,6 +842,10 @@
         </div>
     </div>
 
+    <div id="telegramInfo" class="telegram-info" style="display: none;">
+        Telegram WebApp Status: <span id="telegramStatus">Checking...</span>
+    </div>
+
     <script>
         // App State
         const appState = {
@@ -865,6 +883,12 @@
         function initTelegramApp() {
             console.log('Initializing Telegram WebApp...');
             
+            // Show debug info
+            const telegramInfo = document.getElementById('telegramInfo');
+            if (telegramInfo) {
+                telegramInfo.style.display = 'block';
+            }
+            
             // Add skeleton loading state initially
             document.getElementById('profileContainer').classList.add('profile-skeleton');
             
@@ -888,11 +912,22 @@
                 
                 // Show welcome notification
                 showNotification(`👋 Welcome, ${appState.userName}!`);
+                
+                // Update debug info
+                if (telegramInfo) {
+                    document.getElementById('telegramStatus').textContent = 'Connected';
+                    document.getElementById('telegramStatus').style.color = '#4CAF50';
+                }
             }
             
             // Check if Telegram WebApp is available
-            if (typeof window.Telegram !== 'undefined' && window.Telegram.WebApp) {
+            if (window.Telegram && window.Telegram.WebApp) {
                 console.log('Telegram WebApp detected');
+                
+                // Update debug info
+                if (telegramInfo) {
+                    document.getElementById('telegramStatus').textContent = 'SDK Loaded, initializing...';
+                }
                 
                 // Initialize WebApp
                 window.Telegram.WebApp.ready(() => {
@@ -914,6 +949,11 @@
                             document.getElementById('profileContainer').classList.remove('profile-skeleton');
                             document.getElementById('userName').textContent = 'Guest User';
                             showNotification('👋 Welcome, Guest!');
+                            
+                            if (telegramInfo) {
+                                document.getElementById('telegramStatus').textContent = 'No user data';
+                                document.getElementById('telegramStatus').style.color = '#FF9800';
+                            }
                         }, 1000);
                     }
                     
@@ -933,6 +973,12 @@
                 });
             } else {
                 console.log('Telegram WebApp not available, using fallback');
+                
+                // Update debug info
+                if (telegramInfo) {
+                    document.getElementById('telegramStatus').textContent = 'Not in Telegram';
+                    document.getElementById('telegramStatus').style.color = '#F44336';
+                }
                 
                 // Fallback for non-Telegram environment
                 setTimeout(() => {
