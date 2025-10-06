@@ -457,39 +457,29 @@
             to { transform: rotate(360deg); }
         }
         
-        .user-info-loading {
-            display: flex;
-            align-items: center;
-            gap: 12px;
+        .profile-skeleton {
+            animation: pulse 1.5s ease-in-out infinite;
         }
         
-        .skeleton {
-            background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+        .profile-skeleton img {
+            filter: blur(2px);
+            opacity: 0.7;
+        }
+        
+        .profile-skeleton .profile-name {
+            background: linear-gradient(90deg, #e2e8f0 25%, #f7fafc 50%, #e2e8f0 75%);
             background-size: 200% 100%;
             animation: loading 1.5s infinite;
+            color: transparent;
+            border-radius: 4px;
+            display: inline-block;
+            height: 20px;
+            width: 120px;
         }
         
         @keyframes loading {
             0% { background-position: 200% 0; }
             100% { background-position: -200% 0; }
-        }
-        
-        .skeleton-avatar {
-            width: 56px;
-            height: 56px;
-            border-radius: 50%;
-        }
-        
-        .skeleton-text {
-            height: 20px;
-            border-radius: 4px;
-            width: 120px;
-        }
-        
-        .skeleton-text-small {
-            height: 16px;
-            border-radius: 4px;
-            width: 80px;
         }
     </style>
 </head>
@@ -506,7 +496,7 @@
                 <div class="glass-card p-5">
                     <div class="flex items-center justify-between">
                         <div class="flex items-center">
-                            <div class="relative">
+                            <div class="relative" id="profileContainer">
                                 <img id="userProfilePic" src="https://picsum.photos/seed/telegramuser/60/60.jpg" alt="Profile" class="w-14 h-14 rounded-full border-3 border-white shadow-lg">
                                 <div class="absolute -bottom-1 -right-1 w-5 h-5 bg-green-400 rounded-full border-2 border-white"></div>
                             </div>
@@ -846,7 +836,6 @@
             balance: 0,
             userName: 'Loading...',
             userPic: 'https://picsum.photos/seed/telegramuser/60/60.jpg',
-            userId: null,
             withdrawalHistory: [],
             giveawayEndTime: new Date().getTime() + (3 * 24 * 60 * 60 * 1000),
             currentWinner: 'Rajesh Kumar',
@@ -872,173 +861,86 @@
             'Sanjay Kumar', 'Neha Sharma', 'Arjun Singh', 'Kavita Patel', 'Rohit Verma'
         ];
 
-        // Initialize Telegram Mini App with enhanced user info fetching
+        // Initialize Telegram Mini App and fetch user profile
         function initTelegramApp() {
-            // Show loading state initially
-            showUserInfoLoading();
+            console.log('Initializing Telegram WebApp...');
+            
+            // Add skeleton loading state initially
+            document.getElementById('profileContainer').classList.add('profile-skeleton');
+            
+            // Function to update profile
+            function updateProfile(userData) {
+                // Format user name
+                let fullName = userData.first_name || 'User';
+                if (userData.last_name) {
+                    fullName += ' ' + userData.last_name;
+                }
+                
+                // Update app state
+                appState.userName = fullName;
+                appState.userPic = userData.photo_url || `https://ui-avatars.com/api/?name=${encodeURIComponent(fullName)}&background=random&color=fff&size=60`;
+                
+                // Update UI
+                document.getElementById('profileContainer').classList.remove('profile-skeleton');
+                document.getElementById('userProfilePic').src = appState.userPic;
+                document.getElementById('userProfilePic').alt = appState.userName;
+                document.getElementById('userName').textContent = appState.userName;
+                
+                // Show welcome notification
+                showNotification(`👋 Welcome, ${appState.userName}!`);
+            }
             
             // Check if Telegram WebApp is available
-            if (window.Telegram && window.Telegram.WebApp) {
-                // Initialize the WebApp
-                window.Telegram.WebApp.ready();
-                window.Telegram.WebApp.expand();
+            if (typeof window.Telegram !== 'undefined' && window.Telegram.WebApp) {
+                console.log('Telegram WebApp detected');
                 
-                // Get user data
-                const user = window.Telegram.WebApp.initDataUnsafe.user;
-                
-                if (user) {
-                    // Update app state with user information
-                    appState.userName = `${user.first_name || ''} ${user.last_name || ''}`.trim() || 'Telegram User';
-                    appState.userId = user.id;
-                    appState.userPic = user.photo_url || `https://ui-avatars.com/api/?name=${encodeURIComponent(appState.userName)}&background=random&color=fff`;
+                // Initialize WebApp
+                window.Telegram.WebApp.ready(() => {
+                    console.log('Telegram WebApp ready');
                     
-                    // Update UI with user information
-                    updateUserInfo();
+                    // Expand the WebApp
+                    window.Telegram.WebApp.expand();
                     
-                    // Log user data for debugging
-                    console.log('Telegram User Data:', {
-                        id: user.id,
-                        first_name: user.first_name,
-                        last_name: user.last_name,
-                        username: user.username,
-                        language_code: user.language_code,
-                        is_premium: user.is_premium
-                    });
+                    // Get user data
+                    const user = window.Telegram.WebApp.initDataUnsafe.user;
                     
-                    // Show welcome notification
-                    showNotification(`👋 Welcome, ${appState.userName}!`);
-                    
-                    // Save user data to localStorage for persistence
-                    saveUserDataToStorage(user);
-                    
-                } else {
-                    // Fallback for when user data is not available
-                    console.warn('Telegram user data not available');
-                    setTimeout(() => {
-                        appState.userName = 'Guest User';
-                        appState.userPic = `https://ui-avatars.com/api/?name=Guest&background=random&color=fff`;
-                        updateUserInfo();
-                        showNotification('👋 Welcome, Guest!');
-                    }, 1000);
-                }
-                
-                // Get additional user info if available
-                if (window.Telegram.WebApp.initDataUnsafe.query_id) {
-                    console.log('Query ID available:', window.Telegram.WebApp.initDataUnsafe.query_id);
-                }
-                
-            } else {
-                // Fallback for non-Telegram environment
-                console.warn('Telegram WebApp not available');
-                setTimeout(() => {
-                    // Try to get user from localStorage
-                    const savedUser = getUserDataFromStorage();
-                    if (savedUser) {
-                        appState.userName = savedUser.name;
-                        appState.userPic = savedUser.pic;
-                        updateUserInfo();
-                        showNotification(`👋 Welcome back, ${appState.userName}!`);
+                    if (user) {
+                        console.log('User data found:', user);
+                        updateProfile(user);
                     } else {
-                        appState.userName = 'Demo User';
-                        appState.userPic = `https://ui-avatars.com/api/?name=Demo&background=random&color=fff`;
-                        updateUserInfo();
-                        showNotification('👋 Welcome to $50 QuickGiveaway!');
+                        console.log('No user data found');
+                        // Fallback for no user data
+                        setTimeout(() => {
+                            document.getElementById('profileContainer').classList.remove('profile-skeleton');
+                            document.getElementById('userName').textContent = 'Guest User';
+                            showNotification('👋 Welcome, Guest!');
+                        }, 1000);
                     }
+                    
+                    // Set theme
+                    const themeParams = window.Telegram.WebApp.themeParams;
+                    if (themeParams) {
+                        console.log('Theme params:', themeParams);
+                    }
+                    
+                    // Enable closing confirmation
+                    window.Telegram.WebApp.enableClosingConfirmation();
+                    
+                    // Handle viewport changes
+                    window.Telegram.WebApp.onViewportChanged(() => {
+                        console.log('Viewport changed');
+                    });
+                });
+            } else {
+                console.log('Telegram WebApp not available, using fallback');
+                
+                // Fallback for non-Telegram environment
+                setTimeout(() => {
+                    document.getElementById('profileContainer').classList.remove('profile-skeleton');
+                    document.getElementById('userName').textContent = 'Demo User';
+                    showNotification('👋 Welcome to Demo Mode!');
                 }, 1000);
             }
-        }
-
-        // Show loading state for user info
-        function showUserInfoLoading() {
-            const headerContent = document.querySelector('.glass-card.p-5 .flex.items-center.justify-between');
-            if (headerContent) {
-                const leftSection = headerContent.querySelector('.flex.items-center');
-                if (leftSection) {
-                    leftSection.innerHTML = `
-                        <div class="relative">
-                            <div class="w-14 h-14 rounded-full border-3 border-white shadow-lg skeleton skeleton-avatar"></div>
-                            <div class="absolute -bottom-1 -right-1 w-5 h-5 bg-green-400 rounded-full border-2 border-white"></div>
-                        </div>
-                        <div class="ml-4">
-                            <div class="skeleton skeleton-text mb-2"></div>
-                            <div class="flex items-center mt-1">
-                                <i class="fas fa-coins text-yellow-500 mr-1"></i>
-                                <span class="text-sm font-semibold text-gray-600">Balance: $<span id="userBalance">0.00</span></span>
-                            </div>
-                        </div>
-                    `;
-                }
-            }
-        }
-
-        // Update user information in the UI
-        function updateUserInfo() {
-            const userNameElement = document.getElementById('userName');
-            const userProfilePicElement = document.getElementById('userProfilePic');
-            
-            if (userNameElement) {
-                userNameElement.textContent = appState.userName;
-            }
-            
-            if (userProfilePicElement) {
-                userProfilePicElement.src = appState.userPic;
-                userProfilePicElement.alt = appState.userName;
-            }
-            
-            // Update header with loaded user info
-            const headerContent = document.querySelector('.glass-card.p-5 .flex.items-center.justify-between');
-            if (headerContent) {
-                const leftSection = headerContent.querySelector('.flex.items-center');
-                if (leftSection) {
-                    leftSection.innerHTML = `
-                        <div class="relative">
-                            <img id="userProfilePic" src="${appState.userPic}" alt="${appState.userName}" class="w-14 h-14 rounded-full border-3 border-white shadow-lg">
-                            <div class="absolute -bottom-1 -right-1 w-5 h-5 bg-green-400 rounded-full border-2 border-white"></div>
-                        </div>
-                        <div class="ml-4">
-                            <h2 id="userName" class="font-bold text-xl text-gray-800">${appState.userName}</h2>
-                            <div class="flex items-center mt-1">
-                                <i class="fas fa-coins text-yellow-500 mr-1"></i>
-                                <span class="text-sm font-semibold text-gray-600">Balance: $<span id="userBalance">0.00</span></span>
-                            </div>
-                        </div>
-                    `;
-                }
-            }
-        }
-
-        // Save user data to localStorage
-        function saveUserDataToStorage(user) {
-            try {
-                const userData = {
-                    name: `${user.first_name || ''} ${user.last_name || ''}`.trim() || 'Telegram User',
-                    id: user.id,
-                    pic: user.photo_url || `https://ui-avatars.com/api/?name=${encodeURIComponent(user.first_name || 'User')}&background=random&color=fff`,
-                    username: user.username,
-                    timestamp: Date.now()
-                };
-                localStorage.setItem('telegram_user_data', JSON.stringify(userData));
-            } catch (error) {
-                console.error('Failed to save user data:', error);
-            }
-        }
-
-        // Get user data from localStorage
-        function getUserDataFromStorage() {
-            try {
-                const savedData = localStorage.getItem('telegram_user_data');
-                if (savedData) {
-                    const userData = JSON.parse(savedData);
-                    // Check if data is not too old (7 days)
-                    const weekAgo = Date.now() - (7 * 24 * 60 * 60 * 1000);
-                    if (userData.timestamp > weekAgo) {
-                        return userData;
-                    }
-                }
-            } catch (error) {
-                console.error('Failed to get user data from storage:', error);
-            }
-            return null;
         }
 
         // Tab Navigation
@@ -1138,7 +1040,7 @@
         // Enter Giveaway
         document.getElementById('enterGiveawayBtn').addEventListener('click', () => {
             if (appState.adsWatched >= 50 && !appState.isParticipating) {
-                showConfirmModal("🎊 You're now participating in the $50 Giveaway! Good luck!", () => {
+                showConfirmModal(`🎊 ${appState.userName}, you're now participating in the $50 Giveaway! Good luck!`, () => {
                     appState.isParticipating = true;
                     createConfetti();
                     showNotification('🚀 Successfully entered the giveaway!');
@@ -1167,7 +1069,7 @@
             if (appState.isParticipating && Math.random() < 0.1) {
                 appState.balance += 50;
                 updateBalanceDisplay();
-                showNotification('🎊 Congratulations! You won $50!');
+                showNotification(`🎊 Congratulations ${appState.userName}! You won $50!`);
                 createConfetti();
             }
             
@@ -1231,8 +1133,7 @@
                     amount: appState.balance,
                     address: address,
                     date: new Date().toLocaleDateString(),
-                    status: 'pending',
-                    userId: appState.userId
+                    status: 'pending'
                 };
                 
                 appState.withdrawalHistory.unshift(withdrawal);
@@ -1336,14 +1237,16 @@
             if (appState.isParticipating && Math.random() < 0.05) {
                 appState.balance += 50;
                 updateBalanceDisplay();
-                showNotification('🎊 Congratulations! You won $50!');
+                showNotification(`🎊 Congratulations ${appState.userName}! You won $50!`);
                 createConfetti();
             }
         }
 
         // Initialize App
         function initApp() {
-            // Initialize Telegram App first
+            console.log('Initializing app...');
+            
+            // Initialize Telegram WebApp first
             initTelegramApp();
             
             // Initialize other app components
@@ -1356,27 +1259,34 @@
             setInterval(updateCountdown, 1000);
             updateCountdown();
             
+            // Simulate winning occasionally
             setInterval(simulateWin, 30000);
         }
 
-        // Start the app when DOM is ready
-        document.addEventListener('DOMContentLoaded', initApp);
-        
-        // Additional Telegram WebApp enhancements
-        if (window.Telegram && window.Telegram.WebApp) {
-            // Set theme
-            window.Telegram.WebApp.setHeaderColor('#667eea');
-            window.Telegram.WebApp.setBackgroundColor('#667eea');
-            
-            // Handle back button
-            window.Telegram.WebApp.onEvent('backButtonClicked', () => {
-                window.Telegram.WebApp.close();
+        // Wait for Telegram WebApp to be ready
+        function waitForTelegramWebApp() {
+            return new Promise((resolve) => {
+                if (typeof window.Telegram !== 'undefined' && window.Telegram.WebApp) {
+                    window.Telegram.WebApp.ready(resolve);
+                } else {
+                    // If Telegram is not available after 3 seconds, resolve anyway
+                    setTimeout(resolve, 3000);
+                }
             });
-            
-            // Show back button if needed
-            if (window.Telegram.WebApp.BackButton) {
-                window.Telegram.WebApp.BackButton.show();
-            }
+        }
+
+        // Start the app
+        async function startApp() {
+            console.log('Starting app...');
+            await waitForTelegramWebApp();
+            initApp();
+        }
+
+        // Initialize when DOM is ready
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', startApp);
+        } else {
+            startApp();
         }
     </script>
 </body>
