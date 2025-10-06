@@ -9,12 +9,11 @@
     <!-- Ad SDK Script -->
     <script src='//libtl.com/sdk.js' data-zone='9980483' data-sdk='show_9980483'></script>
     <style>
+        /* ... [All your existing CSS remains unchanged] ... */
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
-        
         * {
             font-family: 'Inter', sans-serif;
         }
-        
         :root {
             --primary-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             --secondary-gradient: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
@@ -26,7 +25,6 @@
             --success-color: #48bb78;
             --warning-color: #f6ad55;
         }
-        
         html, body {
             margin: 0;
             padding: 0;
@@ -36,14 +34,12 @@
             justify-content: center;
             align-items: flex-start;
         }
-        
         body {
             background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%);
             color: var(--text-primary);
             position: relative;
             overflow-x: hidden;
         }
-        
         body::before {
             content: '';
             position: fixed;
@@ -56,7 +52,6 @@
             pointer-events: none;
             z-index: 0;
         }
-        
         .app-wrapper {
             width: 100%;
             max-width: 500px;
@@ -64,12 +59,10 @@
             position: relative;
             z-index: 1;
         }
-        
         .container {
             position: relative;
             z-index: 1;
         }
-        
         .glass-card {
             background: var(--card-bg);
             backdrop-filter: blur(10px);
@@ -78,26 +71,21 @@
             border: 1px solid rgba(255, 255, 255, 0.18);
             transition: all 0.3s ease;
         }
-        
         .glass-card:hover {
             transform: translateY(-2px);
             box-shadow: 0 12px 40px rgba(31, 38, 135, 0.25);
         }
-        
         .tab-content {
             display: none;
             animation: fadeIn 0.3s ease;
         }
-        
         .tab-content.active {
             display: block;
         }
-        
         @keyframes fadeIn {
             from { opacity: 0; transform: translateY(10px); }
             to { opacity: 1; transform: translateY(0); }
         }
-        
         .btn {
             border-radius: 12px;
             padding: 12px 24px;
@@ -111,7 +99,6 @@
             position: relative;
             overflow: hidden;
         }
-        
         .btn::before {
             content: '';
             position: absolute;
@@ -124,12 +111,10 @@
             transform: translate(-50%, -50%);
             transition: width 0.6s, height 0.6s;
         }
-        
         .btn:active::before {
             width: 300px;
             height: 300px;
         }
-        
         .btn-primary {
             background: var(--primary-gradient);
             color: white;
@@ -137,12 +122,10 @@
             text-transform: uppercase;
             letter-spacing: 0.5px;
         }
-        
         .btn-primary:hover {
             transform: translateY(-2px);
             box-shadow: 0 10px 25px rgba(102, 126, 234, 0.4);
         }
-        
         .btn-accent {
             background: var(--accent-gradient);
             color: white;
@@ -150,19 +133,16 @@
             text-transform: uppercase;
             letter-spacing: 0.5px;
         }
-        
         .btn-accent:hover {
             transform: translateY(-2px);
             box-shadow: 0 10px 25px rgba(245, 87, 108, 0.4);
         }
-        
         .btn:disabled {
             background: #e2e8f0;
             color: #a0aec0;
             cursor: not-allowed;
             transform: none;
         }
-        
         .progress-bar {
             height: 28px;
             border-radius: 14px;
@@ -170,7 +150,6 @@
             overflow: hidden;
             position: relative;
         }
-        
         .progress-fill {
             height: 100%;
             background: var(--primary-gradient);
@@ -184,7 +163,6 @@
             position: relative;
             overflow: hidden;
         }
-        
         .progress-fill::after {
             content: '';
             position: absolute;
@@ -195,12 +173,10 @@
             background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
             animation: shimmer 2s infinite;
         }
-        
         @keyframes shimmer {
             0% { transform: translateX(-100%); }
             100% { transform: translateX(100%); }
         }
-        
         .countdown {
             font-size: 1.8rem;
             font-weight: 800;
@@ -209,7 +185,6 @@
             -webkit-text-fill-color: transparent;
             background-clip: text;
         }
-        
         .winner-card {
             background: var(--accent-gradient);
             border-radius: 24px;
@@ -219,7 +194,6 @@
             position: relative;
             overflow: hidden;
         }
-        
         .winner-card::before {
             content: '';
             position: absolute;
@@ -230,12 +204,10 @@
             background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
             animation: rotate 10s linear infinite;
         }
-        
         @keyframes rotate {
             0% { transform: rotate(0deg); }
             100% { transform: rotate(360deg); }
         }
-        
         .social-card {
             display: flex;
             flex-direction: column;
@@ -251,17 +223,14 @@
             text-decoration: none;
             color: inherit;
         }
-        
         .social-card:hover {
             transform: translateY(-5px) scale(1.05);
             box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
         }
-        
         .social-card i {
             font-size: 2rem;
             margin-bottom: 8px;
         }
-        
         .notification {
             position: fixed;
             top: 20px;
@@ -276,11 +245,9 @@
             transform: translateX(120%);
             transition: transform 0.3s ease;
         }
-        
         .notification.show {
             transform: translateX(0);
         }
-        
         .modal {
             display: none;
             position: fixed;
@@ -294,11 +261,9 @@
             align-items: center;
             justify-content: center;
         }
-        
         .modal.show {
             display: flex;
         }
-        
         .modal-content {
             background: var(--card-bg);
             border-radius: 24px;
@@ -308,12 +273,10 @@
             box-shadow: 0 20px 50px rgba(0, 0, 0, 0.3);
             animation: slideUp 0.3s ease;
         }
-        
         @keyframes slideUp {
             from { transform: translateY(50px); opacity: 0; }
             to { transform: translateY(0); opacity: 1; }
         }
-        
         .tab-button {
             flex: 1;
             padding: 12px 8px;
@@ -330,23 +293,19 @@
             justify-content: center;
             min-height: 60px;
         }
-        
         .tab-button i {
             font-size: 1.2rem;
             margin-bottom: 4px;
         }
-        
         .tab-button span {
             font-size: 0.75rem;
             line-height: 1;
         }
-        
         .tab-button.active {
             border-bottom-color: #1a202c;
             color: #1a202c;
             background: rgba(255, 255, 255, 0.2);
         }
-        
         .balance-display {
             background: var(--primary-gradient);
             border-radius: 16px;
@@ -355,13 +314,11 @@
             color: white;
             box-shadow: 0 8px 25px rgba(102, 126, 234, 0.3);
         }
-        
         .balance-amount {
             font-size: 2.5rem;
             font-weight: 800;
             text-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
         }
-        
         .confetti {
             position: fixed;
             width: 10px;
@@ -369,7 +326,6 @@
             position: absolute;
             animation: confetti-fall 3s linear forwards;
         }
-        
         @keyframes confetti-fall {
             0% {
                 transform: translateY(-100vh) rotate(0deg);
@@ -380,17 +336,14 @@
                 opacity: 0;
             }
         }
-        
         .pulse {
             animation: pulse 2s infinite;
         }
-        
         @keyframes pulse {
             0% { transform: scale(1); }
             50% { transform: scale(1.05); }
             100% { transform: scale(1); }
         }
-        
         .shimmer-badge {
             background: var(--accent-gradient);
             color: white;
@@ -402,7 +355,6 @@
             letter-spacing: 0.5px;
             animation: shimmer 2s infinite;
         }
-        
         input[type="text"] {
             background: rgba(255, 255, 255, 0.9);
             border: 2px solid #e2e8f0;
@@ -411,13 +363,11 @@
             width: 100%;
             transition: all 0.3s ease;
         }
-        
         input[type="text"]:focus {
             outline: none;
             border-color: #667eea;
             box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
         }
-        
         .task-item {
             background: linear-gradient(135deg, #f6f8fb 0%, #ffffff 100%);
             border-radius: 16px;
@@ -426,23 +376,19 @@
             border: 1px solid #e2e8f0;
             transition: all 0.3s ease;
         }
-        
         .task-item:hover {
             transform: translateX(5px);
             box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
         }
-        
         .floating-icon {
             position: absolute;
             opacity: 0.1;
             animation: float 6s ease-in-out infinite;
         }
-        
         @keyframes float {
             0%, 100% { transform: translateY(0px); }
             50% { transform: translateY(-20px); }
         }
-        
         .ad-loading {
             display: inline-block;
             width: 20px;
@@ -452,7 +398,6 @@
             border-top-color: #fff;
             animation: spin 1s ease-in-out infinite;
         }
-        
         @keyframes spin {
             to { transform: rotate(360deg); }
         }
@@ -465,7 +410,6 @@
             <i class="fas fa-gift floating-icon text-white text-6xl" style="top: 10%; left: 5%;"></i>
             <i class="fas fa-trophy floating-icon text-white text-4xl" style="top: 60%; right: 5%; animation-delay: 2s;"></i>
             <i class="fas fa-coins floating-icon text-white text-5xl" style="bottom: 20%; left: 10%; animation-delay: 4s;"></i>
-
             <!-- Header -->
             <header class="mb-6">
                 <div class="glass-card p-5">
@@ -491,7 +435,6 @@
                     </div>
                 </div>
             </header>
-
             <!-- Tab Navigation -->
             <div class="glass-card mb-6 p-2">
                 <div class="flex">
@@ -513,7 +456,6 @@
                     </div>
                 </div>
             </div>
-
             <!-- Home Tab -->
             <div id="home" class="tab-content active">
                 <!-- Hero Banner -->
@@ -530,7 +472,6 @@
                     </div>
                     <i class="fas fa-gift absolute -right-10 -top-10 text-white opacity-10 text-9xl"></i>
                 </div>
-
                 <!-- Social Cards -->
                 <div class="grid grid-cols-2 gap-4 mb-6">
                     <a href="https://t.me/EarnOnlineWithSufyan" target="_blank" class="social-card">
@@ -550,7 +491,6 @@
                         <span class="text-sm font-bold text-gray-700">YouTube</span>
                     </a>
                 </div>
-
                 <!-- Ad Progress Card -->
                 <div class="glass-card p-6 mb-6">
                     <div class="flex items-center justify-between mb-4">
@@ -569,13 +509,11 @@
                         <i class="fas fa-play mr-2"></i> Watch Ad Now
                     </button>
                 </div>
-
                 <!-- Enter Giveaway Button -->
                 <button id="enterGiveawayBtn" class="btn btn-accent w-full text-lg py-4 font-bold" disabled>
                     <i class="fas fa-rocket mr-2"></i> Enter Giveaway
                 </button>
             </div>
-
             <!-- Tasks Tab -->
             <div id="tasks" class="tab-content">
                 <div class="glass-card p-6">
@@ -583,7 +521,6 @@
                         <i class="fas fa-clipboard-list text-purple-600 mr-2"></i>
                         Complete Tasks
                     </h2>
-                    
                     <!-- Mandatory Task -->
                     <div class="task-item">
                         <div class="flex items-center justify-between mb-3">
@@ -600,10 +537,21 @@
                             <div class="progress-fill" id="taskAdProgressBar" style="width: 0%"></div>
                         </div>
                     </div>
-                    
                     <!-- Optional Tasks -->
                     <h3 class="font-bold text-lg mt-6 mb-4 text-gray-800">Bonus Tasks</h3>
-                    
+                    <!-- Watch Ad Bonus Task -->
+                    <div class="task-item">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <p class="font-bold text-gray-800">Watch an Ad</p>
+                                <p class="text-sm text-gray-600">Earn progress toward giveaway entry</p>
+                            </div>
+                        </div>
+                        <button id="bonusWatchAdBtn" class="btn btn-primary mt-3 w-full">
+                            <i class="fas fa-play mr-2"></i> Watch Ad
+                        </button>
+                    </div>
+                    <!-- Social Tasks -->
                     <div class="task-item">
                         <div class="flex items-center justify-between">
                             <div>
@@ -615,7 +563,6 @@
                             <i class="fab fa-telegram mr-2"></i> Join Now
                         </a>
                     </div>
-                    
                     <div class="task-item">
                         <div class="flex items-center justify-between">
                             <div>
@@ -627,7 +574,6 @@
                             <i class="fas fa-users mr-2"></i> Join Now
                         </a>
                     </div>
-                    
                     <div class="task-item">
                         <div class="flex items-center justify-between">
                             <div>
@@ -639,7 +585,6 @@
                             <i class="fab fa-facebook mr-2"></i> Follow Now
                         </a>
                     </div>
-                    
                     <div class="task-item">
                         <div class="flex items-center justify-between">
                             <div>
@@ -653,7 +598,6 @@
                     </div>
                 </div>
             </div>
-
             <!-- Winners Tab -->
             <div id="winners" class="tab-content">
                 <div class="glass-card p-6">
@@ -663,7 +607,6 @@
                             Hall of Winners
                         </h2>
                     </div>
-                    
                     <!-- Current Winner -->
                     <div class="winner-card mb-6 relative">
                         <div class="relative z-10">
@@ -673,7 +616,6 @@
                             <p class="text-white/90 mt-2">Won $50 • June 15, 2023</p>
                         </div>
                     </div>
-                    
                     <!-- Previous Winners -->
                     <div>
                         <h3 class="font-bold text-lg mb-4 text-gray-800">Recent Winners</h3>
@@ -738,7 +680,6 @@
                     </div>
                 </div>
             </div>
-
             <!-- Withdraw Tab -->
             <div id="withdraw" class="tab-content">
                 <div class="glass-card p-6">
@@ -746,14 +687,12 @@
                         <i class="fas fa-hand-holding-usd text-green-600 mr-2"></i>
                         Withdraw Funds
                     </h2>
-                    
                     <!-- Balance Display -->
                     <div class="balance-display mb-6">
                         <p class="text-white/90 text-sm mb-2">Available Balance</p>
                         <p class="balance-amount">$<span id="withdrawBalance">0.00</span></p>
                         <p class="text-white/80 text-xs mt-2">Minimum withdrawal: $10</p>
                     </div>
-                    
                     <!-- Withdrawal Form -->
                     <div class="mb-6">
                         <label class="block text-sm font-bold text-gray-700 mb-2">
@@ -762,11 +701,9 @@
                         <input type="text" id="binanceAddress" placeholder="Enter your Binance wallet address" class="w-full">
                         <p class="text-xs text-gray-500 mt-2">Make sure the address is correct</p>
                     </div>
-                    
                     <button id="requestWithdrawBtn" class="btn btn-accent w-full mb-6 py-4 text-lg" disabled>
                         <i class="fas fa-paper-plane mr-2"></i> Request Withdrawal
                     </button>
-                    
                     <!-- Withdrawal History -->
                     <div>
                         <h3 class="font-bold text-lg mb-4 text-gray-800">Transaction History</h3>
@@ -781,12 +718,10 @@
             </div>
         </div>
     </div>
-
     <!-- Notification -->
     <div id="notification" class="notification">
         <span id="notificationText">Notification message</span>
     </div>
-
     <!-- Confirmation Modal -->
     <div id="confirmModal" class="modal">
         <div class="modal-content">
@@ -802,7 +737,6 @@
             </button>
         </div>
     </div>
-
     <script>
         // App State
         const appState = {
@@ -822,7 +756,6 @@
             ],
             adLoading: false
         };
-
         // Indian Names Pool
         const indianNames = [
             'Rajesh Kumar', 'Priya Sharma', 'Amit Patel', 'Sneha Reddy', 'Vikram Singh',
@@ -841,7 +774,7 @@
             if (window.Telegram && window.Telegram.WebApp) {
                 const user = window.Telegram.WebApp.initDataUnsafe.user;
                 if (user) {
-                    appState.userName = `${user.first_name} ${user.last_name || ''}`;
+                    appState.userName = `${user.first_name}${user.last_name ? ' ' + user.last_name : ''}`;
                     appState.userPic = user.photo_url || appState.userPic;
                     document.getElementById('userName').textContent = appState.userName;
                     document.getElementById('userProfilePic').src = appState.userPic;
@@ -853,10 +786,8 @@
         document.querySelectorAll('.tab-button').forEach(button => {
             button.addEventListener('click', () => {
                 const tabName = button.getAttribute('data-tab');
-                
                 document.querySelectorAll('.tab-button').forEach(btn => btn.classList.remove('active'));
                 button.classList.add('active');
-                
                 document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
                 document.getElementById(tabName).classList.add('active');
             });
@@ -866,68 +797,72 @@
         function updateCountdown() {
             const now = new Date().getTime();
             const distance = appState.giveawayEndTime - now;
-            
             if (distance < 0) {
                 selectWinner();
                 appState.giveawayEndTime = new Date().getTime() + (3 * 24 * 60 * 60 * 1000);
                 return;
             }
-            
             const days = Math.floor(distance / (1000 * 60 * 60 * 24));
             const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
             const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
             const seconds = Math.floor((distance % (1000 * 60)) / 1000);
-            
             const countdownText = `${days}d ${hours}h ${minutes}m ${seconds}s`;
             document.getElementById('homeCountdown').textContent = countdownText;
         }
 
         // Show Ad Function
         function showAd() {
-            // Check if ad SDK is available
             if (typeof show_9980483 === 'function') {
-                // Set loading state
                 appState.adLoading = true;
                 const watchAdBtn = document.getElementById('watchAdBtn');
+                const bonusWatchAdBtn = document.getElementById('bonusWatchAdBtn');
                 const originalContent = watchAdBtn.innerHTML;
                 watchAdBtn.innerHTML = '<span class="ad-loading"></span> Loading Ad...';
                 watchAdBtn.disabled = true;
-                
-                // Show the rewarded interstitial ad
+                if (bonusWatchAdBtn) {
+                    bonusWatchAdBtn.disabled = true;
+                    bonusWatchAdBtn.innerHTML = '<span class="ad-loading"></span> Loading...';
+                }
+
                 show_9980483().then(() => {
-                    // User has successfully watched the ad
                     appState.adsWatched++;
                     updateAdProgress();
                     showNotification('🎬 Ad watched! Keep going!');
-                    
-                    // Reset button state
                     appState.adLoading = false;
                     watchAdBtn.innerHTML = originalContent;
                     watchAdBtn.disabled = false;
-                    
-                    // Check if user can now enter giveaway
+                    if (bonusWatchAdBtn) {
+                        bonusWatchAdBtn.disabled = false;
+                        bonusWatchAdBtn.innerHTML = '<i class="fas fa-play mr-2"></i> Watch Ad';
+                    }
                     if (appState.adsWatched === 50) {
                         document.getElementById('enterGiveawayBtn').disabled = false;
                         showNotification('🎉 You can now enter the giveaway!');
                     }
                 }).catch(error => {
-                    // Handle ad error
                     console.error('Ad error:', error);
                     showNotification('⚠️ Ad failed to load. Please try again.');
-                    
-                    // Reset button state
                     appState.adLoading = false;
                     watchAdBtn.innerHTML = originalContent;
                     watchAdBtn.disabled = false;
+                    if (bonusWatchAdBtn) {
+                        bonusWatchAdBtn.disabled = false;
+                        bonusWatchAdBtn.innerHTML = '<i class="fas fa-play mr-2"></i> Watch Ad';
+                    }
                 });
             } else {
-                // Fallback if ad SDK is not available
                 showNotification('⚠️ Ad service is not available. Please try again later.');
             }
         }
 
-        // Watch Ad Function
+        // Attach event to both ad buttons
         document.getElementById('watchAdBtn').addEventListener('click', () => {
+            if (appState.adsWatched < 50 && !appState.adLoading) {
+                showAd();
+            }
+        });
+
+        document.getElementById('bonusWatchAdBtn').addEventListener('click', () => {
             if (appState.adsWatched < 50 && !appState.adLoading) {
                 showAd();
             }
@@ -938,7 +873,6 @@
             const progressPercent = (appState.adsWatched / 50) * 100;
             document.getElementById('adProgress').style.width = `${progressPercent}%`;
             document.getElementById('adProgressText').textContent = `${appState.adsWatched}/50`;
-            
             document.getElementById('taskAdProgress').textContent = `${appState.adsWatched}/50`;
             document.getElementById('taskAdProgressBar').style.width = `${progressPercent}%`;
         }
@@ -962,23 +896,18 @@
                 name: appState.currentWinner,
                 date: new Date().toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })
             });
-            
             if (appState.previousWinners.length > 4) {
                 appState.previousWinners = appState.previousWinners.slice(0, 4);
             }
-            
             const randomIndex = Math.floor(Math.random() * indianNames.length);
             appState.currentWinner = indianNames[randomIndex];
-            
             updateWinnersDisplay();
-            
             if (appState.isParticipating && Math.random() < 0.1) {
                 appState.balance += 50;
                 updateBalanceDisplay();
                 showNotification('🎊 Congratulations! You won $50!');
                 createConfetti();
             }
-            
             appState.isParticipating = false;
             appState.adsWatched = 0;
             updateAdProgress();
@@ -989,7 +918,6 @@
         // Update Winners Display
         function updateWinnersDisplay() {
             document.getElementById('currentWinner').textContent = appState.currentWinner;
-            
             const previousWinnersHtml = appState.previousWinners.map((winner, index) => {
                 const medalColors = [
                     'from-yellow-400 to-orange-500',
@@ -997,7 +925,6 @@
                     'from-orange-600 to-red-600',
                     'from-blue-400 to-blue-600'
                 ];
-                
                 return `
                     <div class="task-item">
                         <div class="flex items-center justify-between">
@@ -1015,24 +942,20 @@
                     </div>
                 `;
             }).join('');
-            
             document.getElementById('previousWinners').innerHTML = previousWinnersHtml;
         }
 
         // Request Withdrawal
         document.getElementById('requestWithdrawBtn').addEventListener('click', () => {
             const address = document.getElementById('binanceAddress').value;
-            
             if (!address) {
                 showNotification('⚠️ Please enter your Binance wallet address');
                 return;
             }
-            
             if (appState.balance <= 0) {
                 showNotification('⚠️ No balance to withdraw');
                 return;
             }
-            
             showConfirmModal('💸 Withdrawal request received. Processed within 24 hours.', () => {
                 const withdrawal = {
                     id: Date.now(),
@@ -1041,14 +964,11 @@
                     date: new Date().toLocaleDateString(),
                     status: 'pending'
                 };
-                
                 appState.withdrawalHistory.unshift(withdrawal);
                 appState.balance = 0;
-                
                 updateBalanceDisplay();
                 updateWithdrawalHistory();
                 document.getElementById('binanceAddress').value = '';
-                
                 showNotification('✅ Withdrawal request submitted successfully!');
             });
         });
@@ -1057,7 +977,6 @@
         function updateBalanceDisplay() {
             document.getElementById('userBalance').textContent = appState.balance.toFixed(2);
             document.getElementById('withdrawBalance').textContent = appState.balance.toFixed(2);
-            
             document.getElementById('requestWithdrawBtn').disabled = appState.balance <= 0;
         }
 
@@ -1072,7 +991,6 @@
                 `;
                 return;
             }
-            
             const historyHtml = appState.withdrawalHistory.map(withdrawal => `
                 <div class="task-item">
                     <div class="flex justify-between items-start">
@@ -1091,7 +1009,6 @@
                     </div>
                 </div>
             `).join('');
-            
             document.getElementById('withdrawalHistory').innerHTML = historyHtml;
         }
 
@@ -1100,7 +1017,6 @@
             const notification = document.getElementById('notification');
             document.getElementById('notificationText').textContent = message;
             notification.classList.add('show');
-            
             setTimeout(() => {
                 notification.classList.remove('show');
             }, 3000);
@@ -1111,7 +1027,6 @@
             const modal = document.getElementById('confirmModal');
             document.getElementById('confirmMessage').textContent = message;
             modal.classList.add('show');
-            
             document.getElementById('confirmBtn').onclick = () => {
                 modal.classList.remove('show');
                 onConfirm();
@@ -1121,7 +1036,6 @@
         // Create Confetti Effect
         function createConfetti() {
             const colors = ['#667eea', '#764ba2', '#f093fb', '#f5576c', '#fa709a', '#fee140'];
-            
             for (let i = 0; i < 50; i++) {
                 setTimeout(() => {
                     const confetti = document.createElement('div');
@@ -1130,7 +1044,6 @@
                     confetti.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
                     confetti.style.transform = `rotate(${Math.random() * 360}deg)`;
                     document.body.appendChild(confetti);
-                    
                     setTimeout(() => {
                         confetti.remove();
                     }, 3000);
@@ -1138,7 +1051,7 @@
             }
         }
 
-        // Simulate winning
+        // Simulate winning (optional)
         function simulateWin() {
             if (appState.isParticipating && Math.random() < 0.05) {
                 appState.balance += 50;
@@ -1155,15 +1068,11 @@
             updateBalanceDisplay();
             updateWinnersDisplay();
             updateWithdrawalHistory();
-            
-            // Update countdown every second for real-time display
             setInterval(updateCountdown, 1000);
             updateCountdown();
-            
             setInterval(simulateWin, 30000);
         }
 
-        // Start the app
         initApp();
     </script>
 </body>
