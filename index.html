@@ -1,0 +1,1661 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>$50 Daily Giveaway - Telegram Mini App</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src='//libtl.com/sdk.js' data-zone='9980483' data-sdk='show_9980483'></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: #f0f2f5;
+            color: #333;
+            line-height: 1.6;
+            padding-bottom: 80px; /* Space for fixed bottom nav */
+            max-width: 100%;
+            overflow-x: hidden;
+        }
+
+        .container {
+            max-width: 420px; /* Max width for Telegram mini app */
+            margin: 0 auto;
+            padding: 15px;
+        }
+
+        /* Profile Card at Top */
+        .user-info {
+            background-color: white;
+            padding: 15px;
+            border-radius: 15px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .user-info::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, #0088cc, #005580);
+        }
+
+        .user-avatar {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #0088cc, #005580);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            color: white;
+            box-shadow: 0 4px 8px rgba(0, 136, 204, 0.3);
+        }
+
+        .user-details {
+            flex-grow: 1;
+            margin-left: 15px;
+        }
+
+        .user-name {
+            font-weight: bold;
+            font-size: 18px;
+            color: #333;
+        }
+
+        .user-status {
+            color: #666;
+            font-size: 14px;
+            margin-top: 2px;
+        }
+
+        header {
+            background: linear-gradient(135deg, #0088cc, #005580);
+            color: white;
+            padding: 20px;
+            border-radius: 15px;
+            margin-bottom: 20px;
+            text-align: center;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        header h1 {
+            font-size: 24px;
+            margin-bottom: 10px;
+        }
+
+        .prize-amount {
+            font-size: 36px;
+            font-weight: bold;
+            margin: 10px 0;
+            color: #FFD700;
+        }
+
+        .countdown {
+            background-color: rgba(255, 255, 255, 0.2);
+            padding: 10px;
+            border-radius: 10px;
+            margin-top: 15px;
+        }
+
+        .countdown-timer {
+            font-size: 20px;
+            font-weight: bold;
+        }
+
+        /* Redesigned Ticket Balance */
+        .ticket-balance {
+            background: linear-gradient(135deg, #FFD700, #FFA500);
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 8px 20px rgba(255, 215, 0, 0.3);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .ticket-balance::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            right: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(255, 255, 255, 0.1) 0%, transparent 70%);
+            animation: shimmer 3s infinite;
+        }
+
+        @keyframes shimmer {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .ticket-balance-content {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            position: relative;
+            z-index: 1;
+        }
+
+        .ticket-info {
+            flex-grow: 1;
+        }
+
+        .ticket-label {
+            color: rgba(255, 255, 255, 0.9);
+            font-size: 14px;
+            font-weight: 500;
+            margin-bottom: 5px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .ticket-amount {
+            color: white;
+            font-size: 32px;
+            font-weight: bold;
+            display: flex;
+            align-items: baseline;
+            gap: 8px;
+        }
+
+        .ticket-number {
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+        }
+
+        .ticket-unit {
+            font-size: 18px;
+            opacity: 0.9;
+        }
+
+        .ticket-icon {
+            width: 50px;
+            height: 50px;
+            background-color: rgba(255, 255, 255, 0.2);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            color: white;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .ticket-balance.pulse {
+            animation: pulse 0.5s ease-in-out;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+
+        /* Simplified Action Cards */
+        .action-cards {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .action-card {
+            background-color: white;
+            border-radius: 15px;
+            padding: 20px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .action-card:hover {
+            box-shadow: 0 6px 16px rgba(0, 0, 0, 0.12);
+        }
+
+        .action-card-icon {
+            width: 50px;
+            height: 50px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 15px;
+            flex-shrink: 0;
+            font-size: 24px;
+            color: white;
+        }
+
+        .action-card.ad .action-card-icon {
+            background: linear-gradient(135deg, #4a6da7, #166088);
+        }
+
+        .action-card.tasks .action-card-icon {
+            background: linear-gradient(135deg, #FF6B6B, #FF5252);
+        }
+
+        .action-card-content {
+            flex-grow: 1;
+        }
+
+        .action-card-title {
+            font-size: 18px;
+            font-weight: bold;
+            margin-bottom: 5px;
+            color: #333;
+        }
+
+        .action-card-description {
+            color: #666;
+            font-size: 14px;
+        }
+
+        .action-card-progress {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background-color: #e0e0e0;
+        }
+
+        .action-card-progress-bar {
+            height: 100%;
+            background: linear-gradient(90deg, #0088cc, #005580);
+            width: 0%;
+        }
+
+        .action-card.ad .action-card-progress-bar {
+            background: linear-gradient(90deg, #FFD700, #FFA500);
+        }
+
+        .action-card.tasks .action-card-progress-bar {
+            background: linear-gradient(90deg, #4caf50, #45a049);
+        }
+
+        .btn {
+            background-color: #0088cc;
+            color: white;
+            border: none;
+            padding: 15px 20px;
+            border-radius: 12px;
+            font-size: 18px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background-color 0.3s;
+            width: 100%;
+            margin-top: 20px;
+            box-shadow: 0 4px 12px rgba(0, 136, 204, 0.3);
+        }
+
+        .btn:hover {
+            background-color: #005580;
+            box-shadow: 0 6px 16px rgba(0, 136, 204, 0.4);
+        }
+
+        .btn:disabled {
+            background-color: #cccccc;
+            cursor: not-allowed;
+            box-shadow: none;
+        }
+
+        .btn-success {
+            background-color: #4caf50;
+            box-shadow: 0 4px 12px rgba(76, 175, 80, 0.3);
+        }
+
+        .btn-success:hover {
+            background-color: #45a049;
+            box-shadow: 0 6px 16px rgba(76, 175, 80, 0.4);
+        }
+
+        .btn-participating {
+            background-color: #4caf50;
+            box-shadow: 0 4px 12px rgba(76, 175, 80, 0.3);
+        }
+
+        .btn-participating:hover {
+            background-color: #45a049;
+            box-shadow: 0 6px 16px rgba(76, 175, 80, 0.4);
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal-content {
+            background-color: white;
+            padding: 30px;
+            border-radius: 15px;
+            width: 90%;
+            max-width: 400px;
+            text-align: center;
+            animation: slideIn 0.3s;
+        }
+
+        @keyframes slideIn {
+            from {
+                transform: translateY(-50px);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        .modal-header {
+            font-size: 24px;
+            font-weight: bold;
+            margin-bottom: 15px;
+            color: #0088cc;
+        }
+
+        .modal-body {
+            margin-bottom: 20px;
+        }
+
+        .modal-footer {
+            display: flex;
+            justify-content: center;
+        }
+
+        .modal-btn {
+            background-color: #0088cc;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            font-size: 16px;
+            cursor: pointer;
+            margin: 0 10px;
+        }
+
+        .modal-btn:hover {
+            background-color: #005580;
+        }
+
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background-color: #4caf50;
+            color: white;
+            padding: 15px 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            transform: translateX(120%);
+            transition: transform 0.3s;
+            z-index: 2000;
+        }
+
+        .notification.show {
+            transform: translateX(0);
+        }
+
+        /* Redesigned Social Tasks */
+        .social-tasks {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .social-task {
+            background-color: white;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            display: flex;
+            align-items: center;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .social-task:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .social-task.completed {
+            background-color: #e8f5e9;
+        }
+
+        .social-icon-container {
+            width: 50px;
+            height: 50px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 15px;
+            flex-shrink: 0;
+        }
+
+        .social-icon {
+            font-size: 28px;
+            color: white;
+        }
+
+        .social-content {
+            flex-grow: 1;
+        }
+
+        .social-title {
+            font-size: 16px;
+            font-weight: bold;
+            margin-bottom: 5px;
+            color: #333;
+        }
+
+        .social-description {
+            color: #666;
+            font-size: 14px;
+        }
+
+        .social-check {
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            background-color: #4caf50;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 14px;
+            opacity: 0;
+            transform: scale(0);
+            transition: all 0.3s;
+        }
+
+        .social-task.completed .social-check {
+            opacity: 1;
+            transform: scale(1);
+        }
+
+        /* Bottom Navigation */
+        .bottom-nav {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background-color: white;
+            box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1);
+            display: flex;
+            justify-content: space-around;
+            padding: 8px 0;
+            z-index: 100;
+            border-top: 1px solid #e0e0e0;
+        }
+
+        .nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 5px 10px;
+            cursor: pointer;
+            transition: all 0.3s;
+            color: #666;
+            min-width: 60px;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        .nav-item.active {
+            color: #0088cc;
+        }
+
+        .nav-item i {
+            font-size: 20px;
+            margin-bottom: 4px;
+        }
+
+        .nav-item span {
+            font-size: 11px;
+            font-weight: 500;
+        }
+
+        .nav-item:hover {
+            transform: translateY(-2px);
+        }
+
+        .nav-item.active:hover {
+            transform: translateY(-2px);
+        }
+
+        /* Tab content */
+        .tab-content {
+            display: none;
+            animation: fadeIn 0.3s;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        /* Winner Section Styles */
+        .current-winner {
+            background: linear-gradient(135deg, #FFD700, #FFA500);
+            border-radius: 15px;
+            padding: 25px;
+            margin-bottom: 20px;
+            box-shadow: 0 8px 20px rgba(255, 215, 0, 0.3);
+            color: white;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .current-winner::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            right: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(255, 255, 255, 0.1) 0%, transparent 70%);
+            animation: shimmer 3s infinite;
+        }
+
+        .current-winner-content {
+            position: relative;
+            z-index: 1;
+        }
+
+        .current-winner-title {
+            font-size: 24px;
+            margin-bottom: 15px;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+        }
+
+        .current-winner-info {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 20px;
+        }
+
+        .current-winner-avatar {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            background-color: rgba(255, 255, 255, 0.2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 40px;
+            color: white;
+            margin-right: 20px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .current-winner-details {
+            text-align: left;
+        }
+
+        .current-winner-name {
+            font-size: 22px;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .current-winner-date {
+            font-size: 16px;
+            opacity: 0.9;
+        }
+
+        .current-winner-prize {
+            font-size: 28px;
+            font-weight: bold;
+            margin-top: 10px;
+            color: #fff;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+        }
+
+        .winner-history {
+            background-color: white;
+            border-radius: 15px;
+            padding: 20px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+            margin-bottom: 20px;
+        }
+
+        .winner-history-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .winner-history-title {
+            font-size: 20px;
+            font-weight: bold;
+            color: #333;
+        }
+
+        .view-history-toggle {
+            background-color: #f0f0f0;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 20px;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .view-history-toggle:hover {
+            background-color: #e0e0e0;
+        }
+
+        .view-history-toggle.active {
+            background-color: #0088cc;
+            color: white;
+        }
+
+        .winner-history-list {
+            display: none;
+        }
+
+        .winner-history-list.active {
+            display: block;
+        }
+
+        .winner-history-item {
+            display: flex;
+            align-items: center;
+            padding: 15px 0;
+            border-bottom: 1px solid #f0f0f0;
+        }
+
+        .winner-history-item:last-child {
+            border-bottom: none;
+        }
+
+        .winner-history-rank {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            background-color: #f0f0f0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            color: #666;
+            margin-right: 15px;
+            flex-shrink: 0;
+        }
+
+        .winner-history-rank.gold {
+            background: linear-gradient(135deg, #FFD700, #FFA500);
+            color: white;
+        }
+
+        .winner-history-rank.silver {
+            background: linear-gradient(135deg, #C0C0C0, #A9A9A9);
+            color: white;
+        }
+
+        .winner-history-rank.bronze {
+            background: linear-gradient(135deg, #CD7F32, #B87333);
+            color: white;
+        }
+
+        .winner-history-avatar {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background-color: #f0f0f0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            color: #FFD700;
+            margin-right: 15px;
+            flex-shrink: 0;
+        }
+
+        .winner-history-details {
+            flex-grow: 1;
+        }
+
+        .winner-history-name {
+            font-weight: bold;
+            font-size: 16px;
+            margin-bottom: 2px;
+        }
+
+        .winner-history-date {
+            color: #666;
+            font-size: 14px;
+        }
+
+        .winner-history-prize {
+            font-weight: bold;
+            color: #0088cc;
+            margin-left: auto;
+        }
+
+        .no-winners {
+            text-align: center;
+            padding: 40px 20px;
+            color: #666;
+        }
+
+        .no-winners i {
+            font-size: 48px;
+            color: #ddd;
+            margin-bottom: 15px;
+        }
+
+        .no-winners h3 {
+            font-size: 18px;
+            margin-bottom: 8px;
+            color: #999;
+        }
+
+        .no-winners p {
+            font-size: 14px;
+            line-height: 1.5;
+        }
+
+        @media (max-width: 420px) {
+            .container {
+                padding: 10px;
+            }
+            
+            .user-avatar {
+                width: 45px;
+                height: 45px;
+                font-size: 20px;
+            }
+
+            .user-name {
+                font-size: 16px;
+            }
+
+            .ticket-amount {
+                font-size: 28px;
+            }
+
+            .ticket-icon {
+                width: 45px;
+                height: 45px;
+                font-size: 20px;
+            }
+
+            .action-card-title {
+                font-size: 16px;
+            }
+
+            .action-card-description {
+                font-size: 13px;
+            }
+
+            .current-winner-avatar {
+                width: 60px;
+                height: 60px;
+                font-size: 30px;
+                margin-right: 15px;
+            }
+
+            .current-winner-name {
+                font-size: 18px;
+            }
+
+            .current-winner-prize {
+                font-size: 24px;
+            }
+
+            .modal-content {
+                width: 95%;
+                padding: 20px;
+            }
+
+            .modal-header {
+                font-size: 20px;
+            }
+
+            .modal-body {
+                font-size: 14px;
+            }
+
+            .modal-btn {
+                padding: 8px 15px;
+                font-size: 14px;
+            }
+
+            .btn {
+                font-size: 16px;
+                padding: 12px 15px;
+            }
+
+            .winner-history {
+                padding: 15px;
+            }
+
+            .winner-history-title {
+                font-size: 18px;
+            }
+
+            .view-history-toggle {
+                padding: 6px 12px;
+                font-size: 12px;
+            }
+
+            .winner-history-rank {
+                width: 25px;
+                height: 25px;
+                font-size: 12px;
+                margin-right: 10px;
+            }
+
+            .winner-history-avatar {
+                width: 40px;
+                height: 40px;
+                font-size: 20px;
+                margin-right: 10px;
+            }
+
+            .winner-history-name {
+                font-size: 14px;
+            }
+
+            .winner-history-date {
+                font-size: 12px;
+            }
+
+            .winner-history-prize {
+                font-size: 14px;
+            }
+
+            .bottom-nav {
+                padding: 6px 0;
+            }
+
+            .nav-item i {
+                font-size: 18px;
+            }
+
+            .nav-item span {
+                font-size: 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div id="home" class="tab-content active">
+            <!-- Profile Card at Top -->
+            <div class="user-info">
+                <div class="user-avatar">
+                    <i class="fas fa-user"></i>
+                </div>
+                <div class="user-details">
+                    <div class="user-name">You</div>
+                    <div class="user-status">Complete tasks to earn tickets</div>
+                </div>
+            </div>
+
+            <header>
+                <h1><i class="fas fa-gift"></i> Daily Giveaway</h1>
+                <div class="prize-amount">$50 USD</div>
+                <div class="countdown">
+                    <div>Next giveaway in:</div>
+                    <div class="countdown-timer" id="countdown">24:00:00</div>
+                </div>
+            </header>
+
+            <!-- Redesigned Ticket Balance -->
+            <div class="ticket-balance" id="ticket-balance">
+                <div class="ticket-balance-content">
+                    <div class="ticket-info">
+                        <div class="ticket-label">Your Tickets</div>
+                        <div class="ticket-amount">
+                            <span class="ticket-number" id="ticket-count">0</span>
+                            <span class="ticket-unit">Tickets</span>
+                        </div>
+                    </div>
+                    <div class="ticket-icon">
+                        <i class="fas fa-ticket-alt"></i>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Simplified Action Cards -->
+            <div class="action-cards">
+                <div class="action-card ad" onclick="watchAd()">
+                    <div class="action-card-icon">
+                        <i class="fas fa-play-circle"></i>
+                    </div>
+                    <div class="action-card-content">
+                        <div class="action-card-title">Watch Ads</div>
+                        <div class="action-card-description">
+                            <span id="single-ad-completed">0</span> / 50 ads for next ticket
+                        </div>
+                    </div>
+                    <div class="action-card-progress">
+                        <div class="action-card-progress-bar" id="single-ad-progress"></div>
+                    </div>
+                </div>
+
+                <div class="action-card tasks" onclick="switchToTab('tasks')">
+                    <div class="action-card-icon">
+                        <i class="fas fa-tasks"></i>
+                    </div>
+                    <div class="action-card-content">
+                        <div class="action-card-title">Complete Tasks</div>
+                        <div class="action-card-description">
+                            <span id="tasks-completed">0</span> / 4 tasks completed
+                        </div>
+                    </div>
+                    <div class="action-card-progress">
+                        <div class="action-card-progress-bar" id="tasks-progress"></div>
+                    </div>
+                </div>
+            </div>
+
+            <button class="btn" id="enter-giveaway" disabled>Enter Giveaway</button>
+        </div>
+
+        <div id="tasks" class="tab-content">
+            <!-- Profile Card in Tasks Tab -->
+            <div class="user-info">
+                <div class="user-avatar">
+                    <i class="fas fa-user"></i>
+                </div>
+                <div class="user-details">
+                    <div class="user-name">You</div>
+                    <div class="user-status">Complete tasks to earn tickets</div>
+                </div>
+            </div>
+
+            <div class="social-tasks">
+                <div class="social-task" id="facebook-page" onclick="openLink('https://facebook.com')">
+                    <div class="social-icon-container" style="background-color: #1877F2;">
+                        <i class="fab fa-facebook social-icon"></i>
+                    </div>
+                    <div class="social-content">
+                        <div class="social-title">Facebook Page</div>
+                        <div class="social-description">Like our page to stay updated</div>
+                    </div>
+                    <div class="social-check">
+                        <i class="fas fa-check"></i>
+                    </div>
+                </div>
+                <div class="social-task" id="telegram-group" onclick="openLink('https://t.me/yourgroup')">
+                    <div class="social-icon-container" style="background-color: #0088cc;">
+                        <i class="fab fa-telegram social-icon"></i>
+                    </div>
+                    <div class="social-content">
+                        <div class="social-title">Telegram Group</div>
+                        <div class="social-description">Join our community group</div>
+                    </div>
+                    <div class="social-check">
+                        <i class="fas fa-check"></i>
+                    </div>
+                </div>
+                <div class="social-task" id="telegram-channel" onclick="openLink('https://t.me/yourchannel')">
+                    <div class="social-icon-container" style="background-color: #0088cc;">
+                        <i class="fab fa-telegram-plane social-icon"></i>
+                    </div>
+                    <div class="social-content">
+                        <div class="social-title">Telegram Channel</div>
+                        <div class="social-description">Subscribe for latest updates</div>
+                    </div>
+                    <div class="social-check">
+                        <i class="fas fa-check"></i>
+                    </div>
+                </div>
+                <div class="social-task" id="youtube-channel" onclick="openLink('https://youtube.com')">
+                    <div class="social-icon-container" style="background-color: #FF0000;">
+                        <i class="fab fa-youtube social-icon"></i>
+                    </div>
+                    <div class="social-content">
+                        <div class="social-title">YouTube Channel</div>
+                        <div class="social-description">Subscribe for video content</div>
+                    </div>
+                    <div class="social-check">
+                        <i class="fas fa-check"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="withdraw" class="tab-content">
+            <!-- Profile Card in Withdraw Tab -->
+            <div class="user-info">
+                <div class="user-avatar">
+                    <i class="fas fa-user"></i>
+                </div>
+                <div class="user-details">
+                    <div class="user-name">You</div>
+                    <div class="user-status">Withdraw your winnings</div>
+                </div>
+            </div>
+
+            <!-- No Winnings Message - Visible to non-winners -->
+            <div class="no-winnings" id="no-winnings">
+                <i class="fas fa-trophy" style="font-size: 48px; color: #ddd; margin-bottom: 15px;"></i>
+                <h3 style="font-size: 18px; margin-bottom: 8px; color: #999;">No Winnings Yet</h3>
+                <p style="font-size: 14px; line-height: 1.5;">Complete tasks and enter the giveaway to win prizes. Your winnings will appear here once you win!</p>
+                <button class="btn" onclick="switchToTab('home')" style="margin-top: 20px;">Start Earning</button>
+            </div>
+        </div>
+
+        <div id="winners" class="tab-content">
+            <!-- Profile Card in Winners Tab -->
+            <div class="user-info">
+                <div class="user-avatar">
+                    <i class="fas fa-user"></i>
+                </div>
+                <div class="user-details">
+                    <div class="user-name">You</div>
+                    <div class="user-status">See who's winning!</div>
+                </div>
+            </div>
+
+            <!-- Current Winner Section -->
+            <div class="current-winner">
+                <div class="current-winner-content">
+                    <h2 class="current-winner-title">Today's Winner</h2>
+                    <div class="current-winner-info">
+                        <div class="current-winner-avatar">
+                            <i class="fas fa-trophy"></i>
+                        </div>
+                        <div class="current-winner-details">
+                            <div class="current-winner-name" id="current-winner-name">Loading...</div>
+                            <div class="current-winner-date" id="current-winner-date">Loading...</div>
+                        </div>
+                    </div>
+                    <div class="current-winner-prize">$50 USD</div>
+                </div>
+            </div>
+
+            <!-- Winner History Section -->
+            <div class="winner-history">
+                <div class="winner-history-header">
+                    <h3 class="winner-history-title">Previous Winners</h3>
+                    <button class="view-history-toggle" id="view-history-toggle" onclick="toggleHistory()">
+                        <span id="history-toggle-text">View History</span>
+                        <i class="fas fa-chevron-down" id="history-toggle-icon"></i>
+                    </button>
+                </div>
+                <div class="winner-history-list" id="winner-history-list">
+                    <!-- Winner history items will be generated by JavaScript -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bottom Navigation -->
+    <nav class="bottom-nav">
+        <div class="nav-item active" data-tab="home" onclick="switchToTab('home')">
+            <i class="fas fa-home"></i>
+            <span>Home</span>
+        </div>
+        <div class="nav-item" data-tab="tasks" onclick="switchToTab('tasks')">
+            <i class="fas fa-tasks"></i>
+            <span>Tasks</span>
+        </div>
+        <div class="nav-item" data-tab="withdraw" onclick="switchToTab('withdraw')">
+            <i class="fas fa-wallet"></i>
+            <span>Withdraw</span>
+        </div>
+        <div class="nav-item" data-tab="winners" onclick="switchToTab('winners')">
+            <i class="fas fa-trophy"></i>
+            <span>Winners</span>
+        </div>
+    </nav>
+
+    <div class="modal" id="winner-modal">
+        <div class="modal-content">
+            <div class="modal-header">Congratulations!</div>
+            <div class="modal-body">
+                <div style="margin: 20px 0;">
+                    <i class="fas fa-trophy" style="font-size: 60px; color: #FFD700;"></i>
+                </div>
+                <p>You've earned a ticket for the giveaway!</p>
+                <p>Watch more ads for more tickets and better chances to win!</p>
+            </div>
+            <div class="modal-footer">
+                <button class="modal-btn" id="close-winner-modal">Great!</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal" id="participating-modal">
+        <div class="modal-content">
+            <div class="modal-header">Congratulations!</div>
+            <div class="modal-body">
+                <div style="margin: 20px 0;">
+                    <i class="fas fa-check-circle" style="font-size: 60px; color: #4caf50;"></i>
+                </div>
+                <p>You are now participating in this giveaway!</p>
+                <p>Your entry has been confirmed. Good luck!</p>
+            </div>
+            <div class="modal-footer">
+                <button class="modal-btn" id="close-participating-modal">Awesome!</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="notification" id="notification">
+        <span id="notification-text"></span>
+    </div>
+
+    <script>
+        // Generate random user names
+        const firstNames = ['John', 'Jane', 'Michael', 'Emily', 'David', 'Sarah', 'Robert', 'Lisa', 'James', 'Mary', 'William', 'Patricia', 'Richard', 'Jennifer', 'Joseph', 'Linda', 'Thomas', 'Elizabeth', 'Charles', 'Barbara', 'Christopher', 'Susan', 'Daniel', 'Jessica', 'Matthew', 'Ashley', 'Anthony', 'Kimberly', 'Mark', 'Donna', 'Donald', 'Carol', 'Steven', 'Nancy', 'Paul', 'Karen', 'Andrew', 'Betty', 'Joshua', 'Helen', 'Kevin', 'Sandra', 'Brian', 'Donna', 'George', 'Carol', 'Edward', 'Michelle', 'Ronald'];
+        const lastNames = ['Smith', 'Johnson', 'Williams', 'Brown', 'Jones', 'Garcia', 'Miller', 'Davis', 'Rodriguez', 'Martinez', 'Hernandez', 'Lopez', 'Gonzalez', 'Wilson', 'Anderson', 'Thomas', 'Taylor', 'Moore', 'Jackson', 'Martin', 'Lee', 'Perez', 'Thompson', 'White', 'Harris', 'Sanchez', 'Clark', 'Ramirez', 'Lewis', 'Robinson', 'Walker', 'Young', 'Allen', 'King', 'Wright', 'Scott', 'Torres', 'Nguyen', 'Hill', 'Flores', 'Green', 'Adams', 'Nelson', 'Baker', 'Hall', 'Rivera', 'Campbell', 'Mitchell', 'Carter', 'Roberts'];
+
+        function generateRandomUserName() {
+            const firstName = firstNames[Math.floor(Math.random() * firstNames.length)];
+            const lastName = lastNames[Math.floor(Math.random() * lastNames.length)];
+            return `${firstName} ${lastName}`;
+        }
+
+        // Generate 50 random user names
+        const randomUserNames = Array.from({ length: 50 }, generateRandomUserName);
+
+        // App state
+        let appState = {
+            adsWatchedToday: 0,
+            lastAdWatchDate: new Date().toDateString(), // Track when ads were last watched
+            completedSocialTasks: [],
+            tickets: 0,
+            giveawayEndTime: new Date().getTime() + (24 * 60 * 60 * 1000), // 24 hours from now
+            currentWinner: null,
+            winnerHistory: [],
+            winnings: [], // User's winnings
+            withdrawalHistory: [], // Withdrawal history
+            adCooldownEndTime: null, // New property for 10-minute cooldown after 50 ads
+            cooldownInterval: null, // Store interval reference
+            totalAdsWatched: 0, // Track total ads for ticket calculation
+            isParticipating: false // Track if user is already participating
+        };
+
+        // Load state from localStorage
+        function loadState() {
+            const savedState = localStorage.getItem('giveawayAppState');
+            if (savedState) {
+                appState = JSON.parse(savedState);
+                
+                // Check if it's a new day and reset ad count if needed
+                const today = new Date().toDateString();
+                if (appState.lastAdWatchDate !== today) {
+                    appState.adsWatchedToday = 0;
+                    appState.lastAdWatchDate = today;
+                    appState.adCooldownEndTime = null; // Reset cooldown on new day
+                }
+                
+                // Check if giveaway period has ended
+                if (new Date().getTime() > appState.giveawayEndTime) {
+                    // Generate a winner and move current to history
+                    generateDailyWinner();
+                    
+                    // Reset for new giveaway
+                    appState.completedSocialTasks = [];
+                    appState.giveawayEndTime = new Date().getTime() + (24 * 60 * 60 * 1000);
+                    appState.isParticipating = false;
+                    saveState();
+                }
+            }
+        }
+
+        // Save state to localStorage
+        function saveState() {
+            localStorage.setItem('giveawayAppState', JSON.stringify(appState));
+        }
+
+        // Generate a daily winner
+        function generateDailyWinner() {
+            // If there's a current winner, move it to history
+            if (appState.currentWinner) {
+                appState.winnerHistory.unshift(appState.currentWinner);
+                
+                // Keep only last 10 winners in history
+                if (appState.winnerHistory.length > 10) {
+                    appState.winnerHistory = appState.winnerHistory.slice(0, 10);
+                }
+            }
+            
+            // Generate a new winner
+            const winnerName = randomUserNames[Math.floor(Math.random() * randomUserNames.length)];
+            const winnerDate = new Date().toLocaleDateString();
+            
+            appState.currentWinner = {
+                name: winnerName,
+                date: winnerDate,
+                prize: '$50 USD'
+            };
+        }
+
+        // Render current winner
+        function renderCurrentWinner() {
+            if (appState.currentWinner) {
+                document.getElementById('current-winner-name').textContent = appState.currentWinner.name;
+                document.getElementById('current-winner-date').textContent = appState.currentWinner.date;
+            } else {
+                document.getElementById('current-winner-name').textContent = 'No winner yet';
+                document.getElementById('current-winner-date').textContent = 'Complete tasks to win';
+            }
+        }
+
+        // Render winner history
+        function renderWinnerHistory() {
+            const historyList = document.getElementById('winner-history-list');
+            historyList.innerHTML = '';
+            
+            if (appState.winnerHistory.length === 0) {
+                historyList.innerHTML = '<div class="no-winners"><p>No previous winners yet. Be the first to win!</p></div>';
+                return;
+            }
+            
+            appState.winnerHistory.forEach((winner, index) => {
+                const historyItem = document.createElement('div');
+                historyItem.className = 'winner-history-item';
+                
+                // Determine rank and medal color
+                let rank = index + 1;
+                let rankClass = '';
+                if (rank === 1) {
+                    rankClass = 'gold';
+                } else if (rank === 2) {
+                    rankClass = 'silver';
+                } else if (rank === 3) {
+                    rankClass = 'bronze';
+                }
+                
+                historyItem.innerHTML = `
+                    <div class="winner-history-rank ${rankClass}">${rank}</div>
+                    <div class="winner-history-avatar">
+                        <i class="fas fa-trophy"></i>
+                    </div>
+                    <div class="winner-history-details">
+                        <div class="winner-history-name">${winner.name}</div>
+                        <div class="winner-history-date">${winner.date}</div>
+                    </div>
+                    <div class="winner-history-prize">${winner.prize}</div>
+                `;
+                
+                historyList.appendChild(historyItem);
+            });
+        }
+
+        // Toggle history visibility
+        function toggleHistory() {
+            const historyList = document.getElementById('winner-history-list');
+            const toggleText = document.getElementById('history-toggle-text');
+            const toggleIcon = document.getElementById('history-toggle-icon');
+            const toggleButton = document.getElementById('view-history-toggle');
+            
+            if (historyList.classList.contains('active')) {
+                historyList.classList.remove('active');
+                toggleText.textContent = 'View History';
+                toggleIcon.className = 'fas fa-chevron-down';
+                toggleButton.classList.remove('active');
+            } else {
+                historyList.classList.add('active');
+                toggleText.textContent = 'Hide History';
+                toggleIcon.className = 'fas fa-chevron-up';
+                toggleButton.classList.add('active');
+            }
+        }
+
+        // Tab switching function
+        function switchToTab(tabId) {
+            // Remove active class from all nav items
+            document.querySelectorAll('.nav-item').forEach(item => {
+                item.classList.remove('active');
+            });
+            
+            // Hide all tab contents
+            document.querySelectorAll('.tab-content').forEach(content => {
+                content.classList.remove('active');
+            });
+            
+            // Add active class to selected nav item
+            const selectedNav = document.querySelector(`[data-tab="${tabId}"]`);
+            if (selectedNav) {
+                selectedNav.classList.add('active');
+            }
+            
+            // Show selected tab content
+            const selectedTab = document.getElementById(tabId);
+            if (selectedTab) {
+                selectedTab.classList.add('active');
+            }
+        }
+
+        // Open external link
+        function openLink(url) {
+            window.open(url, '_blank');
+        }
+
+        // Initialize the app
+        function initApp() {
+            loadState();
+            renderCurrentWinner();
+            renderWinnerHistory();
+            updateTicketCount();
+            updateStats();
+            updateSingleAdProgress();
+            updateTasksProgress();
+            startCountdown();
+            updateSocialTasks();
+            updateGiveawayButton();
+            
+            // Enter giveaway button
+            document.getElementById('enter-giveaway').addEventListener('click', enterGiveaway);
+            
+            // Winner modal
+            document.getElementById('close-winner-modal').addEventListener('click', closeWinnerModal);
+            document.getElementById('close-participating-modal').addEventListener('click', closeParticipatingModal);
+        }
+
+        // Update single ad progress
+        function updateSingleAdProgress() {
+            const progress = (appState.adsWatchedToday % 50) / 50 * 100;
+            document.getElementById('single-ad-progress').style.width = `${progress}%`;
+            document.getElementById('single-ad-completed').textContent = appState.adsWatchedToday % 50;
+        }
+
+        // Update tasks progress
+        function updateTasksProgress() {
+            const progress = (appState.completedSocialTasks.length / 4) * 100;
+            document.getElementById('tasks-progress').style.width = `${progress}%`;
+            document.getElementById('tasks-completed').textContent = appState.completedSocialTasks.length;
+        }
+
+        // Update giveaway button state
+        function updateGiveawayButton() {
+            const button = document.getElementById('enter-giveaway');
+            
+            if (appState.isParticipating) {
+                button.textContent = "You are participating";
+                button.classList.add('btn-participating');
+                button.classList.remove('btn-success');
+                button.disabled = true;
+            } else if (appState.adsWatchedToday >= 50 && appState.completedSocialTasks.length >= 4) {
+                button.textContent = "Enter Giveaway";
+                button.classList.add('btn-success');
+                button.classList.remove('btn-participating');
+                button.disabled = false;
+            } else {
+                button.textContent = "Enter Giveaway";
+                button.classList.remove('btn-success', 'btn-participating');
+                button.disabled = true;
+            }
+        }
+
+        // Watch ad function
+        function watchAd() {
+            // Check if all ads have been watched today
+            if (appState.adsWatchedToday >= 50) {
+                showNotification('You have already watched all 50 ads today. Come back tomorrow!');
+                return;
+            }
+            
+            // Show loading notification
+            showNotification('Loading ad...');
+            
+            // Load the rewarded interstitial ad directly without popup
+            try {
+                if (typeof show_9980483 === 'function') {
+                    show_9980483().then(() => {
+                        // Ad completed successfully
+                        completeAdWatching();
+                    }).catch(error => {
+                        console.error('Ad loading error:', error);
+                        showNotification('Ad loading failed. Try again later.');
+                    });
+                } else {
+                    // Fallback if ad script not loaded
+                    showNotification('Ad script not loaded. Try again later.');
+                }
+            } catch (error) {
+                console.error('Ad script error:', error);
+                showNotification('Ad script error. Try again later.');
+            }
+        }
+
+        // Complete ad watching
+        function completeAdWatching() {
+            // Check if it's a new day and reset count if needed
+            const today = new Date().toDateString();
+            if (appState.lastAdWatchDate !== today) {
+                appState.adsWatchedToday = 0;
+                appState.lastAdWatchDate = today;
+                appState.adCooldownEndTime = null; // Reset cooldown on new day
+            }
+            
+            // Increment ad count
+            appState.adsWatchedToday++;
+            appState.totalAdsWatched++;
+            appState.lastAdWatchTime = new Date().getTime();
+            saveState();
+            updateSingleAdProgress();
+            updateStats();
+            showNotification('Ad completed successfully!');
+            
+            // Check if user earned a ticket (every 50 ads)
+            if (appState.totalAdsWatched % 50 === 0) {
+                appState.tickets++;
+                saveState();
+                updateTicketCount();
+                showNotification('🎉 You earned a ticket! Watch more ads for more tickets!');
+                
+                // Show ticket modal
+                document.getElementById('winner-modal').style.display = 'flex';
+            }
+            
+            // Check if all ads are completed for today
+            if (appState.adsWatchedToday === 50) {
+                showNotification('All ads watched today! Come back tomorrow for more!');
+                
+                // Start 10-minute cooldown
+                appState.adCooldownEndTime = new Date().getTime() + (10 * 60 * 1000); // 10 minutes
+                saveState();
+            }
+            
+            // Check if user is now eligible for automatic entry
+            checkAutomaticEntry();
+        }
+
+        // Check if user should be automatically entered into giveaway
+        function checkAutomaticEntry() {
+            if (appState.adsWatchedToday >= 50 && appState.completedSocialTasks.length >= 4 && !appState.isParticipating) {
+                // Automatically enter the user
+                appState.isParticipating = true;
+                saveState();
+                updateGiveawayButton();
+                
+                // Show participating modal
+                document.getElementById('participating-modal').style.display = 'flex';
+                
+                // Add winnings
+                appState.winnings.push({
+                    amount: 50,
+                    date: new Date().toLocaleDateString(),
+                    giveaway: 'Daily Giveaway',
+                    status: 'available'
+                });
+                
+                saveState();
+            }
+        }
+
+        // Complete social task
+        function completeSocialTask(taskId) {
+            if (appState.completedSocialTasks.includes(taskId)) {
+                showNotification('You already completed this task!');
+                return;
+            }
+            
+            appState.completedSocialTasks.push(taskId);
+            saveState();
+            updateSocialTasks();
+            updateStats();
+            updateTasksProgress();
+            showNotification('Social task completed!');
+            
+            // Check if user is now eligible for automatic entry
+            checkAutomaticEntry();
+        }
+
+        // Update social tasks UI
+        function updateSocialTasks() {
+            appState.completedSocialTasks.forEach(taskId => {
+                document.getElementById(taskId).classList.add('completed');
+            });
+        }
+
+        // Update stats
+        function updateStats() {
+            // Stats are now shown in the action cards
+        }
+
+        // Update ticket count with animation
+        function updateTicketCount() {
+            const ticketBalance = document.getElementById('ticket-balance');
+            const ticketCount = document.getElementById('ticket-count');
+            
+            // Add pulse animation
+            ticketBalance.classList.add('pulse');
+            
+            // Update the number
+            ticketCount.textContent = appState.tickets;
+            
+            // Remove animation after completion
+            setTimeout(() => {
+                ticketBalance.classList.remove('pulse');
+            }, 500);
+        }
+
+        // Enter giveaway
+        function enterGiveaway() {
+            const allSocialTasksCompleted = appState.completedSocialTasks.length === 4;
+            
+            if (!allSocialTasksCompleted) {
+                showNotification('Complete all social tasks to enter the giveaway!');
+                return;
+            }
+            
+            if (appState.adsWatchedToday < 50) {
+                showNotification('Watch 50 ads to enter the giveaway!');
+                return;
+            }
+            
+            if (appState.isParticipating) {
+                showNotification('You are already participating in this giveaway!');
+                return;
+            }
+            
+            // Mark as participating
+            appState.isParticipating = true;
+            saveState();
+            updateGiveawayButton();
+            
+            // Add winnings
+            appState.winnings.push({
+                amount: 50,
+                date: new Date().toLocaleDateString(),
+                giveaway: 'Daily Giveaway',
+                status: 'available'
+            });
+            
+            saveState();
+            
+            // Show participating modal
+            document.getElementById('participating-modal').style.display = 'flex';
+        }
+
+        // Close winner modal
+        function closeWinnerModal() {
+            document.getElementById('winner-modal').style.display = 'none';
+        }
+
+        // Close participating modal
+        function closeParticipatingModal() {
+            document.getElementById('participating-modal').style.display = 'none';
+        }
+
+        // Show notification
+        function showNotification(message) {
+            const notification = document.getElementById('notification');
+            document.getElementById('notification-text').textContent = message;
+            notification.classList.add('show');
+            
+            setTimeout(() => {
+                notification.classList.remove('show');
+            }, 3000);
+        }
+
+        // Start countdown timer
+        function startCountdown() {
+            const countdownElement = document.getElementById('countdown');
+            
+            setInterval(() => {
+                const now = new Date().getTime();
+                const distance = appState.giveawayEndTime - now;
+                
+                if (distance < 0) {
+                    // Giveaway ended, generate winner and reset
+                    generateDailyWinner();
+                    renderCurrentWinner();
+                    renderWinnerHistory();
+                    
+                    appState.completedSocialTasks = [];
+                    appState.giveawayEndTime = new Date().getTime() + (24 * 60 * 60 * 1000);
+                    appState.isParticipating = false;
+                    saveState();
+                    updateSocialTasks();
+                    updateTasksProgress();
+                    updateGiveawayButton();
+                    return;
+                }
+                
+                const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+                const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+                const seconds = Math.floor((distance % (1000 * 60)) / 1000);
+                
+                countdownElement.textContent = `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+            }, 1000);
+        }
+
+        // Initialize app when DOM is loaded
+        document.addEventListener('DOMContentLoaded', initApp);
+    </script>
+</body>
+</html>
