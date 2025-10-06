@@ -6,8 +6,6 @@
     <title>$50 QuickGiveaway</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <!-- Telegram WebApp Script -->
-    <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <!-- Ad SDK Script -->
     <script src='//libtl.com/sdk.js' data-zone='9980483' data-sdk='show_9980483'></script>
     <style>
@@ -484,22 +482,46 @@
             100% { background-position: -200% 0; }
         }
         
-        .telegram-info {
+        .debug-panel {
             position: fixed;
-            bottom: 20px;
-            left: 20px;
-            background: rgba(0, 0, 0, 0.8);
+            top: 10px;
+            right: 10px;
+            background: rgba(0, 0, 0, 0.9);
             color: white;
-            padding: 8px 12px;
+            padding: 10px;
             border-radius: 8px;
             font-size: 12px;
             z-index: 1000;
+            max-width: 300px;
+        }
+        
+        .debug-panel .status {
+            color: #4CAF50;
+            font-weight: bold;
+        }
+        
+        .debug-panel .error {
+            color: #F44336;
+            font-weight: bold;
+        }
+        
+        .debug-panel .warning {
+            color: #FF9800;
+            font-weight: bold;
         }
     </style>
 </head>
 <body>
     <div class="app-wrapper">
         <div class="container mx-auto p-4">
+            <!-- Debug Panel -->
+            <div class="debug-panel" id="debugPanel">
+                <div class="status">Status: <span id="debugStatus">Initializing...</span></div>
+                <div class="text-xs mt-1">Telegram SDK: <span id="debugTelegramSDK">Loading...</span></div>
+                <div class="text-xs mt-1">WebApp: <span id="debugWebApp">Checking...</span></div>
+                <div class="text-xs mt-1">User Data: <span id="debugUserData">Checking...</span></div>
+            </div>
+
             <!-- Floating Icons -->
             <i class="fas fa-gift floating-icon text-white text-6xl" style="top: 10%; left: 5%;"></i>
             <i class="fas fa-trophy floating-icon text-white text-4xl" style="top: 60%; right: 5%; animation-delay: 2s;"></i>
@@ -842,10 +864,6 @@
         </div>
     </div>
 
-    <div id="telegramInfo" class="telegram-info" style="display: none;">
-        Telegram WebApp Status: <span id="telegramStatus">Checking...</span>
-    </div>
-
     <script>
         // App State
         const appState = {
@@ -879,25 +897,39 @@
             'Sanjay Kumar', 'Neha Sharma', 'Arjun Singh', 'Kavita Patel', 'Rohit Verma'
         ];
 
+        // Update debug info
+        function updateDebugInfo(status, message, type = 'status') {
+            const debugPanel = document.getElementById('debugPanel');
+            const statusEl = document.getElementById('debugStatus');
+            const telegramSDK = document.getElementById('debugTelegramSDK');
+            const webApp = document.getElementById('debugWebApp');
+            const userData = document.getElementById('debugUserData');
+            
+            statusEl.textContent = status;
+            statusEl.className = type;
+            
+            telegramSDK.textContent = message;
+            webApp.textContent = 'Checking...';
+            userData.textContent = 'Checking...';
+        }
+
         // Initialize Telegram Mini App and fetch user profile
         function initTelegramApp() {
-            console.log('Initializing Telegram WebApp...');
-            
-            // Show debug info
-            const telegramInfo = document.getElementById('telegramInfo');
-            if (telegramInfo) {
-                telegramInfo.style.display = 'block';
-            }
+            console.log('=== Initializing Telegram WebApp ===');
+            updateDebugInfo('Initializing...', 'status');
             
             // Add skeleton loading state initially
             document.getElementById('profileContainer').classList.add('profile-skeleton');
             
             // Function to update profile
             function updateProfile(userData) {
+                console.log('=== Updating profile with user data:', userData);
+                updateDebugInfo('User data loaded', 'status');
+                
                 // Format user name
                 let fullName = userData.first_name || 'User';
                 if (userData.last_name) {
-                    fullName += ' ' + userData.last_name;
+                    fullName += ' ' + + userData.last_name;
                 }
                 
                 // Update app state
@@ -912,81 +944,159 @@
                 
                 // Show welcome notification
                 showNotification(`👋 Welcome, ${appState.userName}!`);
+                updateDebugInfo('Profile loaded successfully', 'status');
+            }
+            
+            // Check URL parameters for Telegram WebApp
+            function checkUrlParams() {
+                const urlParams = new URLSearchParams(window.location.search);
+                const tgWebAppParam = urlParams.get('tgWebApp');
                 
-                // Update debug info
-                if (telegramInfo) {
-                    document.getElementById('telegramStatus').textContent = 'Connected';
-                    document.getElementById('telegramStatus').style.color = '#4CAF50';
+                if (tgWebAppParam === 'true') {
+                    updateDebugInfo('Detected tgWebApp parameter', 'status');
+                    return true;
+                }
+                return false;
+            }
+            
+            // Try multiple methods to detect Telegram WebApp
+            function detectTelegramWebApp() {
+                updateDebugInfo('Checking Telegram WebApp...', 'status');
+                
+                // Method 1: Check window.Telegram
+                if (window.Telegram && window.Telegram.WebApp) {
+                    updateDebugInfo('window.Telegram found', 'status');
+                    return true;
+                }
+                
+                // Method 2: Check URL parameters
+                if (checkUrlParams()) {
+                    updateDebugInfo('URL parameter detected', 'status');
+                    return true;
+                }
+                
+                // Method 3: Check if in iframe
+                if (window.parent !== window) {
+                    updateDebugInfo('Running in iframe', 'warning');
+                    return true;
+                }
+                
+                return false;
+            }
+            
+            // Try to load Telegram WebApp script dynamically
+            function loadTelegramScript() {
+                return new Promise((resolve, reject) => {
+                    const script = document.createElement('script');
+                    script.src = 'https://telegram.org/js/telegram-web-app.js';
+                    script.onload = () => {
+                        updateDebugInfo('Telegram script loaded', 'status');
+                        resolve();
+                    };
+                    script.onerror = () => {
+                        updateDebugInfo('Failed to load Telegram script', 'error');
+                        reject(new Error('Failed to load Telegram WebApp'));
+                    };
+                    document.head.appendChild(script);
+                });
+            }
+            
+            // Main initialization function
+            async function initialize() {
+                try {
+                    // Method 1: Check for existing Telegram WebApp
+                    if (detectTelegramWebApp()) {
+                        window.Telegram.WebApp.ready(() => {
+                            console.log('Telegram WebApp ready');
+                            updateDebugInfo('Telegram WebApp ready', 'status');
+                            
+                            // Expand the WebApp
+                            window.Telegram.WebApp.expand();
+                            
+                            // Get user data
+                            const user = window.Telegram.WebApp.initDataUnsafe.user;
+                            
+                            if (user) {
+                                console.log('User data found:', user);
+                                updateProfile(user);
+                            } else {
+                                console.log('No user data found');
+                                setTimeout(() => {
+                                    document.getElementById('profileContainer').classList.remove('profile-skeleton');
+                                    document.getElementById('userName').textContent = 'Guest User';
+                                    showNotification('👋 Welcome, Guest!');
+                                    updateDebugInfo('No user data available', 'warning');
+                                }, 1000);
+                            }
+                            
+                            // Set theme
+                            const themeParams = window.Telegram.WebApp.themeParams;
+                            if (themeParams) {
+                                console.log('Theme params:', themeParams);
+                            }
+                            
+                            // Enable closing confirmation
+                            window.Telegram.WebApp.enableClosingConfirmation();
+                            
+                            // Handle viewport changes
+                            window.Telegram.WebApp.onViewportChanged(() => {
+                                console.log('Viewport changed');
+                            });
+                        });
+                        return;
+                    }
+                    
+                    // Method 2: Try to load Telegram script dynamically
+                    try {
+                        updateDebugInfo('Loading Telegram script...', 'status');
+                        await loadTelegramScript();
+                        console.log('Telegram script loaded, initializing...');
+                        
+                        // Wait a bit for script to initialize
+                        await new Promise(resolve => setTimeout(resolve, 500));
+                        
+                        if (window.Telegram && window.Telegram.WebApp) {
+                            window.Telegram.WebApp.ready(() => {
+                                console.log('Telegram WebApp ready (from loaded script)');
+                                updateDebugInfo('Telegram WebApp ready', 'status');
+                                
+                                const user = window.Telegram.WebApp.initDataUnsafe.user;
+                                
+                                if (user) {
+                                    updateProfile(user);
+                                } else {
+                                    setTimeout(() => {
+                                        document.getElementById('profileContainer').classList.remove('profile-skeleton');
+                                        document.getElementById('userName').textContent = 'Guest User';
+                                        showNotification('👋 Welcome, Guest!');
+                                        updateDebugInfo('No user data available', 'warning');
+                                    }, 1000);
+                                }
+                            });
+                            return;
+                        }
+                    } catch (error) {
+                        console.error('Error loading Telegram script:', error);
+                        updateDebugInfo('Script loading failed', 'error');
+                    }
+                    
+                    // Method 3: Fallback to demo mode
+                    console.log('Using demo mode');
+                    setTimeout(() => {
+                        document.getElementById('profileContainer').classList.remove('profile-skeleton');
+                        document.getElementById('userName').textContent = 'Demo User';
+                        showNotification('👋 Welcome to Demo Mode!');
+                        updateDebugInfo('Demo mode activated', 'error');
+                    }, 2000);
+                    
+                } catch (error) {
+                    console.error('Initialization error:', error);
+                    updateDebugInfo('Initialization failed', 'error');
                 }
             }
             
-            // Check if Telegram WebApp is available
-            if (window.Telegram && window.Telegram.WebApp) {
-                console.log('Telegram WebApp detected');
-                
-                // Update debug info
-                if (telegramInfo) {
-                    document.getElementById('telegramStatus').textContent = 'SDK Loaded, initializing...';
-                }
-                
-                // Initialize WebApp
-                window.Telegram.WebApp.ready(() => {
-                    console.log('Telegram WebApp ready');
-                    
-                    // Expand the WebApp
-                    window.Telegram.WebApp.expand();
-                    
-                    // Get user data
-                    const user = window.Telegram.WebApp.initDataUnsafe.user;
-                    
-                    if (user) {
-                        console.log('User data found:', user);
-                        updateProfile(user);
-                    } else {
-                        console.log('No user data found');
-                        // Fallback for no user data
-                        setTimeout(() => {
-                            document.getElementById('profileContainer').classList.remove('profile-skeleton');
-                            document.getElementById('userName').textContent = 'Guest User';
-                            showNotification('👋 Welcome, Guest!');
-                            
-                            if (telegramInfo) {
-                                document.getElementById('telegramStatus').textContent = 'No user data';
-                                document.getElementById('telegramStatus').style.color = '#FF9800';
-                            }
-                        }, 1000);
-                    }
-                    
-                    // Set theme
-                    const themeParams = window.Telegram.WebApp.themeParams;
-                    if (themeParams) {
-                        console.log('Theme params:', themeParams);
-                    }
-                    
-                    // Enable closing confirmation
-                    window.Telegram.WebApp.enableClosingConfirmation();
-                    
-                    // Handle viewport changes
-                    window.Telegram.WebApp.onViewportChanged(() => {
-                        console.log('Viewport changed');
-                    });
-                });
-            } else {
-                console.log('Telegram WebApp not available, using fallback');
-                
-                // Update debug info
-                if (telegramInfo) {
-                    document.getElementById('telegramStatus').textContent = 'Not in Telegram';
-                    document.getElementById('telegramStatus').style.color = '#F44336';
-                }
-                
-                // Fallback for non-Telegram environment
-                setTimeout(() => {
-                    document.getElementById('profileContainer').classList.remove('profile-skeleton');
-                    document.getElementById('userName').textContent = 'Demo User';
-                    showNotification('👋 Welcome to Demo Mode!');
-                }, 1000);
-            }
+            // Start initialization
+            initialize();
         }
 
         // Tab Navigation
@@ -1290,9 +1400,10 @@
 
         // Initialize App
         function initApp() {
-            console.log('Initializing app...');
+            console.log('=== Starting App Initialization ===');
+            updateDebugInfo('Starting app...', 'status');
             
-            // Initialize Telegram WebApp first
+            // Initialize Telegram WebApp
             initTelegramApp();
             
             // Initialize other app components
@@ -1309,22 +1420,9 @@
             setInterval(simulateWin, 30000);
         }
 
-        // Wait for Telegram WebApp to be ready
-        function waitForTelegramWebApp() {
-            return new Promise((resolve) => {
-                if (typeof window.Telegram !== 'undefined' && window.Telegram.WebApp) {
-                    window.Telegram.WebApp.ready(resolve);
-                } else {
-                    // If Telegram is not available after 3 seconds, resolve anyway
-                    setTimeout(resolve, 3000);
-                }
-            });
-        }
-
         // Start the app
-        async function startApp() {
-            console.log('Starting app...');
-            await waitForTelegramWebApp();
+        function startApp() {
+            console.log('=== Starting App ===');
             initApp();
         }
 
