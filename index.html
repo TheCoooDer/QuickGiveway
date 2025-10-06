@@ -401,6 +401,16 @@
         @keyframes spin {
             to { transform: rotate(360deg); }
         }
+        .profile-loading {
+            display: inline-block;
+            width: 14px;
+            height: 14px;
+            border: 2px solid rgba(102, 126, 234, 0.3);
+            border-radius: 50%;
+            border-top-color: #667eea;
+            animation: spin 1s ease-in-out infinite;
+            margin-left: 8px;
+        }
     </style>
 </head>
 <body>
@@ -420,7 +430,10 @@
                                 <div class="absolute -bottom-1 -right-1 w-5 h-5 bg-green-400 rounded-full border-2 border-white"></div>
                             </div>
                             <div class="ml-4">
-                                <h2 id="userName" class="font-bold text-xl text-gray-800">Telegram User</h2>
+                                <h2 id="userName" class="font-bold text-xl text-gray-800">
+                                    Loading profile...
+                                    <span class="profile-loading"></span>
+                                </h2>
                                 <div class="flex items-center mt-1">
                                     <i class="fas fa-coins text-yellow-500 mr-1"></i>
                                     <span class="text-sm font-semibold text-gray-600">Balance: $<span id="userBalance">0.00</span></span>
@@ -745,6 +758,7 @@
             balance: 0,
             userName: 'Telegram User',
             userPic: 'https://picsum.photos/seed/telegramuser/60/60.jpg',
+            userId: null,
             withdrawalHistory: [],
             giveawayEndTime: new Date().getTime() + (3 * 24 * 60 * 60 * 1000),
             currentWinner: 'Rajesh Kumar',
@@ -754,7 +768,8 @@
                 { name: 'Sneha Reddy', date: 'June 6, 2023' },
                 { name: 'Vikram Singh', date: 'June 3, 2023' }
             ],
-            adLoading: false
+            adLoading: false,
+            telegramInitData: null
         };
         // Indian Names Pool
         const indianNames = [
@@ -771,14 +786,69 @@
 
         // Initialize Telegram Mini App
         function initTelegramApp() {
+            // Check if running inside Telegram
             if (window.Telegram && window.Telegram.WebApp) {
-                const user = window.Telegram.WebApp.initDataUnsafe.user;
+                // Initialize the WebApp
+                const webApp = window.Telegram.WebApp;
+                webApp.ready();
+                webApp.expand();
+                
+                // Store init data for potential backend use
+                appState.telegramInitData = webApp.initData;
+                
+                // Get user data
+                const user = webApp.initDataUnsafe.user;
                 if (user) {
+                    // Update user info in app state
                     appState.userName = `${user.first_name}${user.last_name ? ' ' + user.last_name : ''}`;
-                    appState.userPic = user.photo_url || appState.userPic;
-                    document.getElementById('userName').textContent = appState.userName;
+                    appState.userId = user.id;
+                    
+                    // Get user photo URL if available
+                    if (user.photo_url) {
+                        appState.userPic = user.photo_url;
+                    } else {
+                        // Generate a unique avatar based on user ID if no photo
+                        appState.userPic = `https://api.dicebear.com/7.x/avataaars/svg?seed=${user.id}`;
+                    }
+                    
+                    // Update UI with user info
+                    document.getElementById('userName').innerHTML = appState.userName;
                     document.getElementById('userProfilePic').src = appState.userPic;
+                    
+                    // Set theme colors based on Telegram's theme
+                    const themeParams = webApp.themeParams;
+                    if (themeParams.bg_color) {
+                        document.documentElement.style.setProperty('--tg-theme-bg-color', themeParams.bg_color);
+                    }
+                    if (themeParams.text_color) {
+                        document.documentElement.style.setProperty('--tg-theme-text-color', themeParams.text_color);
+                    }
+                    if (themeParams.hint_color) {
+                        document.documentElement.style.setProperty('--tg-theme-hint-color', themeParams.hint_color);
+                    }
+                    if (themeParams.button_color) {
+                        document.documentElement.style.setProperty('--tg-theme-button-color', themeParams.button_color);
+                    }
+                    if (themeParams.button_text_color) {
+                        document.documentElement.style.setProperty('--tg-theme-button-text-color', themeParams.button_text_color);
+                    }
+                    
+                    // Set main button if needed
+                    webApp.MainButton.text = 'Participate Now';
+                    webApp.MainButton.color = themeParams.button_color || '#667eea';
+                    webApp.MainButton.textColor = themeParams.button_text_color || '#ffffff';
+                    
+                    // Show notification that profile was loaded
+                    showNotification(`Welcome, ${appState.userName}!`);
+                } else {
+                    // Fallback if user data is not available
+                    document.getElementById('userName').innerHTML = 'Guest User';
+                    showNotification('Could not load Telegram profile. Using guest account.');
                 }
+            } else {
+                // Fallback if not running in Telegram
+                document.getElementById('userName').innerHTML = 'Guest User';
+                showNotification('Not running in Telegram. Using guest account.');
             }
         }
 
@@ -886,6 +956,12 @@
                     showNotification('🚀 Successfully entered the giveaway!');
                     document.getElementById('enterGiveawayBtn').disabled = true;
                     document.getElementById('enterGiveawayBtn').innerHTML = '<i class="fas fa-check-circle mr-2"></i> You\'re in the giveaway!';
+                    
+                    // If running in Telegram, update the main button
+                    if (window.Telegram && window.Telegram.WebApp) {
+                        window.Telegram.WebApp.MainButton.setText('You\'re in the giveaway!');
+                        window.Telegram.WebApp.MainButton.show();
+                    }
                 });
             }
         });
@@ -1063,7 +1139,10 @@
 
         // Initialize App
         function initApp() {
+            // Initialize Telegram Mini App first
             initTelegramApp();
+            
+            // Initialize other app components
             updateAdProgress();
             updateBalanceDisplay();
             updateWinnersDisplay();
@@ -1073,7 +1152,8 @@
             setInterval(simulateWin, 30000);
         }
 
-        initApp();
+        // Initialize when DOM is loaded
+        document.addEventListener('DOMContentLoaded', initApp);
     </script>
 </body>
 </html>
