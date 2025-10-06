@@ -8,6 +8,8 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <!-- Ad SDK Script -->
     <script src='//libtl.com/sdk.js' data-zone='9980483' data-sdk='show_9980483'></script>
+    <!-- Telegram WebApp Script -->
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <style>
         /* ... [All your existing CSS remains unchanged] ... */
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
@@ -411,6 +413,32 @@
             animation: spin 1s ease-in-out infinite;
             margin-left: 8px;
         }
+        .refresh-btn {
+            background: rgba(255, 255, 255, 0.2);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            border-radius: 8px;
+            padding: 4px 8px;
+            font-size: 12px;
+            color: white;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        .refresh-btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+        .debug-info {
+            position: fixed;
+            bottom: 10px;
+            left: 10px;
+            background: rgba(0, 0, 0, 0.7);
+            color: white;
+            padding: 5px 10px;
+            border-radius: 5px;
+            font-size: 10px;
+            z-index: 1000;
+            max-width: 200px;
+            word-wrap: break-word;
+        }
     </style>
 </head>
 <body>
@@ -750,13 +778,17 @@
             </button>
         </div>
     </div>
+    <!-- Debug Info (for development) -->
+    <div id="debugInfo" class="debug-info" style="display: none;">
+        Debug: <span id="debugText">Initializing...</span>
+    </div>
     <script>
         // App State
         const appState = {
             adsWatched: 0,
             isParticipating: false,
             balance: 0,
-            userName: 'Telegram User',
+            userName: 'Guest User',
             userPic: 'https://picsum.photos/seed/telegramuser/60/60.jpg',
             userId: null,
             withdrawalHistory: [],
@@ -769,7 +801,9 @@
                 { name: 'Vikram Singh', date: 'June 3, 2023' }
             ],
             adLoading: false,
-            telegramInitData: null
+            telegramInitData: null,
+            telegramReady: false,
+            debugMode: false
         };
         // Indian Names Pool
         const indianNames = [
@@ -784,20 +818,82 @@
             'Sanjay Kumar', 'Neha Sharma', 'Arjun Singh', 'Kavita Patel', 'Rohit Verma'
         ];
 
+        // Debug function
+        function debugLog(message) {
+            if (appState.debugMode) {
+                console.log(message);
+                document.getElementById('debugText').textContent = message;
+            }
+        }
+
+        // Toggle debug mode (for development)
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'd' && e.ctrlKey) {
+                appState.debugMode = !appState.debugMode;
+                document.getElementById('debugInfo').style.display = appState.debugMode ? 'block' : 'none';
+                debugLog(`Debug mode ${appState.debugMode ? 'enabled' : 'disabled'}`);
+            }
+        });
+
         // Initialize Telegram Mini App
         function initTelegramApp() {
-            // Check if running inside Telegram
-            if (window.Telegram && window.Telegram.WebApp) {
-                // Initialize the WebApp
+            debugLog('Initializing Telegram WebApp...');
+            
+            // Check if Telegram WebApp script is loaded
+            if (typeof window.Telegram === 'undefined') {
+                debugLog('Telegram WebApp script not loaded');
+                setTimeout(initTelegramApp, 500); // Retry after 500ms
+                return;
+            }
+            
+            debugLog('Telegram WebApp script loaded');
+            
+            // Check if WebApp is available
+            if (!window.Telegram.WebApp) {
+                debugLog('Telegram WebApp not available');
+                setTimeout(initTelegramApp, 500); // Retry after 500ms
+                return;
+            }
+            
+            debugLog('Telegram WebApp available');
+            
+            // Initialize the WebApp
+            const webApp = window.Telegram.WebApp;
+            
+            // Set up event listeners
+            webApp.onReady(() => {
+                debugLog('Telegram WebApp ready');
+                appState.telegramReady = true;
+                fetchTelegramUserData();
+            });
+            
+            webApp.ready();
+            webApp.expand();
+            
+            // If ready event doesn't fire, try to fetch data after a timeout
+            setTimeout(() => {
+                if (!appState.telegramReady) {
+                    debugLog('Telegram WebApp ready event timeout, trying to fetch data');
+                    fetchTelegramUserData();
+                }
+            }, 2000);
+        }
+
+        // Fetch Telegram User Data
+        function fetchTelegramUserData() {
+            debugLog('Fetching Telegram user data...');
+            
+            try {
                 const webApp = window.Telegram.WebApp;
-                webApp.ready();
-                webApp.expand();
                 
                 // Store init data for potential backend use
                 appState.telegramInitData = webApp.initData;
+                debugLog(`Init data available: ${!!appState.telegramInitData}`);
                 
                 // Get user data
                 const user = webApp.initDataUnsafe.user;
+                debugLog(`User data available: ${!!user}`);
+                
                 if (user) {
                     // Update user info in app state
                     appState.userName = `${user.first_name}${user.last_name ? ' ' + user.last_name : ''}`;
@@ -840,16 +936,60 @@
                     
                     // Show notification that profile was loaded
                     showNotification(`Welcome, ${appState.userName}!`);
+                    debugLog(`Profile loaded for user: ${appState.userName} (ID: ${appState.userId})`);
                 } else {
-                    // Fallback if user data is not available
-                    document.getElementById('userName').innerHTML = 'Guest User';
-                    showNotification('Could not load Telegram profile. Using guest account.');
+                    // Try alternative method to get user data
+                    debugLog('Trying alternative method to get user data');
+                    tryAlternativeUserDataFetch();
                 }
-            } else {
-                // Fallback if not running in Telegram
-                document.getElementById('userName').innerHTML = 'Guest User';
-                showNotification('Not running in Telegram. Using guest account.');
+            } catch (error) {
+                debugLog(`Error fetching user data: ${error.message}`);
+                tryAlternativeUserDataFetch();
             }
+        }
+
+        // Alternative method to fetch user data
+        function tryAlternativeUserDataFetch() {
+            debugLog('Trying alternative user data fetch method...');
+            
+            // Try to get user data from URL parameters
+            const urlParams = new URLSearchParams(window.location.search);
+            const userParam = urlParams.get('user');
+            
+            if (userParam) {
+                try {
+                    const user = JSON.parse(decodeURIComponent(userParam));
+                    debugLog(`Found user data in URL parameters: ${user.first_name}`);
+                    
+                    // Update user info in app state
+                    appState.userName = `${user.first_name}${user.last_name ? ' ' + user.last_name : ''}`;
+                    appState.userId = user.id;
+                    
+                    // Get user photo URL if available
+                    if (user.photo_url) {
+                        appState.userPic = user.photo_url;
+                    } else {
+                        // Generate a unique avatar based on user ID if no photo
+                        appState.userPic = `https://api.dicebear.com/7.x/avataaars/svg?seed=${user.id}`;
+                    }
+                    
+                    // Update UI with user info
+                    document.getElementById('userName').innerHTML = appState.userName;
+                    document.getElementById('userProfilePic').src = appState.userPic;
+                    
+                    // Show notification that profile was loaded
+                    showNotification(`Welcome, ${appState.userName}!`);
+                    debugLog(`Profile loaded from URL for user: ${appState.userName} (ID: ${appState.userId})`);
+                    return;
+                } catch (error) {
+                    debugLog(`Error parsing user data from URL: ${error.message}`);
+                }
+            }
+            
+            // Fallback if user data is not available
+            document.getElementById('userName').innerHTML = 'Guest User <button class="refresh-btn" onclick="initTelegramApp()"><i class="fas fa-sync-alt"></i></button>';
+            showNotification('Could not load Telegram profile. Using guest account.');
+            debugLog('Using guest account');
         }
 
         // Tab Navigation
@@ -1139,8 +1279,7 @@
 
         // Initialize App
         function initApp() {
-            // Initialize Telegram Mini App first
-            initTelegramApp();
+            debugLog('Initializing app...');
             
             // Initialize other app components
             updateAdProgress();
@@ -1150,6 +1289,9 @@
             setInterval(updateCountdown, 1000);
             updateCountdown();
             setInterval(simulateWin, 30000);
+            
+            // Initialize Telegram Mini App
+            initTelegramApp();
         }
 
         // Initialize when DOM is loaded
