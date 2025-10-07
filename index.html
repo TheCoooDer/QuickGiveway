@@ -675,7 +675,7 @@
             userPic: 'https://picsum.photos/seed/telegramuser/60/60.jpg',
             userId: null,
             withdrawalHistory: [],
-            giveawayEndTime: new Date().getTime() + (24 * 60 * 60 * 1000), // 24 hours
+            // giveawayEndTime is now computed dynamically — not stored
             currentWinner: 'Rajesh Kumar',
             winnerDate: 'Today',
             previousWinners: [
@@ -703,13 +703,19 @@
             'Sanjay Kumar', 'Neha Sharma', 'Arjun Singh', 'Kavita Patel', 'Rohit Verma'
         ];
 
-        // Save full user state
+        // Helper: Get next UTC-aligned giveaway end time (every 24h at 00:00 UTC)
+        function getNextGiveawayEndTime() {
+            const now = new Date();
+            const next = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate() + 1, 0, 0, 0));
+            return next.getTime();
+        }
+
+        // Save user state (without giveawayEndTime)
         function saveUserState() {
             const userState = {
                 adsWatched: appState.adsWatched,
                 isParticipating: appState.isParticipating,
                 lastSavedDate: new Date().toDateString(),
-                giveawayEndTime: appState.giveawayEndTime,
                 balance: appState.balance,
                 withdrawalHistory: appState.withdrawalHistory,
                 currentWinner: appState.currentWinner,
@@ -719,11 +725,10 @@
             localStorage.setItem('userState', JSON.stringify(userState));
         }
 
-        // Load user state with daily reset logic
+        // Load user state with daily reset logic (but timer is now global)
         function loadUserState() {
             const savedState = localStorage.getItem('userState');
             const today = new Date().toDateString();
-
             if (savedState) {
                 try {
                     const userState = JSON.parse(savedState);
@@ -731,15 +736,13 @@
                         // New day: reset progress
                         appState.adsWatched = 0;
                         appState.isParticipating = false;
-                        appState.giveawayEndTime = new Date().getTime() + GIVEAWAY_DURATION;
                         appState.lastSavedDate = today;
                         showNotification('🌅 Daily reset! New giveaway started!');
                     } else {
-                        // Same day: restore state
+                        // Same day: restore state (except timer)
                         Object.assign(appState, {
                             adsWatched: userState.adsWatched || 0,
                             isParticipating: userState.isParticipating || false,
-                            giveawayEndTime: userState.giveawayEndTime || (new Date().getTime() + GIVEAWAY_DURATION),
                             balance: userState.balance || 0,
                             withdrawalHistory: userState.withdrawalHistory || [],
                             currentWinner: userState.currentWinner || 'Rajesh Kumar',
@@ -760,7 +763,6 @@
         function resetAppState() {
             appState.adsWatched = 0;
             appState.isParticipating = false;
-            appState.giveawayEndTime = new Date().getTime() + GIVEAWAY_DURATION;
             appState.lastSavedDate = new Date().toDateString();
         }
 
@@ -771,17 +773,11 @@
                 window.Telegram.WebApp.enableClosingConfirmation();
                 window.Telegram.WebApp.setHeaderColor('#667eea');
                 window.Telegram.WebApp.setBackgroundColor('#667eea');
-
-                // Handle app resume (viewport change = likely reopened)
                 window.Telegram.WebApp.onEvent('viewportChanged', () => {
                     updateCountdown();
                 });
-
-                // Save on close
                 window.Telegram.WebApp.onEvent('mainButtonClicked', saveUserState);
                 window.addEventListener('beforeunload', saveUserState);
-
-                // Load user
                 let user = window.Telegram.WebApp.initDataUnsafe?.user;
                 if (!user && window.Telegram.WebApp.initData) {
                     try {
@@ -792,7 +788,6 @@
                         console.error('Parse error:', e);
                     }
                 }
-
                 if (user) {
                     appState.userName = (user.first_name || '') + (user.last_name ? ' ' + user.last_name : '');
                     appState.userId = user.id;
@@ -803,35 +798,32 @@
                     setTimeout(() => showNotification(`👋 Welcome, ${appState.userName}!`), 1000);
                 }
             } else {
-                // Fallback for browser testing
                 document.getElementById('userName').textContent = 'Test User';
                 showNotification('⚠️ Running in test mode');
             }
         }
 
-        // Countdown (timestamp-based, robust)
+        // Countdown using global UTC-aligned end time
         function updateCountdown() {
             const now = Date.now();
-            const distance = appState.giveawayEndTime - now;
+            const giveawayEndTime = getNextGiveawayEndTime();
+            const distance = giveawayEndTime - now;
 
             if (distance <= 0) {
                 selectWinner();
-                appState.giveawayEndTime = Date.now() + GIVEAWAY_DURATION;
-                saveUserState();
+                // No need to update giveawayEndTime — it's always computed
                 return;
             }
 
             const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
             const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
             const seconds = Math.floor((distance % (1000 * 60)) / 1000);
-
             document.getElementById('homeCountdown').textContent = `${hours}h ${minutes}m ${seconds}s`;
         }
 
-        // Start countdown (no setInterval reliance)
+        // Start countdown loop
         function startCountdown() {
             updateCountdown();
-            // Use requestAnimationFrame loop for better background behavior
             let lastFrame = 0;
             const frame = (now) => {
                 if (now - lastFrame >= 1000) {
@@ -843,20 +835,18 @@
             requestAnimationFrame(frame);
         }
 
-        // Ad & UI Logic (unchanged except minor cleanup)
+        // Ad & UI Logic (unchanged)
         function showAd() {
             if (typeof show_9980483 !== 'function') {
                 showNotification('⚠️ Ad service unavailable.');
                 return;
             }
             if (appState.adLoading || appState.adsWatched >= 50) return;
-
             appState.adLoading = true;
             const btn = document.getElementById('watchAdBtn');
             const orig = btn.innerHTML;
             btn.innerHTML = '<span class="ad-loading"></span> Loading Ad...';
             btn.disabled = true;
-
             show_9980483().then(() => {
                 appState.adsWatched++;
                 updateAdProgress();
@@ -889,14 +879,12 @@
             appState.previousWinners = appState.previousWinners.slice(0, 4);
             appState.currentWinner = indianNames[Math.floor(Math.random() * indianNames.length)];
             appState.winnerDate = 'Today';
-
             if (appState.isParticipating && Math.random() < 0.1) {
                 appState.balance += 50;
                 updateBalanceDisplay();
                 showNotification('🎊 You won $50!');
                 createConfetti();
             }
-
             appState.isParticipating = false;
             appState.adsWatched = 0;
             updateAdProgress();
@@ -999,7 +987,6 @@
             updateBalanceDisplay();
             updateWinnersDisplay();
             updateWithdrawalHistory();
-
             if (appState.adsWatched >= 50 && !appState.isParticipating) {
                 document.getElementById('enterGiveawayBtn').disabled = false;
             }
@@ -1007,7 +994,6 @@
                 document.getElementById('enterGiveawayBtn').disabled = true;
                 document.getElementById('enterGiveawayBtn').innerHTML = '<i class="fas fa-check-circle mr-2"></i> You\'re in the giveaway!';
             }
-
             startCountdown();
 
             // Event listeners
