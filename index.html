@@ -27,6 +27,8 @@
             --success-color: #48bb78;
             --warning-color: #f6ad55;
             --safe-area-inset-bottom: env(safe-area-inset-bottom, 0px);
+            --tg-bg-primary: #667eea;
+            --tg-bg-secondary: #764ba2;
         }
         html, body {
             margin: 0;
@@ -39,9 +41,9 @@
             left: 0;
             right: 0;
             bottom: 0;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%);
         }
         body {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%);
             color: var(--text-primary);
             position: relative;
             overflow-x: hidden;
@@ -459,10 +461,10 @@
         /* Prevent bounce scroll on iOS */
         .container {
             -webkit-overflow-scrolling: touch;
-            overscroll-behavior: contain;
+            overscroll-behavior: contain        /* Hide scrollbar;
         }
         
-        /* Hide scrollbar but keep functionality */
+ but keep functionality */
         .container::-webkit-scrollbar {
             width: 0px;
             background: transparent;
@@ -787,9 +789,14 @@
                 // Enable closing confirmation
                 window.Telegram.WebApp.enableClosingConfirmation();
                 
-                // Set theme colors
+                // Set theme colors to match our app gradient
                 window.Telegram.WebApp.setHeaderColor('#667eea');
                 window.Telegram.WebApp.setBackgroundColor('#667eea');
+                
+                // Also set the bottom bar color
+                if (window.Telegram.WebApp.BottomBar) {
+                    window.Telegram.WebApp.BottomBar.setBackgroundColor('#667eea');
+                }
                 
                 // Handle viewport changes
                 window.Telegram.WebApp.onViewportChanged(() => {
