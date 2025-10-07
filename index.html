@@ -461,10 +461,10 @@
         /* Prevent bounce scroll on iOS */
         .container {
             -webkit-overflow-scrolling: touch;
-            overscroll-behavior: contain        /* Hide scrollbar;
+            overscroll-behavior: contain;
         }
         
- but keep functionality */
+        /* Hide scrollbar but keep functionality */
         .container::-webkit-scrollbar {
             width: 0px;
             background: transparent;
@@ -532,7 +532,7 @@
                     <div class="flex items-center justify-between mb-4">
                         <h3 class="text-lg font-bold text-gray-800">
                             <i class="fas fa-play-circle text-purple-600 mr-2"></i>
-                            Watch Ads 0 / 50 
+                            Watch Ads <span id="adsWatchedText">0</span> / 50 
                         </h3>
                         <span class="shimmer-badge">Required</span>
                     </div>
@@ -764,8 +764,10 @@
                 { name: 'Sneha Reddy', date: 'June 6, 2023' },
                 { name: 'Vikram Singh', date: 'June 3, 2023' }
             ],
-            adLoading: false
+            adLoading: false,
+            lastAdDate: null // Track the date when ads were watched
         };
+        
         // Indian Names Pool
         const indianNames = [
             'Rajesh Kumar', 'Priya Sharma', 'Amit Patel', 'Sneha Reddy', 'Vikram Singh',
@@ -778,6 +780,70 @@
             'Pooja Gupta', 'Amit Kumar', 'Meera Sharma', 'Rahul Patel', 'Divya Singh',
             'Sanjay Kumar', 'Neha Sharma', 'Arjun Singh', 'Kavita Patel', 'Rohit Verma'
         ];
+
+        // Save user data to localStorage
+        function saveUserData() {
+            const userData = {
+                adsWatched: appState.adsWatched,
+                lastAdDate: appState.lastAdDate,
+                balance: appState.balance,
+                isParticipating: appState.isParticipating,
+                withdrawalHistory: appState.withdrawalHistory,
+                giveawayEndTime: appState.giveawayEndTime,
+                currentWinner: appState.currentWinner,
+                previousWinners: appState.previousWinners
+            };
+            localStorage.setItem('quickGiveawayUserData', JSON.stringify(userData));
+        }
+
+        // Load user data from localStorage
+        function loadUserData() {
+            const savedData = localStorage.getItem('quickGiveawayUserData');
+            if (savedData) {
+                try {
+                    const userData = JSON.parse(savedData);
+                    appState.adsWatched = userData.adsWatched || 0;
+                    appState.lastAdDate = userData.lastAdDate || null;
+                    appState.balance = userData.balance || 0;
+                    appState.isParticipating = userData.isParticipating || false;
+                    appState.withdrawalHistory = userData.withdrawalHistory || [];
+                    appState.giveawayEndTime = userData.giveawayEndTime || new Date().getTime() + (24 * 60 * 60 * 1000);
+                    appState.currentWinner = userData.currentWinner || 'Rajesh Kumar';
+                    appState.previousWinners = userData.previousWinners || [
+                        { name: 'Priya Sharma', date: 'June 12, 2023' },
+                        { name: 'Amit Patel', date: 'June 9, 2023' },
+                        { name: 'Sneha Reddy', date: 'June 6, 2023' },
+                        { name: 'Vikram Singh', date: 'June 3, 2023' }
+                    ];
+                    
+                    // Check if we need to reset the ads watched count (new day)
+                    checkAndResetDailyAds();
+                    
+                    return true;
+                } catch (e) {
+                    console.error('Error loading user data:', e);
+                    return false;
+                }
+            }
+            return false;
+        }
+
+        // Check if it's a new day and reset ads watched if needed
+        function checkAndResetDailyAds() {
+            const today = new Date().toDateString();
+            
+            if (appState.lastAdDate !== today) {
+                // It's a new day, reset the ads watched count
+                appState.adsWatched = 0;
+                appState.lastAdDate = today;
+                saveUserData();
+                
+                // Show notification about the reset
+                setTimeout(() => {
+                    showNotification('🔄 Daily ads counter reset! Start watching ads to enter the giveaway.');
+                }, 1500);
+            }
+        }
 
         // Initialize Telegram Mini App
         function initTelegramApp() {
@@ -921,6 +987,7 @@
             if (distance < 0) {
                 selectWinner();
                 appState.giveawayEndTime = new Date().getTime() + (24 * 60 * 60 * 1000); // 24 hours
+                saveUserData(); // Save the new end time
                 return;
             }
             const days = Math.floor(distance / (1000 * 60 * 60 * 24));
@@ -950,6 +1017,8 @@
 
                 show_9980483().then(() => {
                     appState.adsWatched++;
+                    appState.lastAdDate = new Date().toDateString(); // Update the last ad date
+                    saveUserData(); // Save the updated data
                     updateAdProgress();
                     showNotification('🎬 Ad watched! Keep going!');
                     appState.adLoading = false;
@@ -983,6 +1052,11 @@
             const progressPercent = (appState.adsWatched / 50) * 100;
             document.getElementById('adProgress').style.width = `${progressPercent}%`;
             document.getElementById('adProgressText').textContent = `${appState.adsWatched}/50`;
+            document.getElementById('adsWatchedText').textContent = appState.adsWatched;
+            
+            // Update the watch ad button text
+            const watchAdBtn = document.getElementById('watchAdBtn');
+            watchAdBtn.innerHTML = `<i class="fas fa-play mr-2"></i> Enter Giveaway ${appState.adsWatched}/50`;
         }
 
         // Enter Giveaway
@@ -990,6 +1064,7 @@
             if (appState.adsWatched >= 50 && !appState.isParticipating) {
                 showConfirmModal("🎊 You're now participating in the $50 Giveaway! Good luck!", () => {
                     appState.isParticipating = true;
+                    saveUserData(); // Save the updated state
                     createConfetti();
                     showNotification('🚀 Successfully entered the giveaway!');
                     document.getElementById('enterGiveawayBtn').disabled = true;
@@ -1018,6 +1093,7 @@
             }
             appState.isParticipating = false;
             appState.adsWatched = 0;
+            saveUserData(); // Save the updated state
             updateAdProgress();
             document.getElementById('enterGiveawayBtn').disabled = true;
             document.getElementById('enterGiveawayBtn').innerHTML = '<i class="fas fa-rocket mr-2"></i> Enter Giveaway';
@@ -1074,6 +1150,7 @@
                 };
                 appState.withdrawalHistory.unshift(withdrawal);
                 appState.balance = 0;
+                saveUserData(); // Save the updated state
                 updateBalanceDisplay();
                 updateWithdrawalHistory();
                 document.getElementById('binanceAddress').value = '';
@@ -1163,6 +1240,7 @@
         function simulateWin() {
             if (appState.isParticipating && Math.random() < 0.05) {
                 appState.balance += 50;
+                saveUserData(); // Save the updated state
                 updateBalanceDisplay();
                 showNotification('🎊 Congratulations! You won $50!');
                 createConfetti();
@@ -1173,6 +1251,9 @@
         function initApp() {
             // Load saved user data first
             loadSavedUserData();
+            
+            // Load app state from localStorage
+            const dataLoaded = loadUserData();
             
             // Initialize Telegram Web App
             initTelegramApp();
@@ -1185,6 +1266,13 @@
             updateBalanceDisplay();
             updateWinnersDisplay();
             updateWithdrawalHistory();
+            
+            // Show a notification if data was loaded
+            if (dataLoaded) {
+                setTimeout(() => {
+                    showNotification('📱 Your progress has been restored!');
+                }, 2000);
+            }
             
             // Start timers
             setInterval(updateCountdown, 1000);
@@ -1202,6 +1290,11 @@
             setTimeout(() => {
                 updateViewportHeight();
             }, 100);
+        });
+
+        // Save data before the page is unloaded
+        window.addEventListener('beforeunload', () => {
+            saveUserData();
         });
 
         // Initialize when DOM is ready
