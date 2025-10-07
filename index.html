@@ -8,6 +8,8 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <!-- Ad SDK Script -->
     <script src='//libtl.com/sdk.js' data-zone='9980483' data-sdk='show_9980483'></script>
+    <!-- Telegram Web App Script -->
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <style>
         /* ... [All your existing CSS remains unchanged] ... */
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
@@ -31,8 +33,8 @@
             width: 100%;
             min-height: 100vh;
             display: flex;
-            justify-content: center;
-            align-items: flex-start;
+            flex-direction: column;
+            justify-content: flex-start;
         }
         body {
             background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%);
@@ -58,10 +60,16 @@
             margin: 0 auto;
             position: relative;
             z-index: 1;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
         }
         .container {
             position: relative;
             z-index: 1;
+            flex: 1;
+            padding-bottom: 80px;
         }
         .glass-card {
             background: var(--card-bg);
@@ -279,32 +287,50 @@
         }
         .tab-button {
             flex: 1;
-            padding: 12px 8px;
+            padding: 8px 4px;
             text-align: center;
             font-weight: 700;
-            border-bottom: 3px solid transparent;
             transition: all 0.3s ease;
             cursor: pointer;
             color: #4a5568;
-            text-shadow: 0 1px 2px rgba(255, 255, 255, 0.5);
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            min-height: 60px;
+            position: relative;
         }
         .tab-button i {
-            font-size: 1.2rem;
-            margin-bottom: 4px;
+            font-size: 1.4rem;
+            margin-bottom: 2px;
         }
         .tab-button span {
-            font-size: 0.75rem;
+            font-size: 0.7rem;
             line-height: 1;
         }
         .tab-button.active {
-            border-bottom-color: #1a202c;
-            color: #1a202c;
-            background: rgba(255, 255, 255, 0.2);
+            color: #667eea;
+        }
+        .tab-button.active::after {
+            content: '';
+            position: absolute;
+            top: -4px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 30px;
+            height: 3px;
+            background: var(--primary-gradient);
+            border-radius: 2px;
+        }
+        .bottom-nav {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: var(--card-bg);
+            backdrop-filter: blur(20px);
+            box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.1);
+            z-index: 100;
+            border-top: 1px solid rgba(255, 255, 255, 0.2);
         }
         .balance-display {
             background: var(--primary-gradient);
@@ -401,6 +427,16 @@
         @keyframes spin {
             to { transform: rotate(360deg); }
         }
+        .profile-loading {
+            display: inline-block;
+            width: 14px;
+            height: 14px;
+            border: 2px solid rgba(255,255,255,.3);
+            border-radius: 50%;
+            border-top-color: #fff;
+            animation: spin 1s ease-in-out infinite;
+            margin-left: 8px;
+        }
     </style>
 </head>
 <body>
@@ -420,7 +456,10 @@
                                 <div class="absolute -bottom-1 -right-1 w-5 h-5 bg-green-400 rounded-full border-2 border-white"></div>
                             </div>
                             <div class="ml-4">
-                                <h2 id="userName" class="font-bold text-xl text-gray-800">Telegram User</h2>
+                                <h2 id="userName" class="font-bold text-xl text-gray-800">
+                                    Loading...
+                                    <span class="profile-loading"></span>
+                                </h2>
                                 <div class="flex items-center mt-1">
                                     <i class="fas fa-coins text-yellow-500 mr-1"></i>
                                     <span class="text-sm font-semibold text-gray-600">Balance: $<span id="userBalance">0.00</span></span>
@@ -435,27 +474,6 @@
                     </div>
                 </div>
             </header>
-            <!-- Tab Navigation -->
-            <div class="glass-card mb-6 p-2">
-                <div class="flex">
-                    <div class="tab-button active" data-tab="home">
-                        <i class="fas fa-home"></i>
-                        <span>Home</span>
-                    </div>
-                    <div class="tab-button" data-tab="tasks">
-                        <i class="fas fa-tasks"></i>
-                        <span>Tasks</span>
-                    </div>
-                    <div class="tab-button" data-tab="winners">
-                        <i class="fas fa-trophy"></i>
-                        <span>Winners</span>
-                    </div>
-                    <div class="tab-button" data-tab="withdraw">
-                        <i class="fas fa-wallet"></i>
-                        <span>Withdraw</span>
-                    </div>
-                </div>
-            </div>
             <!-- Home Tab -->
             <div id="home" class="tab-content active">
                 <!-- Hero Banner -->
@@ -465,31 +483,12 @@
                         <h1 class="text-3xl font-black mb-3 bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">
                             $50 QuickGiveaway
                         </h1>
-                        <p class="text-gray-600 mb-4">Every 3 days • Multiple winners</p>
+                        <p class="text-gray-600 mb-4">Every 24 hours • Multiple winners</p>
                         <div class="pulse">
-                            <div class="countdown text-4xl" id="homeCountdown">2d 14h 32m</div>
+                            <div class="countdown text-4xl" id="homeCountdown">14h 32m 15s</div>
                         </div>
                     </div>
                     <i class="fas fa-gift absolute -right-10 -top-10 text-white opacity-10 text-9xl"></i>
-                </div>
-                <!-- Social Cards -->
-                <div class="grid grid-cols-2 gap-4 mb-6">
-                    <a href="https://t.me/EarnOnlineWithSufyan" target="_blank" class="social-card">
-                        <i class="fab fa-telegram text-blue-500"></i>
-                        <span class="text-sm font-bold text-gray-700">Telegram Channel</span>
-                    </a>
-                    <a href="https://t.me/quick_cash_announcement" target="_blank" class="social-card">
-                        <i class="fas fa-users text-blue-600"></i>
-                        <span class="text-sm font-bold text-gray-700">Telegram Group</span>
-                    </a>
-                    <a href="https://www.facebook.com/sufyanThePro" target="_blank" class="social-card">
-                        <i class="fab fa-facebook text-blue-700"></i>
-                        <span class="text-sm font-bold text-gray-700">Facebook</span>
-                    </a>
-                    <a href="https://www.youtube.com/@SufyanCircuit" target="_blank" class="social-card">
-                        <i class="fab fa-youtube text-red-500"></i>
-                        <span class="text-sm font-bold text-gray-700">YouTube</span>
-                    </a>
                 </div>
                 <!-- Ad Progress Card -->
                 <div class="glass-card p-6 mb-6">
@@ -519,82 +518,32 @@
                 <div class="glass-card p-6">
                     <h2 class="text-2xl font-bold mb-6 text-gray-800">
                         <i class="fas fa-clipboard-list text-purple-600 mr-2"></i>
-                        Complete Tasks
+                        Social Media Tasks
                     </h2>
-                    <!-- Mandatory Task -->
-                    <div class="task-item">
-                        <div class="flex items-center justify-between mb-3">
-                            <div>
-                                <h3 class="font-bold text-lg text-gray-800">Watch Ads</h3>
-                                <p class="text-sm text-gray-600">Complete 50 ads to unlock giveaway entry</p>
-                            </div>
-                            <div class="text-right">
-                                <span id="taskAdProgress" class="text-2xl font-bold text-purple-600">0/50</span>
-                                <p class="text-xs text-gray-500">ads watched</p>
-                            </div>
-                        </div>
-                        <div class="progress-bar">
-                            <div class="progress-fill" id="taskAdProgressBar" style="width: 0%"></div>
-                        </div>
-                    </div>
-                    <!-- Optional Tasks -->
-                    <h3 class="font-bold text-lg mt-6 mb-4 text-gray-800">Bonus Tasks</h3>
-                    <!-- Watch Ad Bonus Task -->
-                    <div class="task-item">
-                        <div class="flex items-center justify-between">
-                            <div>
-                                <p class="font-bold text-gray-800">Watch an Ad</p>
-                                <p class="text-sm text-gray-600">Earn progress toward giveaway entry</p>
-                            </div>
-                        </div>
-                        <button id="bonusWatchAdBtn" class="btn btn-primary mt-3 w-full">
-                            <i class="fas fa-play mr-2"></i> Watch Ad
-                        </button>
-                    </div>
-                    <!-- Social Tasks -->
-                    <div class="task-item">
-                        <div class="flex items-center justify-between">
-                            <div>
-                                <p class="font-bold text-gray-800">Join Telegram Channel</p>
-                                <p class="text-sm text-gray-600">Follow our official channel for updates</p>
-                            </div>
-                        </div>
-                        <a href="https://t.me/EarnOnlineWithSufyan" target="_blank" class="btn btn-primary mt-3 w-full">
-                            <i class="fab fa-telegram mr-2"></i> Join Now
+                    <!-- Social Cards -->
+                    <div class="grid grid-cols-2 gap-4 mb-6">
+                        <a href="https://t.me/EarnOnlineWithSufyan" target="_blank" class="social-card">
+                            <i class="fab fa-telegram text-blue-500"></i>
+                            <span class="text-sm font-bold text-gray-700">Telegram Channel</span>
+                        </a>
+                        <a href="https://t.me/quick_cash_announcement" target="_blank" class="social-card">
+                            <i class="fas fa-users text-blue-600"></i>
+                            <span class="text-sm font-bold text-gray-700">Telegram Group</span>
+                        </a>
+                        <a href="https://www.facebook.com/sufyanThePro" target="_blank" class="social-card">
+                            <i class="fab fa-facebook text-blue-700"></i>
+                            <span class="text-sm font-bold text-gray-700">Facebook</span>
+                        </a>
+                        <a href="https://www.youtube.com/@SufyanCircuit" target="_blank" class="social-card">
+                            <i class="fab fa-youtube text-red-500"></i>
+                            <span class="text-sm font-bold text-gray-700">YouTube</span>
                         </a>
                     </div>
-                    <div class="task-item">
-                        <div class="flex items-center justify-between">
-                            <div>
-                                <p class="font-bold text-gray-800">Join Telegram Group</p>
-                                <p class="text-sm text-gray-600">Connect with our community</p>
-                            </div>
-                        </div>
-                        <a href="https://t.me/quick_cash_announcement" target="_blank" class="btn btn-primary mt-3 w-full">
-                            <i class="fas fa-users mr-2"></i> Join Now
-                        </a>
-                    </div>
-                    <div class="task-item">
-                        <div class="flex items-center justify-between">
-                            <div>
-                                <p class="font-bold text-gray-800">Follow Facebook Page</p>
-                                <p class="text-sm text-gray-600">Like our Facebook page for updates</p>
-                            </div>
-                        </div>
-                        <a href="https://www.facebook.com/sufyanThePro" target="_blank" class="btn btn-primary mt-3 w-full">
-                            <i class="fab fa-facebook mr-2"></i> Follow Now
-                        </a>
-                    </div>
-                    <div class="task-item">
-                        <div class="flex items-center justify-between">
-                            <div>
-                                <p class="font-bold text-gray-800">Subscribe YouTube Channel</p>
-                                <p class="text-sm text-gray-600">Watch our latest videos and updates</p>
-                            </div>
-                        </div>
-                        <a href="https://www.youtube.com/@SufyanCircuit" target="_blank" class="btn btn-primary mt-3 w-full">
-                            <i class="fab fa-youtube mr-2"></i> Subscribe Now
-                        </a>
+                    <!-- Info Section -->
+                    <div class="text-center py-6">
+                        <i class="fas fa-info-circle text-purple-600 text-3xl mb-3"></i>
+                        <p class="text-gray-600 font-medium">Follow our social media channels to stay updated with the latest giveaways and announcements!</p>
+                        <p class="text-sm text-gray-500 mt-2">Click on any card above to visit our social media pages</p>
                     </div>
                 </div>
             </div>
@@ -717,6 +666,29 @@
                 </div>
             </div>
         </div>
+        <!-- Bottom Navigation -->
+        <div class="bottom-nav">
+            <div class="glass-card rounded-none border-0 shadow-none">
+                <div class="flex">
+                    <div class="tab-button active" data-tab="home">
+                        <i class="fas fa-home"></i>
+                        <span>Home</span>
+                    </div>
+                    <div class="tab-button" data-tab="tasks">
+                        <i class="fas fa-tasks"></i>
+                        <span>Tasks</span>
+                    </div>
+                    <div class="tab-button" data-tab="winners">
+                        <i class="fas fa-trophy"></i>
+                        <span>Winners</span>
+                    </div>
+                    <div class="tab-button" data-tab="withdraw">
+                        <i class="fas fa-wallet"></i>
+                        <span>Withdraw</span>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
     <!-- Notification -->
     <div id="notification" class="notification">
@@ -745,8 +717,9 @@
             balance: 0,
             userName: 'Telegram User',
             userPic: 'https://picsum.photos/seed/telegramuser/60/60.jpg',
+            userId: null,
             withdrawalHistory: [],
-            giveawayEndTime: new Date().getTime() + (3 * 24 * 60 * 60 * 1000),
+            giveawayEndTime: new Date().getTime() + (24 * 60 * 60 * 1000), // 24 hours
             currentWinner: 'Rajesh Kumar',
             previousWinners: [
                 { name: 'Priya Sharma', date: 'June 12, 2023' },
@@ -771,13 +744,90 @@
 
         // Initialize Telegram Mini App
         function initTelegramApp() {
+            // Check if Telegram WebApp is available
             if (window.Telegram && window.Telegram.WebApp) {
-                const user = window.Telegram.WebApp.initDataUnsafe.user;
+                // Expand the Web App
+                window.Telegram.WebApp.expand();
+                
+                // Enable closing confirmation
+                window.Telegram.WebApp.enableClosingConfirmation();
+                
+                // Set theme colors
+                window.Telegram.WebApp.setHeaderColor('#667eea');
+                window.Telegram.WebApp.setBackgroundColor('#667eea');
+                
+                // Get user data from initDataUnsafe (for development)
+                let user = window.Telegram.WebApp.initDataUnsafe.user;
+                
+                // If no user data, try to get from WebApp (for production)
+                if (!user) {
+                    try {
+                        const initData = window.Telegram.WebApp.initData;
+                        if (initData) {
+                            const urlParams = new URLSearchParams(initData);
+                            const userStr = urlParams.get('user');
+                            if (userStr) {
+                                user = JSON.parse(decodeURIComponent(userStr));
+                            }
+                        }
+                    } catch (e) {
+                        console.error('Error parsing user data:', e);
+                    }
+                }
+                
+                // Update UI with user data
                 if (user) {
                     appState.userName = `${user.first_name}${user.last_name ? ' ' + user.last_name : ''}`;
-                    appState.userPic = user.photo_url || appState.userPic;
-                    document.getElementById('userName').textContent = appState.userName;
+                    appState.userId = user.id;
+                    
+                    // Get user photo
+                    if (user.photo_url) {
+                        appState.userPic = user.photo_url;
+                    } else {
+                        // Generate avatar URL using user ID
+                        appState.userPic = `https://api.dicebear.com/7.x/avataaars/svg?seed=${user.id}`;
+                    }
+                    
+                    // Update UI elements
+                    document.getElementById('userName').innerHTML = appState.userName;
                     document.getElementById('userProfilePic').src = appState.userPic;
+                    
+                    // Show welcome notification
+                    setTimeout(() => {
+                        showNotification(`👋 Welcome, ${appState.userName}!`);
+                    }, 1000);
+                } else {
+                    // Fallback for testing outside Telegram
+                    document.getElementById('userName').innerHTML = 'Test User';
+                    document.getElementById('userProfilePic').src = 'https://picsum.photos/seed/testuser/60/60.jpg';
+                    showNotification('⚠️ Running in test mode');
+                }
+                
+                // Store user data in localStorage for persistence
+                if (user) {
+                    localStorage.setItem('telegramUser', JSON.stringify(user));
+                }
+            } else {
+                // Fallback for testing outside Telegram
+                document.getElementById('userName').innerHTML = 'Test User';
+                document.getElementById('userProfilePic').src = 'https://picsum.photos/seed/testuser/60/60.jpg';
+                showNotification('⚠️ Running in test mode');
+            }
+        }
+
+        // Load saved user data on page load
+        function loadSavedUserData() {
+            const savedUser = localStorage.getItem('telegramUser');
+            if (savedUser) {
+                try {
+                    const user = JSON.parse(savedUser);
+                    appState.userName = `${user.first_name}${user.last_name ? ' ' + user.last_name : ''}`;
+                    appState.userId = user.id;
+                    appState.userPic = user.photo_url || `https://api.dicebear.com/7.x/avataaars/svg?seed=${user.id}`;
+                    document.getElementById('userName').innerHTML = appState.userName;
+                    document.getElementById('userProfilePic').src = appState.userPic;
+                } catch (e) {
+                    console.error('Error loading saved user data:', e);
                 }
             }
         }
@@ -799,14 +849,22 @@
             const distance = appState.giveawayEndTime - now;
             if (distance < 0) {
                 selectWinner();
-                appState.giveawayEndTime = new Date().getTime() + (3 * 24 * 60 * 60 * 1000);
+                appState.giveawayEndTime = new Date().getTime() + (24 * 60 * 60 * 1000); // 24 hours
                 return;
             }
             const days = Math.floor(distance / (1000 * 60 * 60 * 24));
             const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
             const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
             const seconds = Math.floor((distance % (1000 * 60)) / 1000);
-            const countdownText = `${days}d ${hours}h ${minutes}m ${seconds}s`;
+            
+            // Updated countdown display to show hours, minutes, seconds for 24-hour format
+            let countdownText = '';
+            if (days > 0) {
+                countdownText = `${days}d ${hours}h ${minutes}m ${seconds}s`;
+            } else {
+                countdownText = `${hours}h ${minutes}m ${seconds}s`;
+            }
+            
             document.getElementById('homeCountdown').textContent = countdownText;
         }
 
@@ -815,14 +873,9 @@
             if (typeof show_9980483 === 'function') {
                 appState.adLoading = true;
                 const watchAdBtn = document.getElementById('watchAdBtn');
-                const bonusWatchAdBtn = document.getElementById('bonusWatchAdBtn');
                 const originalContent = watchAdBtn.innerHTML;
                 watchAdBtn.innerHTML = '<span class="ad-loading"></span> Loading Ad...';
                 watchAdBtn.disabled = true;
-                if (bonusWatchAdBtn) {
-                    bonusWatchAdBtn.disabled = true;
-                    bonusWatchAdBtn.innerHTML = '<span class="ad-loading"></span> Loading...';
-                }
 
                 show_9980483().then(() => {
                     appState.adsWatched++;
@@ -831,10 +884,6 @@
                     appState.adLoading = false;
                     watchAdBtn.innerHTML = originalContent;
                     watchAdBtn.disabled = false;
-                    if (bonusWatchAdBtn) {
-                        bonusWatchAdBtn.disabled = false;
-                        bonusWatchAdBtn.innerHTML = '<i class="fas fa-play mr-2"></i> Watch Ad';
-                    }
                     if (appState.adsWatched === 50) {
                         document.getElementById('enterGiveawayBtn').disabled = false;
                         showNotification('🎉 You can now enter the giveaway!');
@@ -845,24 +894,14 @@
                     appState.adLoading = false;
                     watchAdBtn.innerHTML = originalContent;
                     watchAdBtn.disabled = false;
-                    if (bonusWatchAdBtn) {
-                        bonusWatchAdBtn.disabled = false;
-                        bonusWatchAdBtn.innerHTML = '<i class="fas fa-play mr-2"></i> Watch Ad';
-                    }
                 });
             } else {
                 showNotification('⚠️ Ad service is not available. Please try again later.');
             }
         }
 
-        // Attach event to both ad buttons
+        // Attach event to ad button
         document.getElementById('watchAdBtn').addEventListener('click', () => {
-            if (appState.adsWatched < 50 && !appState.adLoading) {
-                showAd();
-            }
-        });
-
-        document.getElementById('bonusWatchAdBtn').addEventListener('click', () => {
             if (appState.adsWatched < 50 && !appState.adLoading) {
                 showAd();
             }
@@ -873,8 +912,6 @@
             const progressPercent = (appState.adsWatched / 50) * 100;
             document.getElementById('adProgress').style.width = `${progressPercent}%`;
             document.getElementById('adProgressText').textContent = `${appState.adsWatched}/50`;
-            document.getElementById('taskAdProgress').textContent = `${appState.adsWatched}/50`;
-            document.getElementById('taskAdProgressBar').style.width = `${progressPercent}%`;
         }
 
         // Enter Giveaway
@@ -1063,17 +1100,29 @@
 
         // Initialize App
         function initApp() {
+            // Load saved user data first
+            loadSavedUserData();
+            
+            // Initialize Telegram Web App
             initTelegramApp();
+            
+            // Update UI elements
             updateAdProgress();
             updateBalanceDisplay();
             updateWinnersDisplay();
             updateWithdrawalHistory();
+            
+            // Start timers
             setInterval(updateCountdown, 1000);
             updateCountdown();
             setInterval(simulateWin, 30000);
         }
 
-        initApp();
+        // Initialize when DOM is ready
+        document.addEventListener('DOMContentLoaded', initApp);
+        
+        // Also initialize when window loads (for Telegram Web App)
+        window.addEventListener('load', initApp);
     </script>
 </body>
 </html>
