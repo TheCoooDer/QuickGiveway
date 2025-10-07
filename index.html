@@ -11,6 +11,7 @@
     <!-- Telegram Web App Script -->
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <style>
+        /* ... (same CSS as before – no changes needed) ... */
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
         * {
             font-family: 'Inter', sans-serif;
@@ -448,41 +449,32 @@
             animation: spin 1s ease-in-out infinite;
             margin-left: 8px;
         }
-        
-        /* Telegram WebApp specific fixes */
         @supports (padding: max(0px)) {
             .container {
                 padding-left: max(16px, env(safe-area-inset-left));
                 padding-right: max(16px, env(safe-area-inset-right));
             }
         }
-        
-        /* Prevent bounce scroll on iOS */
         .container {
             -webkit-overflow-scrolling: touch;
             overscroll-behavior: contain;
         }
-        
-        /* Hide scrollbar but keep functionality */
         .container::-webkit-scrollbar {
             width: 0px;
             background: transparent;
         }
-        
-        /* For Firefox */
         .container {
             scrollbar-width: none;
         }
     </style>
 </head>
 <body>
+    <!-- ... (same HTML structure as before – no changes needed) ... -->
     <div class="app-wrapper">
         <div class="container">
-            <!-- Floating Icons -->
             <i class="fas fa-gift floating-icon text-white text-6xl" style="top: 10%; left: 5%;"></i>
             <i class="fas fa-trophy floating-icon text-white text-4xl" style="top: 60%; right: 5%; animation-delay: 2s;"></i>
             <i class="fas fa-coins floating-icon text-white text-5xl" style="bottom: 20%; left: 10%; animation-delay: 4s;"></i>
-            <!-- Header -->
             <header class="mb-6">
                 <div class="glass-card p-5">
                     <div class="flex items-center justify-between">
@@ -510,9 +502,7 @@
                     </div>
                 </div>
             </header>
-            <!-- Home Tab -->
             <div id="home" class="tab-content active">
-                <!-- Hero Banner -->
                 <div class="glass-card p-6 mb-6 text-center relative overflow-hidden">
                     <div class="relative z-10">
                         <div class="shimmer-badge inline-block mb-3">🎉 LIVE GIVEAWAY</div>
@@ -526,7 +516,6 @@
                     </div>
                     <i class="fas fa-gift absolute -right-10 -top-10 text-white opacity-10 text-9xl"></i>
                 </div>
-                <!-- Ad Progress Card -->
                 <div class="glass-card p-6 mb-6">
                     <div class="flex items-center justify-between mb-4">
                         <h3 class="text-lg font-bold text-gray-800">
@@ -544,19 +533,16 @@
                         <i class="fas fa-play mr-2"></i> Watch Ad (0/50)
                     </button>
                 </div>
-                <!-- Enter Giveaway Button -->
                 <button id="enterGiveawayBtn" class="btn btn-accent w-full text-lg py-4 font-bold" disabled>
                     <i class="fas fa-rocket mr-2"></i> Enter Giveaway
                 </button>
             </div>
-            <!-- Tasks Tab -->
             <div id="tasks" class="tab-content">
                 <div class="glass-card p-6">
                     <h2 class="text-2xl font-bold mb-6 text-gray-800">
                         <i class="fas fa-clipboard-list text-purple-600 mr-2"></i>
                         Social Media Tasks
                     </h2>
-                    <!-- Social Cards -->
                     <div class="grid grid-cols-2 gap-4 mb-6">
                         <a href="https://t.me/EarnOnlineWithSufyan" target="_blank" class="social-card">
                             <i class="fab fa-telegram text-blue-500"></i>
@@ -575,7 +561,6 @@
                             <span class="text-sm font-bold text-gray-700">YouTube</span>
                         </a>
                     </div>
-                    <!-- Info Section -->
                     <div class="text-center py-6">
                         <i class="fas fa-info-circle text-purple-600 text-3xl mb-3"></i>
                         <p class="text-gray-600 font-medium">Follow our social media channels to stay updated with the latest giveaways and announcements!</p>
@@ -583,7 +568,6 @@
                     </div>
                 </div>
             </div>
-            <!-- Winners Tab -->
             <div id="winners" class="tab-content">
                 <div class="glass-card p-6">
                     <div class="mb-6">
@@ -592,7 +576,6 @@
                             Hall of Winners
                         </h2>
                     </div>
-                    <!-- Current Winner -->
                     <div class="winner-card mb-6 relative">
                         <div class="relative z-10">
                             <i class="fas fa-trophy text-5xl text-white mb-3"></i>
@@ -601,84 +584,25 @@
                             <p class="text-white/90 mt-2">Won $50 • <span id="winnerDate">Today</span></p>
                         </div>
                     </div>
-                    <!-- Previous Winners -->
                     <div>
                         <h3 class="font-bold text-lg mb-4 text-gray-800">Recent Winners</h3>
                         <div class="space-y-3" id="previousWinners">
-                            <div class="task-item">
-                                <div class="flex items-center justify-between">
-                                    <div class="flex items-center">
-                                        <div class="w-10 h-10 bg-gradient-to-br from-yellow-400 to-orange-500 rounded-full flex items-center justify-center mr-3">
-                                            <i class="fas fa-medal text-white"></i>
-                                        </div>
-                                        <div>
-                                            <p class="font-bold text-gray-800">Priya Sharma</p>
-                                            <p class="text-xs text-gray-500">Last 24h</p>
-                                        </div>
-                                    </div>
-                                    <span class="text-green-600 font-bold">$50</span>
-                                </div>
-                            </div>
-                            <div class="task-item">
-                                <div class="flex items-center justify-between">
-                                    <div class="flex items-center">
-                                        <div class="w-10 h-10 bg-gradient-to-br from-gray-400 to-gray-600 rounded-full flex items-center justify-center mr-3">
-                                            <i class="fas fa-medal text-white"></i>
-                                        </div>
-                                        <div>
-                                            <p class="font-bold text-gray-800">Amit Patel</p>
-                                            <p class="text-xs text-gray-500">Previous 24h</p>
-                                        </div>
-                                    </div>
-                                    <span class="text-green-600 font-bold">$50</span>
-                                </div>
-                            </div>
-                            <div class="task-item">
-                                <div class="flex items-center justify-between">
-                                    <div class="flex items-center">
-                                        <div class="w-10 h-10 bg-gradient-to-br from-orange-600 to-red-600 rounded-full flex items-center justify-center mr-3">
-                                            <i class="fas fa-medal text-white"></i>
-                                        </div>
-                                        <div>
-                                            <p class="font-bold text-gray-800">Sneha Reddy</p>
-                                            <p class="text-xs text-gray-500">2 cycles ago</p>
-                                        </div>
-                                    </div>
-                                    <span class="text-green-600 font-bold">$50</span>
-                                </div>
-                            </div>
-                            <div class="task-item">
-                                <div class="flex items-center justify-between">
-                                    <div class="flex items-center">
-                                        <div class="w-10 h-10 bg-gradient-to-br from-blue-400 to-blue-600 rounded-full flex items-center justify-center mr-3">
-                                            <i class="fas fa-medal text-white"></i>
-                                        </div>
-                                        <div>
-                                            <p class="font-bold text-gray-800">Vikram Singh</p>
-                                            <p class="text-xs text-gray-500">3 cycles ago</p>
-                                        </div>
-                                    </div>
-                                    <span class="text-green-600 font-bold">$50</span>
-                                </div>
-                            </div>
+                            <!-- populated by JS -->
                         </div>
                     </div>
                 </div>
             </div>
-            <!-- Withdraw Tab -->
             <div id="withdraw" class="tab-content">
                 <div class="glass-card p-6">
                     <h2 class="text-2xl font-bold mb-6 text-gray-800">
                         <i class="fas fa-hand-holding-usd text-green-600 mr-2"></i>
                         Withdraw Funds
                     </h2>
-                    <!-- Balance Display -->
                     <div class="balance-display mb-6">
                         <p class="text-white/90 text-sm mb-2">Available Balance</p>
                         <p class="balance-amount">$<span id="withdrawBalance">0.00</span></p>
                         <p class="text-white/80 text-xs mt-2">Minimum withdrawal: $10</p>
                     </div>
-                    <!-- Withdrawal Form -->
                     <div class="mb-6">
                         <label class="block text-sm font-bold text-gray-700 mb-2">
                             <i class="fas fa-wallet mr-1"></i> Binance Wallet Address
@@ -689,7 +613,6 @@
                     <button id="requestWithdrawBtn" class="btn btn-accent w-full mb-6 py-4 text-lg" disabled>
                         <i class="fas fa-paper-plane mr-2"></i> Request Withdrawal
                     </button>
-                    <!-- Withdrawal History -->
                     <div>
                         <h3 class="font-bold text-lg mb-4 text-gray-800">Transaction History</h3>
                         <div id="withdrawalHistory" class="space-y-3">
@@ -702,7 +625,6 @@
                 </div>
             </div>
         </div>
-        <!-- Bottom Navigation -->
         <div class="bottom-nav">
             <div class="glass-card rounded-none border-0 shadow-none">
                 <div class="flex">
@@ -726,11 +648,9 @@
             </div>
         </div>
     </div>
-    <!-- Notification -->
     <div id="notification" class="notification">
         <span id="notificationText">Notification message</span>
     </div>
-    <!-- Confirmation Modal -->
     <div id="confirmModal" class="modal">
         <div class="modal-content">
             <div class="text-center mb-4">
@@ -768,10 +688,6 @@
             lastSavedDate: new Date().toDateString()
         };
 
-        // Timer variables
-        let countdownInterval;
-        let lastUpdateTime = 0;
-        const TIMER_UPDATE_INTERVAL = 1000; // 1 second
         const GIVEAWAY_DURATION = 24 * 60 * 60 * 1000; // 24 hours in milliseconds
 
         // Indian Names Pool
@@ -787,7 +703,7 @@
             'Sanjay Kumar', 'Neha Sharma', 'Arjun Singh', 'Kavita Patel', 'Rohit Verma'
         ];
 
-        // Save user state to localStorage
+        // Save full user state
         function saveUserState() {
             const userState = {
                 adsWatched: appState.adsWatched,
@@ -803,648 +719,345 @@
             localStorage.setItem('userState', JSON.stringify(userState));
         }
 
-        // Load user state from localStorage with daily reset check
+        // Load user state with daily reset logic
         function loadUserState() {
             const savedState = localStorage.getItem('userState');
+            const today = new Date().toDateString();
+
             if (savedState) {
                 try {
                     const userState = JSON.parse(savedState);
-                    const today = new Date().toDateString();
-                    
-                    // Check if it's a new day
                     if (userState.lastSavedDate !== today) {
-                        // It's a new day, reset everything
+                        // New day: reset progress
                         appState.adsWatched = 0;
                         appState.isParticipating = false;
                         appState.giveawayEndTime = new Date().getTime() + GIVEAWAY_DURATION;
                         appState.lastSavedDate = today;
-                        console.log('New day detected - resetting progress');
                         showNotification('🌅 Daily reset! New giveaway started!');
                     } else {
-                        // Same day, load saved state
-                        appState.adsWatched = userState.adsWatched || 0;
-                        appState.isParticipating = userState.isParticipating || false;
-                        appState.giveawayEndTime = userState.giveawayEndTime || (new Date().getTime() + GIVEAWAY_DURATION);
-                        appState.balance = userState.balance || 0;
-                        appState.withdrawalHistory = userState.withdrawalHistory || [];
-                        appState.currentWinner = userState.currentWinner || 'Rajesh Kumar';
-                        appState.winnerDate = userState.winnerDate || 'Today';
-                        appState.previousWinners = userState.previousWinners || [
-                            { name: 'Priya Sharma', date: 'Last 24h' },
-                            { name: 'Amit Patel', date: 'Previous 24h' },
-                            { name: 'Sneha Reddy', date: '2 cycles ago' },
-                            { name: 'Vikram Singh', date: '3 cycles ago' }
-                        ];
-                        appState.lastSavedDate = userState.lastSavedDate || today;
-                        console.log('Loaded saved state for today');
+                        // Same day: restore state
+                        Object.assign(appState, {
+                            adsWatched: userState.adsWatched || 0,
+                            isParticipating: userState.isParticipating || false,
+                            giveawayEndTime: userState.giveawayEndTime || (new Date().getTime() + GIVEAWAY_DURATION),
+                            balance: userState.balance || 0,
+                            withdrawalHistory: userState.withdrawalHistory || [],
+                            currentWinner: userState.currentWinner || 'Rajesh Kumar',
+                            winnerDate: userState.winnerDate || 'Today',
+                            previousWinners: userState.previousWinners || appState.previousWinners,
+                            lastSavedDate: userState.lastSavedDate || today
+                        });
                     }
                 } catch (e) {
                     console.error('Error loading user state:', e);
-                    // Reset to default if error
-                    appState.adsWatched = 0;
-                    appState.isParticipating = false;
-                    appState.giveawayEndTime = new Date().getTime() + GIVEAWAY_DURATION;
-                    appState.lastSavedDate = new Date().toDateString();
+                    resetAppState();
                 }
             } else {
-                // No saved state, initialize with defaults
-                appState.adsWatched = 0;
-                appState.isParticipating = false;
-                appState.giveawayEndTime = new Date().getTime() + GIVEAWAY_DURATION;
-                appState.lastSavedDate = new Date().toDateString();
+                resetAppState();
             }
         }
 
-        // Initialize Telegram Mini App
+        function resetAppState() {
+            appState.adsWatched = 0;
+            appState.isParticipating = false;
+            appState.giveawayEndTime = new Date().getTime() + GIVEAWAY_DURATION;
+            appState.lastSavedDate = new Date().toDateString();
+        }
+
+        // Telegram App Init
         function initTelegramApp() {
-            // Check if Telegram WebApp is available
-            if (window.Telegram && window.Telegram.WebApp) {
-                // Expand the Web App
+            if (window.Telegram?.WebApp) {
                 window.Telegram.WebApp.expand();
-                
-                // Enable closing confirmation
                 window.Telegram.WebApp.enableClosingConfirmation();
-                
-                // Set theme colors to match our app gradient
                 window.Telegram.WebApp.setHeaderColor('#667eea');
                 window.Telegram.WebApp.setBackgroundColor('#667eea');
-                
-                // Also set the bottom bar color
-                if (window.Telegram.WebApp.BottomBar) {
-                    window.Telegram.WebApp.BottomBar.setBackgroundColor('#667eea');
-                }
-                
-                // Handle viewport changes
-                window.Telegram.WebApp.onViewportChanged(() => {
-                    updateViewportHeight();
-                });
-                
-                // Handle when the app is opened again
+
+                // Handle app resume (viewport change = likely reopened)
                 window.Telegram.WebApp.onEvent('viewportChanged', () => {
-                    // When viewport changes (app reopened), check if timer needs updating
-                    const now = new Date().getTime();
-                    const timeSinceLastUpdate = now - lastUpdateTime;
-                    
-                    // If it's been more than 10 seconds since last update, update immediately
-                    if (timeSinceLastUpdate > 10000) {
-                        updateCountdown();
-                    }
+                    updateCountdown();
                 });
-                
-                // Handle when the app is closed
-                window.Telegram.WebApp.onEvent('closeRequested', () => {
-                    // Save state before closing
-                    saveUserState();
-                    saveTimerState();
-                });
-                
-                // Get user data from Telegram WebApp
-                let user = null;
-                
-                // Try to get user data from initDataUnsafe first
-                if (window.Telegram.WebApp.initDataUnsafe && window.Telegram.WebApp.initDataUnsafe.user) {
-                    user = window.Telegram.WebApp.initDataUnsafe.user;
-                }
-                
-                // If no user data, try to parse from initData
+
+                // Save on close
+                window.Telegram.WebApp.onEvent('mainButtonClicked', saveUserState);
+                window.addEventListener('beforeunload', saveUserState);
+
+                // Load user
+                let user = window.Telegram.WebApp.initDataUnsafe?.user;
                 if (!user && window.Telegram.WebApp.initData) {
                     try {
-                        const urlParams = new URLSearchParams(window.Telegram.WebApp.initData);
-                        const userStr = urlParams.get('user');
-                        if (userStr) {
-                            user = JSON.parse(decodeURIComponent(userStr));
-                        }
+                        const params = new URLSearchParams(window.Telegram.WebApp.initData);
+                        const userStr = params.get('user');
+                        if (userStr) user = JSON.parse(decodeURIComponent(userStr));
                     } catch (e) {
-                        console.error('Error parsing user data from initData:', e);
+                        console.error('Parse error:', e);
                     }
                 }
-                
-                // Update UI with user data
+
                 if (user) {
-                    appState.userName = user.first_name || 'User';
-                    if (user.last_name) {
-                        appState.userName += ' ' + user.last_name;
-                    }
+                    appState.userName = (user.first_name || '') + (user.last_name ? ' ' + user.last_name : '');
                     appState.userId = user.id;
-                    
-                    // Get user photo URL
-                    if (user.photo_url) {
-                        appState.userPic = user.photo_url;
-                    } else {
-                        // Generate avatar using user ID
-                        appState.userPic = `https://api.dicebear.com/7.x/avataaars/svg?seed=${user.id}`;
-                    }
-                    
-                    // Update UI elements
-                    document.getElementById('userName').innerHTML = appState.userName;
+                    appState.userPic = user.photo_url || `https://api.dicebear.com/7.x/avataaars/svg?seed=${user.id}`;
+                    document.getElementById('userName').textContent = appState.userName;
                     document.getElementById('userProfilePic').src = appState.userPic;
-                    
-                    // Store user data in localStorage for persistence
                     localStorage.setItem('telegramUser', JSON.stringify(user));
-                    
-                    // Show welcome notification
-                    setTimeout(() => {
-                        showNotification(`👋 Welcome, ${appState.userName}!`);
-                    }, 1000);
-                } else {
-                    // Fallback for testing outside Telegram
-                    document.getElementById('userName').innerHTML = 'Test User';
-                    document.getElementById('userProfilePic').src = 'https://picsum.photos/seed/testuser/60/60.jpg';
-                    showNotification('⚠️ Running in test mode');
-                }
-                
-                // Add a debug button in development mode
-                if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
-                    const debugBtn = document.createElement('button');
-                    debugBtn.innerHTML = '🔄 Reset Daily';
-                    debugBtn.className = 'fixed top-20 right-4 bg-red-500 text-white px-3 py-1 rounded text-xs z-50';
-                    debugBtn.onclick = manualDailyReset;
-                    document.body.appendChild(debugBtn);
+                    setTimeout(() => showNotification(`👋 Welcome, ${appState.userName}!`), 1000);
                 }
             } else {
-                // Fallback for testing outside Telegram
-                document.getElementById('userName').innerHTML = 'Test User';
-                document.getElementById('userProfilePic').src = 'https://picsum.photos/seed/testuser/60/60.jpg';
+                // Fallback for browser testing
+                document.getElementById('userName').textContent = 'Test User';
                 showNotification('⚠️ Running in test mode');
             }
         }
 
-        // Update viewport height for Telegram WebApp
-        function updateViewportHeight() {
-            if (window.Telegram && window.Telegram.WebApp) {
-                const viewportHeight = window.Telegram.WebApp.viewportHeight;
-                const viewportStableHeight = window.Telegram.WebApp.viewportStableHeight;
-                
-                // Set CSS custom properties
-                document.documentElement.style.setProperty('--tg-viewport-height', `${viewportHeight}px`);
-                document.documentElement.style.setProperty('--tg-viewport-stable-height', `${viewportStableHeight}px`);
-                
-                // Update app wrapper height
-                const appWrapper = document.querySelector('.app-wrapper');
-                if (appWrapper) {
-                    appWrapper.style.height = `${viewportHeight}px`;
-                }
-            }
-        }
-
-        // Load saved user data on page load
-        function loadSavedUserData() {
-            const savedUser = localStorage.getItem('telegramUser');
-            if (savedUser) {
-                try {
-                    const user = JSON.parse(savedUser);
-                    appState.userName = user.first_name || 'User';
-                    if (user.last_name) {
-                        appState.userName += ' ' + user.last_name;
-                    }
-                    appState.userId = user.id;
-                    appState.userPic = user.photo_url || `https://api.dicebear.com/7.x/avataaars/svg?seed=${user.id}`;
-                    document.getElementById('userName').innerHTML = appState.userName;
-                    document.getElementById('userProfilePic').src = appState.userPic;
-                } catch (e) {
-                    console.error('Error loading saved user data:', e);
-                }
-            }
-        }
-
-        // Tab Navigation
-        document.querySelectorAll('.tab-button').forEach(button => {
-            button.addEventListener('click', () => {
-                const tabName = button.getAttribute('data-tab');
-                document.querySelectorAll('.tab-button').forEach(btn => btn.classList.remove('active'));
-                button.classList.add('active');
-                document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
-                document.getElementById(tabName).classList.add('active');
-                
-                // Scroll to top when switching tabs
-                const container = document.querySelector('.container');
-                if (container) {
-                    container.scrollTop = 0;
-                }
-            });
-        });
-
-        // Countdown Timer
+        // Countdown (timestamp-based, robust)
         function updateCountdown() {
-            const now = new Date().getTime();
+            const now = Date.now();
             const distance = appState.giveawayEndTime - now;
-            
-            if (distance < 0) {
+
+            if (distance <= 0) {
                 selectWinner();
-                appState.giveawayEndTime = new Date().getTime() + GIVEAWAY_DURATION; // 24 hours
-                saveTimerState();
+                appState.giveawayEndTime = Date.now() + GIVEAWAY_DURATION;
+                saveUserState();
                 return;
             }
-            
-            const days = Math.floor(distance / (1000 * 60 * 60 * 24));
+
             const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
             const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
             const seconds = Math.floor((distance % (1000 * 60)) / 1000);
-            
-            // Display countdown (24-hour format)
-            let countdownText = '';
-            if (days > 0) {
-                countdownText = `${days}d ${hours}h ${minutes}m ${seconds}s`;
-            } else {
-                countdownText = `${hours}h ${minutes}m ${seconds}s`;
-            }
-            
-            document.getElementById('homeCountdown').textContent = countdownText;
-            lastUpdateTime = now;
+
+            document.getElementById('homeCountdown').textContent = `${hours}h ${minutes}m ${seconds}s`;
         }
 
-        // Save timer state
-        function saveTimerState() {
-            localStorage.setItem('giveawayEndTime', appState.giveawayEndTime.toString());
-            localStorage.setItem('lastUpdateTime', lastUpdateTime.toString());
-        }
-
-        // Load timer state
-        function loadTimerState() {
-            const savedEndTime = localStorage.getItem('giveawayEndTime');
-            const savedLastUpdate = localStorage.getItem('lastUpdateTime');
-            
-            if (savedEndTime) {
-                appState.giveawayEndTime = parseInt(savedEndTime);
-            }
-            
-            if (savedLastUpdate) {
-                lastUpdateTime = parseInt(savedLastUpdate);
-            }
-        }
-
-        // Start countdown
+        // Start countdown (no setInterval reliance)
         function startCountdown() {
-            // Clear any existing interval
-            if (countdownInterval) {
-                clearInterval(countdownInterval);
-            }
-            
-            // Update immediately
             updateCountdown();
-            
-            // Set up the interval
-            countdownInterval = setInterval(() => {
-                // Check if page is visible
-                if (!document.hidden) {
+            // Use requestAnimationFrame loop for better background behavior
+            let lastFrame = 0;
+            const frame = (now) => {
+                if (now - lastFrame >= 1000) {
                     updateCountdown();
-                    saveTimerState();
+                    lastFrame = now;
                 }
-            }, TIMER_UPDATE_INTERVAL);
+                requestAnimationFrame(frame);
+            };
+            requestAnimationFrame(frame);
         }
 
-        // Handle visibility change
-        document.addEventListener('visibilitychange', () => {
-            if (!document.hidden) {
-                // Page is now visible, check if we need to update
-                const now = new Date().getTime();
-                const timeSinceLastUpdate = now - lastUpdateTime;
-                
-                // If it's been more than 5 seconds since last update, update immediately
-                if (timeSinceLastUpdate > 5000) {
-                    updateCountdown();
-                }
-            }
-        });
-
-        // Show Ad Function
+        // Ad & UI Logic (unchanged except minor cleanup)
         function showAd() {
-            if (typeof show_9980483 === 'function') {
-                appState.adLoading = true;
-                const watchAdBtn = document.getElementById('watchAdBtn');
-                const originalContent = watchAdBtn.innerHTML;
-                watchAdBtn.innerHTML = '<span class="ad-loading"></span> Loading Ad...';
-                watchAdBtn.disabled = true;
-
-                show_9980483().then(() => {
-                    appState.adsWatched++;
-                    updateAdProgress();
-                    saveUserState(); // Save state after watching ad
-                    showNotification('🎬 Ad watched! Keep going!');
-                    appState.adLoading = false;
-                    watchAdBtn.innerHTML = originalContent;
-                    watchAdBtn.disabled = false;
-                    
-                    if (appState.adsWatched === 50) {
-                        document.getElementById('enterGiveawayBtn').disabled = false;
-                        showNotification('🎉 You can now enter the giveaway!');
-                    }
-                }).catch(error => {
-                    console.error('Ad error:', error);
-                    showNotification('⚠️ Ad failed to load. Please try again.');
-                    appState.adLoading = false;
-                    watchAdBtn.innerHTML = originalContent;
-                    watchAdBtn.disabled = false;
-                });
-            } else {
-                showNotification('⚠️ Ad service is not available. Please try again later.');
+            if (typeof show_9980483 !== 'function') {
+                showNotification('⚠️ Ad service unavailable.');
+                return;
             }
+            if (appState.adLoading || appState.adsWatched >= 50) return;
+
+            appState.adLoading = true;
+            const btn = document.getElementById('watchAdBtn');
+            const orig = btn.innerHTML;
+            btn.innerHTML = '<span class="ad-loading"></span> Loading Ad...';
+            btn.disabled = true;
+
+            show_9980483().then(() => {
+                appState.adsWatched++;
+                updateAdProgress();
+                saveUserState();
+                showNotification('🎬 Ad watched! Keep going!');
+                if (appState.adsWatched === 50) {
+                    document.getElementById('enterGiveawayBtn').disabled = false;
+                    showNotification('🎉 You can now enter the giveaway!');
+                }
+            }).catch(err => {
+                console.error('Ad error:', err);
+                showNotification('⚠️ Ad failed. Try again.');
+            }).finally(() => {
+                appState.adLoading = false;
+                btn.innerHTML = orig;
+                btn.disabled = false;
+            });
         }
 
-        // Attach event to ad button
-        document.getElementById('watchAdBtn').addEventListener('click', () => {
-            if (appState.adsWatched < 50 && !appState.adLoading) {
-                showAd();
-            }
-        });
-
-        // Update Ad Progress
         function updateAdProgress() {
-            const progressPercent = (appState.adsWatched / 50) * 100;
-            document.getElementById('adProgress').style.width = `${progressPercent}%`;
+            const pct = (appState.adsWatched / 50) * 100;
+            document.getElementById('adProgress').style.width = `${pct}%`;
             document.getElementById('adProgressText').textContent = `${appState.adsWatched}/50`;
             document.getElementById('adsWatchedCount').textContent = appState.adsWatched;
             document.getElementById('watchAdBtn').innerHTML = `<i class="fas fa-play mr-2"></i> Watch Ad (${appState.adsWatched}/50)`;
         }
 
-        // Enter Giveaway
-        document.getElementById('enterGiveawayBtn').addEventListener('click', () => {
-            if (appState.adsWatched >= 50 && !appState.isParticipating) {
-                showConfirmModal("🎊 You're now participating in the $50 Giveaway! Good luck!", () => {
-                    appState.isParticipating = true;
-                    saveUserState(); // Save participation state
-                    createConfetti();
-                    showNotification('🚀 Successfully entered the giveaway!');
-                    document.getElementById('enterGiveawayBtn').disabled = true;
-                    document.getElementById('enterGiveawayBtn').innerHTML = '<i class="fas fa-check-circle mr-2"></i> You\'re in the giveaway!';
-                });
-            }
-        });
-
-        // Select Winner
         function selectWinner() {
-            appState.previousWinners.unshift({
-                name: appState.currentWinner,
-                date: appState.winnerDate
-            });
-            if (appState.previousWinners.length > 4) {
-                appState.previousWinners = appState.previousWinners.slice(0, 4);
-            }
-            const randomIndex = Math.floor(Math.random() * indianNames.length);
-            appState.currentWinner = indianNames[randomIndex];
+            appState.previousWinners.unshift({ name: appState.currentWinner, date: appState.winnerDate });
+            appState.previousWinners = appState.previousWinners.slice(0, 4);
+            appState.currentWinner = indianNames[Math.floor(Math.random() * indianNames.length)];
             appState.winnerDate = 'Today';
-            updateWinnersDisplay();
-            
-            // Only one winner per 24 hours
+
             if (appState.isParticipating && Math.random() < 0.1) {
                 appState.balance += 50;
                 updateBalanceDisplay();
-                showNotification('🎊 Congratulations! You won $50!');
+                showNotification('🎊 You won $50!');
                 createConfetti();
             }
-            
-            // Reset for next giveaway
+
             appState.isParticipating = false;
             appState.adsWatched = 0;
-            appState.giveawayEndTime = new Date().getTime() + GIVEAWAY_DURATION; // 24 hours
-            
-            // Update UI
             updateAdProgress();
             document.getElementById('enterGiveawayBtn').disabled = true;
             document.getElementById('enterGiveawayBtn').innerHTML = '<i class="fas fa-rocket mr-2"></i> Enter Giveaway';
-            
-            // Save the new state
+            updateWinnersDisplay();
             saveUserState();
-            saveTimerState();
         }
 
-        // Update Winners Display
         function updateWinnersDisplay() {
             document.getElementById('currentWinner').textContent = appState.currentWinner;
             document.getElementById('winnerDate').textContent = appState.winnerDate;
-            const previousWinnersHtml = appState.previousWinners.map((winner, index) => {
-                const medalColors = [
-                    'from-yellow-400 to-orange-500',
-                    'from-gray-400 to-gray-600',
-                    'from-orange-600 to-red-600',
-                    'from-blue-400 to-blue-600'
-                ];
-                return `
-                    <div class="task-item">
-                        <div class="flex items-center justify-between">
-                            <div class="flex items-center">
-                                <div class="w-10 h-10 bg-gradient-to-br ${medalColors[index]} rounded-full flex items-center justify-center mr-3">
-                                    <i class="fas fa-medal text-white"></i>
-                                </div>
-                                <div>
-                                    <p class="font-bold text-gray-800">${winner.name}</p>
-                                    <p class="text-xs text-gray-500">${winner.date}</p>
-                                </div>
+            const colors = ['from-yellow-400 to-orange-500', 'from-gray-400 to-gray-600', 'from-orange-600 to-red-600', 'from-blue-400 to-blue-600'];
+            document.getElementById('previousWinners').innerHTML = appState.previousWinners.map((w, i) => `
+                <div class="task-item">
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center">
+                            <div class="w-10 h-10 bg-gradient-to-br ${colors[i]} rounded-full flex items-center justify-center mr-3">
+                                <i class="fas fa-medal text-white"></i>
                             </div>
-                            <span class="text-green-600 font-bold">$50</span>
+                            <div>
+                                <p class="font-bold text-gray-800">${w.name}</p>
+                                <p class="text-xs text-gray-500">${w.date}</p>
+                            </div>
                         </div>
+                        <span class="text-green-600 font-bold">$50</span>
                     </div>
-                `;
-            }).join('');
-            document.getElementById('previousWinners').innerHTML = previousWinnersHtml;
+                </div>
+            `).join('');
         }
 
-        // Request Withdrawal
-        document.getElementById('requestWithdrawBtn').addEventListener('click', () => {
-            const address = document.getElementById('binanceAddress').value;
-            if (!address) {
-                showNotification('⚠️ Please enter your Binance wallet address');
-                return;
-            }
-            if (appState.balance <= 0) {
-                showNotification('⚠️ No balance to withdraw');
-                return;
-            }
-            showConfirmModal('💸 Withdrawal request received. Processed within 24 hours.', () => {
-                const withdrawal = {
-                    id: Date.now(),
-                    amount: appState.balance,
-                    address: address,
-                    date: new Date().toLocaleDateString(),
-                    status: 'pending'
-                };
-                appState.withdrawalHistory.unshift(withdrawal);
-                appState.balance = 0;
-                updateBalanceDisplay();
-                updateWithdrawalHistory();
-                saveUserState();
-                document.getElementById('binanceAddress').value = '';
-                showNotification('✅ Withdrawal request submitted successfully!');
-            });
-        });
-
-        // Update Balance Display
         function updateBalanceDisplay() {
-            document.getElementById('userBalance').textContent = appState.balance.toFixed(2);
-            document.getElementById('withdrawBalance').textContent = appState.balance.toFixed(2);
+            const bal = appState.balance.toFixed(2);
+            document.getElementById('userBalance').textContent = bal;
+            document.getElementById('withdrawBalance').textContent = bal;
             document.getElementById('requestWithdrawBtn').disabled = appState.balance <= 0;
         }
 
-        // Update Withdrawal History
         function updateWithdrawalHistory() {
-            if (appState.withdrawalHistory.length === 0) {
+            if (!appState.withdrawalHistory.length) {
                 document.getElementById('withdrawalHistory').innerHTML = `
                     <div class="text-center py-8 text-gray-500">
                         <i class="fas fa-inbox text-4xl mb-2"></i>
                         <p>No transactions yet</p>
-                    </div>
-                `;
+                    </div>`;
                 return;
             }
-            const historyHtml = appState.withdrawalHistory.map(withdrawal => `
+            document.getElementById('withdrawalHistory').innerHTML = appState.withdrawalHistory.map(w => `
                 <div class="task-item">
                     <div class="flex justify-between items-start">
                         <div>
-                            <p class="font-bold text-gray-800">$${withdrawal.amount.toFixed(2)}</p>
-                            <p class="text-xs text-gray-500">${withdrawal.date}</p>
-                            <p class="text-xs text-gray-400 mt-1">${withdrawal.address.substring(0, 10)}...${withdrawal.address.substring(withdrawal.address.length - 10)}</p>
+                            <p class="font-bold text-gray-800">$${w.amount.toFixed(2)}</p>
+                            <p class="text-xs text-gray-500">${w.date}</p>
+                            <p class="text-xs text-gray-400 mt-1">${w.address.substring(0,10)}...${w.address.slice(-10)}</p>
                         </div>
                         <span class="px-3 py-1 rounded-full text-xs font-bold ${
-                            withdrawal.status === 'pending' 
-                                ? 'bg-yellow-100 text-yellow-800' 
-                                : 'bg-green-100 text-green-800'
-                        }">
-                            ${withdrawal.status === 'pending' ? '⏳ Pending' : '✅ Completed'}
-                        </span>
+                            w.status === 'pending' ? 'bg-yellow-100 text-yellow-800' : 'bg-green-100 text-green-800'
+                        }">${w.status === 'pending' ? '⏳ Pending' : '✅ Completed'}</span>
                     </div>
                 </div>
             `).join('');
-            document.getElementById('withdrawalHistory').innerHTML = historyHtml;
         }
 
-        // Show Notification
-        function showNotification(message) {
-            const notification = document.getElementById('notification');
-            document.getElementById('notificationText').textContent = message;
-            notification.classList.add('show');
-            setTimeout(() => {
-                notification.classList.remove('show');
-            }, 3000);
+        function showNotification(msg) {
+            const el = document.getElementById('notification');
+            document.getElementById('notificationText').textContent = msg;
+            el.classList.add('show');
+            setTimeout(() => el.classList.remove('show'), 3000);
         }
 
-        // Show Confirmation Modal
-        function showConfirmModal(message, onConfirm) {
+        function showConfirmModal(msg, cb) {
+            document.getElementById('confirmMessage').textContent = msg;
             const modal = document.getElementById('confirmModal');
-            document.getElementById('confirmMessage').textContent = message;
             modal.classList.add('show');
             document.getElementById('confirmBtn').onclick = () => {
                 modal.classList.remove('show');
-                onConfirm();
+                cb();
             };
         }
 
-        // Create Confetti Effect
         function createConfetti() {
             const colors = ['#667eea', '#764ba2', '#f093fb', '#f5576c', '#fa709a', '#fee140'];
             for (let i = 0; i < 50; i++) {
                 setTimeout(() => {
-                    const confetti = document.createElement('div');
-                    confetti.className = 'confetti';
-                    confetti.style.left = Math.random() * 100 + '%';
-                    confetti.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
-                    confetti.style.transform = `rotate(${Math.random() * 360}deg)`;
-                    document.body.appendChild(confetti);
-                    setTimeout(() => {
-                        confetti.remove();
-                    }, 3000);
+                    const c = document.createElement('div');
+                    c.className = 'confetti';
+                    c.style.left = Math.random() * 100 + '%';
+                    c.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+                    document.body.appendChild(c);
+                    setTimeout(() => c.remove(), 3000);
                 }, i * 30);
             }
         }
 
-        // Simulate winning (optional)
-        function simulateWin() {
-            if (appState.isParticipating && Math.random() < 0.05) {
-                appState.balance += 50;
-                updateBalanceDisplay();
-                showNotification('🎊 Congratulations! You won $50!');
-                createConfetti();
-                saveUserState();
-            }
-        }
-
-        // Manual daily reset function (for testing)
-        function manualDailyReset() {
-            localStorage.removeItem('userState');
-            appState.adsWatched = 0;
-            appState.isParticipating = false;
-            appState.giveawayEndTime = new Date().getTime() + GIVEAWAY_DURATION;
-            appState.lastSavedDate = new Date().toDateString();
-            updateAdProgress();
-            document.getElementById('enterGiveawayBtn').disabled = true;
-            document.getElementById('enterGiveawayBtn').innerHTML = '<i class="fas fa-rocket mr-2"></i> Enter Giveaway';
-            showNotification('🔄 Progress manually reset!');
-            saveUserState();
-        }
-
-        // Initialize App
+        // Initialize
         function initApp() {
-            // Load saved user data first
-            loadSavedUserData();
-            
-            // Load user state with daily reset
             loadUserState();
-            
-            // Load timer state
-            loadTimerState();
-            
-            // Initialize Telegram Web App
             initTelegramApp();
-            
-            // Update viewport height
-            updateViewportHeight();
-            
-            // Update UI elements
             updateAdProgress();
             updateBalanceDisplay();
             updateWinnersDisplay();
             updateWithdrawalHistory();
-            
-            // Update button states based on loaded data
-            if (appState.adsWatched >= 50) {
+
+            if (appState.adsWatched >= 50 && !appState.isParticipating) {
                 document.getElementById('enterGiveawayBtn').disabled = false;
             }
-            
             if (appState.isParticipating) {
                 document.getElementById('enterGiveawayBtn').disabled = true;
                 document.getElementById('enterGiveawayBtn').innerHTML = '<i class="fas fa-check-circle mr-2"></i> You\'re in the giveaway!';
             }
-            
-            // Start the countdown
+
             startCountdown();
-            
-            // Start other timers
-            setInterval(simulateWin, 30000);
-            
-            // Check for daily reset every minute
-            setInterval(() => {
-                const savedState = localStorage.getItem('userState');
-                if (savedState) {
-                    const userState = JSON.parse(savedState);
-                    const today = new Date().toDateString();
-                    if (userState.lastSavedDate !== today) {
-                        // Daily reset triggered
-                        loadUserState(); // This will reset everything
-                        updateAdProgress();
+
+            // Event listeners
+            document.getElementById('watchAdBtn').addEventListener('click', showAd);
+            document.getElementById('enterGiveawayBtn').addEventListener('click', () => {
+                if (appState.adsWatched >= 50 && !appState.isParticipating) {
+                    showConfirmModal("🎊 You're now participating in the $50 Giveaway! Good luck!", () => {
+                        appState.isParticipating = true;
+                        saveUserState();
+                        createConfetti();
+                        showNotification('🚀 Successfully entered the giveaway!');
                         document.getElementById('enterGiveawayBtn').disabled = true;
-                        document.getElementById('enterGiveawayBtn').innerHTML = '<i class="fas fa-rocket mr-2"></i> Enter Giveaway';
-                        showNotification('🌅 Daily reset! New giveaway started!');
-                    }
+                        document.getElementById('enterGiveawayBtn').innerHTML = '<i class="fas fa-check-circle mr-2"></i> You\'re in the giveaway!';
+                    });
                 }
-            }, 60000); // Check every minute
+            });
+            document.getElementById('requestWithdrawBtn').addEventListener('click', () => {
+                const addr = document.getElementById('binanceAddress').value;
+                if (!addr) return showNotification('⚠️ Enter Binance address');
+                if (appState.balance <= 0) return showNotification('⚠️ No balance');
+                showConfirmModal('💸 Withdrawal request received. Processed within 24 hours.', () => {
+                    appState.withdrawalHistory.unshift({
+                        id: Date.now(),
+                        amount: appState.balance,
+                        address: addr,
+                        date: new Date().toLocaleDateString(),
+                        status: 'pending'
+                    });
+                    appState.balance = 0;
+                    updateBalanceDisplay();
+                    updateWithdrawalHistory();
+                    saveUserState();
+                    document.getElementById('binanceAddress').value = '';
+                    showNotification('✅ Withdrawal submitted!');
+                });
+            });
+
+            // Tab switching
+            document.querySelectorAll('.tab-button').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    document.querySelectorAll('.tab-button').forEach(b => b.classList.remove('active'));
+                    document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+                    btn.classList.add('active');
+                    document.getElementById(btn.dataset.tab).classList.add('active');
+                    document.querySelector('.container').scrollTop = 0;
+                });
+            });
         }
 
-        // Handle window resize
-        window.addEventListener('resize', () => {
-            updateViewportHeight();
-        });
-
-        // Handle orientation change
-        window.addEventListener('orientationchange', () => {
-            setTimeout(() => {
-                updateViewportHeight();
-            }, 100);
-        });
-
-        // Initialize when DOM is ready
         document.addEventListener('DOMContentLoaded', initApp);
-        
-        // Also initialize when window loads (for Telegram Web App)
-        window.addEventListener('load', initApp);
     </script>
 </body>
 </html>
