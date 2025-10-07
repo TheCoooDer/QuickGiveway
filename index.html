@@ -765,7 +765,9 @@
                 { name: 'Vikram Singh', date: 'June 3, 2023' }
             ],
             adLoading: false,
-            lastAdDate: null // Track the date when ads were watched
+            lastAdDate: null, // Track the date when ads were watched
+            lastUpdateTime: Date.now(), // Track when the timer was last updated
+            timerInterval: null
         };
         
         // Indian Names Pool
@@ -791,7 +793,8 @@
                 withdrawalHistory: appState.withdrawalHistory,
                 giveawayEndTime: appState.giveawayEndTime,
                 currentWinner: appState.currentWinner,
-                previousWinners: appState.previousWinners
+                previousWinners: appState.previousWinners,
+                lastUpdateTime: Date.now()
             };
             localStorage.setItem('quickGiveawayUserData', JSON.stringify(userData));
         }
@@ -815,6 +818,13 @@
                         { name: 'Sneha Reddy', date: 'June 6, 2023' },
                         { name: 'Vikram Singh', date: 'June 3, 2023' }
                     ];
+                    appState.lastUpdateTime = userData.lastUpdateTime || Date.now();
+                    
+                    // Adjust the giveaway end time based on how long the app was closed
+                    const timeDiff = Date.now() - appState.lastUpdateTime;
+                    if (timeDiff > 0) {
+                        appState.giveawayEndTime -= timeDiff;
+                    }
                     
                     // Check if we need to reset the ads watched count (new day)
                     checkAndResetDailyAds();
@@ -867,6 +877,12 @@
                 // Handle viewport changes
                 window.Telegram.WebApp.onViewportChanged(() => {
                     updateViewportHeight();
+                });
+                
+                // Handle visibility changes
+                window.Telegram.WebApp.onEvent('viewportChanged', () => {
+                    // Update timer when app becomes visible
+                    updateCountdown();
                 });
                 
                 // Get user data from initDataUnsafe (for development)
@@ -980,16 +996,18 @@
             });
         });
 
-        // Countdown Timer
+        // Countdown Timer with improved accuracy
         function updateCountdown() {
-            const now = new Date().getTime();
+            const now = Date.now();
             const distance = appState.giveawayEndTime - now;
+            
             if (distance < 0) {
                 selectWinner();
-                appState.giveawayEndTime = new Date().getTime() + (24 * 60 * 60 * 1000); // 24 hours
+                appState.giveawayEndTime = now + (24 * 60 * 60 * 1000); // 24 hours
                 saveUserData(); // Save the new end time
                 return;
             }
+            
             const days = Math.floor(distance / (1000 * 60 * 60 * 24));
             const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
             const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
@@ -1004,6 +1022,56 @@
             }
             
             document.getElementById('homeCountdown').textContent = countdownText;
+            
+            // Update the last update time
+            appState.lastUpdateTime = now;
+        }
+
+        // Start the timer with multiple fallback mechanisms
+        function startTimer() {
+            // Clear any existing interval
+            if (appState.timerInterval) {
+                clearInterval(appState.timerInterval);
+            }
+            
+            // Update immediately
+            updateCountdown();
+            
+            // Set up the main timer interval
+            appState.timerInterval = setInterval(updateCountdown, 1000);
+            
+            // Set up a backup timer that runs every 10 seconds
+            // This helps catch up if the main timer was paused
+            setInterval(() => {
+                const now = Date.now();
+                const timeSinceLastUpdate = now - appState.lastUpdateTime;
+                
+                // If it's been more than 5 seconds since the last update,
+                // we might have been paused, so force an update
+                if (timeSinceLastUpdate > 5000) {
+                    updateCountdown();
+                    saveUserData();
+                }
+            }, 10000);
+            
+            // Set up visibility change listener
+            document.addEventListener('visibilitychange', () => {
+                if (!document.hidden) {
+                    // Page is now visible, update the timer
+                    updateCountdown();
+                    saveUserData();
+                }
+            });
+            
+            // Set up page focus/blur listeners
+            window.addEventListener('focus', () => {
+                updateCountdown();
+                saveUserData();
+            });
+            
+            window.addEventListener('blur', () => {
+                saveUserData();
+            });
         }
 
         // Show Ad Function
@@ -1274,9 +1342,10 @@
                 }, 2000);
             }
             
-            // Start timers
-            setInterval(updateCountdown, 1000);
-            updateCountdown();
+            // Start the timer with improved accuracy
+            startTimer();
+            
+            // Start simulation timer
             setInterval(simulateWin, 30000);
         }
 
@@ -1295,6 +1364,15 @@
         // Save data before the page is unloaded
         window.addEventListener('beforeunload', () => {
             saveUserData();
+        });
+
+        // Handle page visibility changes
+        document.addEventListener('visibilitychange', () => {
+            if (!document.hidden) {
+                // Page is now visible, update everything
+                updateCountdown();
+                saveUserData();
+            }
         });
 
         // Initialize when DOM is ready
