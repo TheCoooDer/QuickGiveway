@@ -11,7 +11,6 @@
     <!-- Telegram Web App Script -->
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <style>
-        /* ... [All your existing CSS remains unchanged] ... */
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
         * {
             font-family: 'Inter', sans-serif;
@@ -461,10 +460,10 @@
         /* Prevent bounce scroll on iOS */
         .container {
             -webkit-overflow-scrolling: touch;
-            overscroll-behavior: contain        /* Hide scrollbar;
+            overscroll-behavior: contain;
         }
         
- but keep functionality */
+        /* Hide scrollbar but keep functionality */
         .container::-webkit-scrollbar {
             width: 0px;
             background: transparent;
@@ -520,9 +519,9 @@
                         <h1 class="text-3xl font-black mb-3 bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">
                             $50 QuickGiveaway
                         </h1>
-                        <p class="text-gray-600 mb-4">Every 24 hours • Multiple winners</p>
+                        <p class="text-gray-600 mb-4">Every 24 hours • One winner</p>
                         <div class="pulse">
-                            <div class="countdown text-4xl" id="homeCountdown">14h 32m 15s</div>
+                            <div class="countdown text-4xl" id="homeCountdown">24h 00m 00s</div>
                         </div>
                     </div>
                     <i class="fas fa-gift absolute -right-10 -top-10 text-white opacity-10 text-9xl"></i>
@@ -532,7 +531,7 @@
                     <div class="flex items-center justify-between mb-4">
                         <h3 class="text-lg font-bold text-gray-800">
                             <i class="fas fa-play-circle text-purple-600 mr-2"></i>
-                            Watch Ads 0 / 50 
+                            Watch Ads <span id="adsWatchedCount">0</span> / 50 
                         </h3>
                         <span class="shimmer-badge">Required</span>
                     </div>
@@ -542,7 +541,7 @@
                         </div>
                     </div>
                     <button id="watchAdBtn" class="btn btn-primary w-full">
-                        <i class="fas fa-play mr-2"></i> Enter Giveaway 0/50
+                        <i class="fas fa-play mr-2"></i> Watch Ad (0/50)
                     </button>
                 </div>
                 <!-- Enter Giveaway Button -->
@@ -599,7 +598,7 @@
                             <i class="fas fa-trophy text-5xl text-white mb-3"></i>
                             <h3 class="text-xl font-bold text-white mb-2">🎊 Latest Winner 🎊</h3>
                             <p class="text-3xl font-black text-white" id="currentWinner">Rajesh Kumar</p>
-                            <p class="text-white/90 mt-2">Won $50 • June 15, 2023</p>
+                            <p class="text-white/90 mt-2">Won $50 • <span id="winnerDate">Today</span></p>
                         </div>
                     </div>
                     <!-- Previous Winners -->
@@ -614,7 +613,7 @@
                                         </div>
                                         <div>
                                             <p class="font-bold text-gray-800">Priya Sharma</p>
-                                            <p class="text-xs text-gray-500">June 12, 2023</p>
+                                            <p class="text-xs text-gray-500">Last 24h</p>
                                         </div>
                                     </div>
                                     <span class="text-green-600 font-bold">$50</span>
@@ -628,7 +627,7 @@
                                         </div>
                                         <div>
                                             <p class="font-bold text-gray-800">Amit Patel</p>
-                                            <p class="text-xs text-gray-500">June 9, 2023</p>
+                                            <p class="text-xs text-gray-500">Previous 24h</p>
                                         </div>
                                     </div>
                                     <span class="text-green-600 font-bold">$50</span>
@@ -642,7 +641,7 @@
                                         </div>
                                         <div>
                                             <p class="font-bold text-gray-800">Sneha Reddy</p>
-                                            <p class="text-xs text-gray-500">June 6, 2023</p>
+                                            <p class="text-xs text-gray-500">2 cycles ago</p>
                                         </div>
                                     </div>
                                     <span class="text-green-600 font-bold">$50</span>
@@ -656,7 +655,7 @@
                                         </div>
                                         <div>
                                             <p class="font-bold text-gray-800">Vikram Singh</p>
-                                            <p class="text-xs text-gray-500">June 3, 2023</p>
+                                            <p class="text-xs text-gray-500">3 cycles ago</p>
                                         </div>
                                     </div>
                                     <span class="text-green-600 font-bold">$50</span>
@@ -758,14 +757,23 @@
             withdrawalHistory: [],
             giveawayEndTime: new Date().getTime() + (24 * 60 * 60 * 1000), // 24 hours
             currentWinner: 'Rajesh Kumar',
+            winnerDate: 'Today',
             previousWinners: [
-                { name: 'Priya Sharma', date: 'June 12, 2023' },
-                { name: 'Amit Patel', date: 'June 9, 2023' },
-                { name: 'Sneha Reddy', date: 'June 6, 2023' },
-                { name: 'Vikram Singh', date: 'June 3, 2023' }
+                { name: 'Priya Sharma', date: 'Last 24h' },
+                { name: 'Amit Patel', date: 'Previous 24h' },
+                { name: 'Sneha Reddy', date: '2 cycles ago' },
+                { name: 'Vikram Singh', date: '3 cycles ago' }
             ],
-            adLoading: false
+            adLoading: false,
+            lastSavedDate: new Date().toDateString()
         };
+
+        // Timer variables
+        let countdownInterval;
+        let lastUpdateTime = 0;
+        const TIMER_UPDATE_INTERVAL = 1000; // 1 second
+        const GIVEAWAY_DURATION = 24 * 60 * 60 * 1000; // 24 hours in milliseconds
+
         // Indian Names Pool
         const indianNames = [
             'Rajesh Kumar', 'Priya Sharma', 'Amit Patel', 'Sneha Reddy', 'Vikram Singh',
@@ -778,6 +786,74 @@
             'Pooja Gupta', 'Amit Kumar', 'Meera Sharma', 'Rahul Patel', 'Divya Singh',
             'Sanjay Kumar', 'Neha Sharma', 'Arjun Singh', 'Kavita Patel', 'Rohit Verma'
         ];
+
+        // Save user state to localStorage
+        function saveUserState() {
+            const userState = {
+                adsWatched: appState.adsWatched,
+                isParticipating: appState.isParticipating,
+                lastSavedDate: new Date().toDateString(),
+                giveawayEndTime: appState.giveawayEndTime,
+                balance: appState.balance,
+                withdrawalHistory: appState.withdrawalHistory,
+                currentWinner: appState.currentWinner,
+                winnerDate: appState.winnerDate,
+                previousWinners: appState.previousWinners
+            };
+            localStorage.setItem('userState', JSON.stringify(userState));
+        }
+
+        // Load user state from localStorage with daily reset check
+        function loadUserState() {
+            const savedState = localStorage.getItem('userState');
+            if (savedState) {
+                try {
+                    const userState = JSON.parse(savedState);
+                    const today = new Date().toDateString();
+                    
+                    // Check if it's a new day
+                    if (userState.lastSavedDate !== today) {
+                        // It's a new day, reset everything
+                        appState.adsWatched = 0;
+                        appState.isParticipating = false;
+                        appState.giveawayEndTime = new Date().getTime() + GIVEAWAY_DURATION;
+                        appState.lastSavedDate = today;
+                        console.log('New day detected - resetting progress');
+                        showNotification('🌅 Daily reset! New giveaway started!');
+                    } else {
+                        // Same day, load saved state
+                        appState.adsWatched = userState.adsWatched || 0;
+                        appState.isParticipating = userState.isParticipating || false;
+                        appState.giveawayEndTime = userState.giveawayEndTime || (new Date().getTime() + GIVEAWAY_DURATION);
+                        appState.balance = userState.balance || 0;
+                        appState.withdrawalHistory = userState.withdrawalHistory || [];
+                        appState.currentWinner = userState.currentWinner || 'Rajesh Kumar';
+                        appState.winnerDate = userState.winnerDate || 'Today';
+                        appState.previousWinners = userState.previousWinners || [
+                            { name: 'Priya Sharma', date: 'Last 24h' },
+                            { name: 'Amit Patel', date: 'Previous 24h' },
+                            { name: 'Sneha Reddy', date: '2 cycles ago' },
+                            { name: 'Vikram Singh', date: '3 cycles ago' }
+                        ];
+                        appState.lastSavedDate = userState.lastSavedDate || today;
+                        console.log('Loaded saved state for today');
+                    }
+                } catch (e) {
+                    console.error('Error loading user state:', e);
+                    // Reset to default if error
+                    appState.adsWatched = 0;
+                    appState.isParticipating = false;
+                    appState.giveawayEndTime = new Date().getTime() + GIVEAWAY_DURATION;
+                    appState.lastSavedDate = new Date().toDateString();
+                }
+            } else {
+                // No saved state, initialize with defaults
+                appState.adsWatched = 0;
+                appState.isParticipating = false;
+                appState.giveawayEndTime = new Date().getTime() + GIVEAWAY_DURATION;
+                appState.lastSavedDate = new Date().toDateString();
+            }
+        }
 
         // Initialize Telegram Mini App
         function initTelegramApp() {
@@ -803,41 +879,68 @@
                     updateViewportHeight();
                 });
                 
-                // Get user data from initDataUnsafe (for development)
-                let user = window.Telegram.WebApp.initDataUnsafe.user;
+                // Handle when the app is opened again
+                window.Telegram.WebApp.onEvent('viewportChanged', () => {
+                    // When viewport changes (app reopened), check if timer needs updating
+                    const now = new Date().getTime();
+                    const timeSinceLastUpdate = now - lastUpdateTime;
+                    
+                    // If it's been more than 10 seconds since last update, update immediately
+                    if (timeSinceLastUpdate > 10000) {
+                        updateCountdown();
+                    }
+                });
                 
-                // If no user data, try to get from WebApp (for production)
-                if (!user) {
+                // Handle when the app is closed
+                window.Telegram.WebApp.onEvent('closeRequested', () => {
+                    // Save state before closing
+                    saveUserState();
+                    saveTimerState();
+                });
+                
+                // Get user data from Telegram WebApp
+                let user = null;
+                
+                // Try to get user data from initDataUnsafe first
+                if (window.Telegram.WebApp.initDataUnsafe && window.Telegram.WebApp.initDataUnsafe.user) {
+                    user = window.Telegram.WebApp.initDataUnsafe.user;
+                }
+                
+                // If no user data, try to parse from initData
+                if (!user && window.Telegram.WebApp.initData) {
                     try {
-                        const initData = window.Telegram.WebApp.initData;
-                        if (initData) {
-                            const urlParams = new URLSearchParams(initData);
-                            const userStr = urlParams.get('user');
-                            if (userStr) {
-                                user = JSON.parse(decodeURIComponent(userStr));
-                            }
+                        const urlParams = new URLSearchParams(window.Telegram.WebApp.initData);
+                        const userStr = urlParams.get('user');
+                        if (userStr) {
+                            user = JSON.parse(decodeURIComponent(userStr));
                         }
                     } catch (e) {
-                        console.error('Error parsing user data:', e);
+                        console.error('Error parsing user data from initData:', e);
                     }
                 }
                 
                 // Update UI with user data
                 if (user) {
-                    appState.userName = `${user.first_name}${user.last_name ? ' ' + user.last_name : ''}`;
+                    appState.userName = user.first_name || 'User';
+                    if (user.last_name) {
+                        appState.userName += ' ' + user.last_name;
+                    }
                     appState.userId = user.id;
                     
-                    // Get user photo
+                    // Get user photo URL
                     if (user.photo_url) {
                         appState.userPic = user.photo_url;
                     } else {
-                        // Generate avatar URL using user ID
+                        // Generate avatar using user ID
                         appState.userPic = `https://api.dicebear.com/7.x/avataaars/svg?seed=${user.id}`;
                     }
                     
                     // Update UI elements
                     document.getElementById('userName').innerHTML = appState.userName;
                     document.getElementById('userProfilePic').src = appState.userPic;
+                    
+                    // Store user data in localStorage for persistence
+                    localStorage.setItem('telegramUser', JSON.stringify(user));
                     
                     // Show welcome notification
                     setTimeout(() => {
@@ -850,9 +953,13 @@
                     showNotification('⚠️ Running in test mode');
                 }
                 
-                // Store user data in localStorage for persistence
-                if (user) {
-                    localStorage.setItem('telegramUser', JSON.stringify(user));
+                // Add a debug button in development mode
+                if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
+                    const debugBtn = document.createElement('button');
+                    debugBtn.innerHTML = '🔄 Reset Daily';
+                    debugBtn.className = 'fixed top-20 right-4 bg-red-500 text-white px-3 py-1 rounded text-xs z-50';
+                    debugBtn.onclick = manualDailyReset;
+                    document.body.appendChild(debugBtn);
                 }
             } else {
                 // Fallback for testing outside Telegram
@@ -886,7 +993,10 @@
             if (savedUser) {
                 try {
                     const user = JSON.parse(savedUser);
-                    appState.userName = `${user.first_name}${user.last_name ? ' ' + user.last_name : ''}`;
+                    appState.userName = user.first_name || 'User';
+                    if (user.last_name) {
+                        appState.userName += ' ' + user.last_name;
+                    }
                     appState.userId = user.id;
                     appState.userPic = user.photo_url || `https://api.dicebear.com/7.x/avataaars/svg?seed=${user.id}`;
                     document.getElementById('userName').innerHTML = appState.userName;
@@ -918,17 +1028,20 @@
         function updateCountdown() {
             const now = new Date().getTime();
             const distance = appState.giveawayEndTime - now;
+            
             if (distance < 0) {
                 selectWinner();
-                appState.giveawayEndTime = new Date().getTime() + (24 * 60 * 60 * 1000); // 24 hours
+                appState.giveawayEndTime = new Date().getTime() + GIVEAWAY_DURATION; // 24 hours
+                saveTimerState();
                 return;
             }
+            
             const days = Math.floor(distance / (1000 * 60 * 60 * 24));
             const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
             const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
             const seconds = Math.floor((distance % (1000 * 60)) / 1000);
             
-            // Updated countdown display to show hours, minutes, seconds for 24-hour format
+            // Display countdown (24-hour format)
             let countdownText = '';
             if (days > 0) {
                 countdownText = `${days}d ${hours}h ${minutes}m ${seconds}s`;
@@ -937,7 +1050,62 @@
             }
             
             document.getElementById('homeCountdown').textContent = countdownText;
+            lastUpdateTime = now;
         }
+
+        // Save timer state
+        function saveTimerState() {
+            localStorage.setItem('giveawayEndTime', appState.giveawayEndTime.toString());
+            localStorage.setItem('lastUpdateTime', lastUpdateTime.toString());
+        }
+
+        // Load timer state
+        function loadTimerState() {
+            const savedEndTime = localStorage.getItem('giveawayEndTime');
+            const savedLastUpdate = localStorage.getItem('lastUpdateTime');
+            
+            if (savedEndTime) {
+                appState.giveawayEndTime = parseInt(savedEndTime);
+            }
+            
+            if (savedLastUpdate) {
+                lastUpdateTime = parseInt(savedLastUpdate);
+            }
+        }
+
+        // Start countdown
+        function startCountdown() {
+            // Clear any existing interval
+            if (countdownInterval) {
+                clearInterval(countdownInterval);
+            }
+            
+            // Update immediately
+            updateCountdown();
+            
+            // Set up the interval
+            countdownInterval = setInterval(() => {
+                // Check if page is visible
+                if (!document.hidden) {
+                    updateCountdown();
+                    saveTimerState();
+                }
+            }, TIMER_UPDATE_INTERVAL);
+        }
+
+        // Handle visibility change
+        document.addEventListener('visibilitychange', () => {
+            if (!document.hidden) {
+                // Page is now visible, check if we need to update
+                const now = new Date().getTime();
+                const timeSinceLastUpdate = now - lastUpdateTime;
+                
+                // If it's been more than 5 seconds since last update, update immediately
+                if (timeSinceLastUpdate > 5000) {
+                    updateCountdown();
+                }
+            }
+        });
 
         // Show Ad Function
         function showAd() {
@@ -951,10 +1119,12 @@
                 show_9980483().then(() => {
                     appState.adsWatched++;
                     updateAdProgress();
+                    saveUserState(); // Save state after watching ad
                     showNotification('🎬 Ad watched! Keep going!');
                     appState.adLoading = false;
                     watchAdBtn.innerHTML = originalContent;
                     watchAdBtn.disabled = false;
+                    
                     if (appState.adsWatched === 50) {
                         document.getElementById('enterGiveawayBtn').disabled = false;
                         showNotification('🎉 You can now enter the giveaway!');
@@ -983,6 +1153,8 @@
             const progressPercent = (appState.adsWatched / 50) * 100;
             document.getElementById('adProgress').style.width = `${progressPercent}%`;
             document.getElementById('adProgressText').textContent = `${appState.adsWatched}/50`;
+            document.getElementById('adsWatchedCount').textContent = appState.adsWatched;
+            document.getElementById('watchAdBtn').innerHTML = `<i class="fas fa-play mr-2"></i> Watch Ad (${appState.adsWatched}/50)`;
         }
 
         // Enter Giveaway
@@ -990,6 +1162,7 @@
             if (appState.adsWatched >= 50 && !appState.isParticipating) {
                 showConfirmModal("🎊 You're now participating in the $50 Giveaway! Good luck!", () => {
                     appState.isParticipating = true;
+                    saveUserState(); // Save participation state
                     createConfetti();
                     showNotification('🚀 Successfully entered the giveaway!');
                     document.getElementById('enterGiveawayBtn').disabled = true;
@@ -1002,30 +1175,43 @@
         function selectWinner() {
             appState.previousWinners.unshift({
                 name: appState.currentWinner,
-                date: new Date().toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })
+                date: appState.winnerDate
             });
             if (appState.previousWinners.length > 4) {
                 appState.previousWinners = appState.previousWinners.slice(0, 4);
             }
             const randomIndex = Math.floor(Math.random() * indianNames.length);
             appState.currentWinner = indianNames[randomIndex];
+            appState.winnerDate = 'Today';
             updateWinnersDisplay();
+            
+            // Only one winner per 24 hours
             if (appState.isParticipating && Math.random() < 0.1) {
                 appState.balance += 50;
                 updateBalanceDisplay();
                 showNotification('🎊 Congratulations! You won $50!');
                 createConfetti();
             }
+            
+            // Reset for next giveaway
             appState.isParticipating = false;
             appState.adsWatched = 0;
+            appState.giveawayEndTime = new Date().getTime() + GIVEAWAY_DURATION; // 24 hours
+            
+            // Update UI
             updateAdProgress();
             document.getElementById('enterGiveawayBtn').disabled = true;
             document.getElementById('enterGiveawayBtn').innerHTML = '<i class="fas fa-rocket mr-2"></i> Enter Giveaway';
+            
+            // Save the new state
+            saveUserState();
+            saveTimerState();
         }
 
         // Update Winners Display
         function updateWinnersDisplay() {
             document.getElementById('currentWinner').textContent = appState.currentWinner;
+            document.getElementById('winnerDate').textContent = appState.winnerDate;
             const previousWinnersHtml = appState.previousWinners.map((winner, index) => {
                 const medalColors = [
                     'from-yellow-400 to-orange-500',
@@ -1076,6 +1262,7 @@
                 appState.balance = 0;
                 updateBalanceDisplay();
                 updateWithdrawalHistory();
+                saveUserState();
                 document.getElementById('binanceAddress').value = '';
                 showNotification('✅ Withdrawal request submitted successfully!');
             });
@@ -1166,13 +1353,34 @@
                 updateBalanceDisplay();
                 showNotification('🎊 Congratulations! You won $50!');
                 createConfetti();
+                saveUserState();
             }
+        }
+
+        // Manual daily reset function (for testing)
+        function manualDailyReset() {
+            localStorage.removeItem('userState');
+            appState.adsWatched = 0;
+            appState.isParticipating = false;
+            appState.giveawayEndTime = new Date().getTime() + GIVEAWAY_DURATION;
+            appState.lastSavedDate = new Date().toDateString();
+            updateAdProgress();
+            document.getElementById('enterGiveawayBtn').disabled = true;
+            document.getElementById('enterGiveawayBtn').innerHTML = '<i class="fas fa-rocket mr-2"></i> Enter Giveaway';
+            showNotification('🔄 Progress manually reset!');
+            saveUserState();
         }
 
         // Initialize App
         function initApp() {
             // Load saved user data first
             loadSavedUserData();
+            
+            // Load user state with daily reset
+            loadUserState();
+            
+            // Load timer state
+            loadTimerState();
             
             // Initialize Telegram Web App
             initTelegramApp();
@@ -1186,10 +1394,38 @@
             updateWinnersDisplay();
             updateWithdrawalHistory();
             
-            // Start timers
-            setInterval(updateCountdown, 1000);
-            updateCountdown();
+            // Update button states based on loaded data
+            if (appState.adsWatched >= 50) {
+                document.getElementById('enterGiveawayBtn').disabled = false;
+            }
+            
+            if (appState.isParticipating) {
+                document.getElementById('enterGiveawayBtn').disabled = true;
+                document.getElementById('enterGiveawayBtn').innerHTML = '<i class="fas fa-check-circle mr-2"></i> You\'re in the giveaway!';
+            }
+            
+            // Start the countdown
+            startCountdown();
+            
+            // Start other timers
             setInterval(simulateWin, 30000);
+            
+            // Check for daily reset every minute
+            setInterval(() => {
+                const savedState = localStorage.getItem('userState');
+                if (savedState) {
+                    const userState = JSON.parse(savedState);
+                    const today = new Date().toDateString();
+                    if (userState.lastSavedDate !== today) {
+                        // Daily reset triggered
+                        loadUserState(); // This will reset everything
+                        updateAdProgress();
+                        document.getElementById('enterGiveawayBtn').disabled = true;
+                        document.getElementById('enterGiveawayBtn').innerHTML = '<i class="fas fa-rocket mr-2"></i> Enter Giveaway';
+                        showNotification('🌅 Daily reset! New giveaway started!');
+                    }
+                }
+            }, 60000); // Check every minute
         }
 
         // Handle window resize
