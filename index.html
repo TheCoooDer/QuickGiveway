@@ -461,10 +461,10 @@
         /* Prevent bounce scroll on iOS */
         .container {
             -webkit-overflow-scrolling: touch;
-            overscroll-behavior: contain        /* Hide scrollbar;
+            overscroll-behavior: contain;
         }
         
- but keep functionality */
+        /* Hide scrollbar but keep functionality */
         .container::-webkit-scrollbar {
             width: 0px;
             background: transparent;
@@ -522,7 +522,7 @@
                         </h1>
                         <p class="text-gray-600 mb-4">Every 24 hours • Multiple winners</p>
                         <div class="pulse">
-                            <div class="countdown text-4xl" id="homeCountdown">14h 32m 15s</div>
+                            <div class="countdown text-4xl" id="homeCountdown">Loading...</div>
                         </div>
                     </div>
                     <i class="fas fa-gift absolute -right-10 -top-10 text-white opacity-10 text-9xl"></i>
@@ -532,7 +532,7 @@
                     <div class="flex items-center justify-between mb-4">
                         <h3 class="text-lg font-bold text-gray-800">
                             <i class="fas fa-play-circle text-purple-600 mr-2"></i>
-                            Watch Ads 0 / 50 
+                            Watch Ads <span id="adsWatchedCount">0</span> / 50 
                         </h3>
                         <span class="shimmer-badge">Required</span>
                     </div>
@@ -598,70 +598,15 @@
                         <div class="relative z-10">
                             <i class="fas fa-trophy text-5xl text-white mb-3"></i>
                             <h3 class="text-xl font-bold text-white mb-2">🎊 Latest Winner 🎊</h3>
-                            <p class="text-3xl font-black text-white" id="currentWinner">Rajesh Kumar</p>
-                            <p class="text-white/90 mt-2">Won $50 • June 15, 2023</p>
+                            <p class="text-3xl font-black text-white" id="currentWinner">Loading...</p>
+                            <p class="text-white/90 mt-2" id="winnerDate">Loading...</p>
                         </div>
                     </div>
                     <!-- Previous Winners -->
                     <div>
                         <h3 class="font-bold text-lg mb-4 text-gray-800">Recent Winners</h3>
                         <div class="space-y-3" id="previousWinners">
-                            <div class="task-item">
-                                <div class="flex items-center justify-between">
-                                    <div class="flex items-center">
-                                        <div class="w-10 h-10 bg-gradient-to-br from-yellow-400 to-orange-500 rounded-full flex items-center justify-center mr-3">
-                                            <i class="fas fa-medal text-white"></i>
-                                        </div>
-                                        <div>
-                                            <p class="font-bold text-gray-800">Priya Sharma</p>
-                                            <p class="text-xs text-gray-500">June 12, 2023</p>
-                                        </div>
-                                    </div>
-                                    <span class="text-green-600 font-bold">$50</span>
-                                </div>
-                            </div>
-                            <div class="task-item">
-                                <div class="flex items-center justify-between">
-                                    <div class="flex items-center">
-                                        <div class="w-10 h-10 bg-gradient-to-br from-gray-400 to-gray-600 rounded-full flex items-center justify-center mr-3">
-                                            <i class="fas fa-medal text-white"></i>
-                                        </div>
-                                        <div>
-                                            <p class="font-bold text-gray-800">Amit Patel</p>
-                                            <p class="text-xs text-gray-500">June 9, 2023</p>
-                                        </div>
-                                    </div>
-                                    <span class="text-green-600 font-bold">$50</span>
-                                </div>
-                            </div>
-                            <div class="task-item">
-                                <div class="flex items-center justify-between">
-                                    <div class="flex items-center">
-                                        <div class="w-10 h-10 bg-gradient-to-br from-orange-600 to-red-600 rounded-full flex items-center justify-center mr-3">
-                                            <i class="fas fa-medal text-white"></i>
-                                        </div>
-                                        <div>
-                                            <p class="font-bold text-gray-800">Sneha Reddy</p>
-                                            <p class="text-xs text-gray-500">June 6, 2023</p>
-                                        </div>
-                                    </div>
-                                    <span class="text-green-600 font-bold">$50</span>
-                                </div>
-                            </div>
-                            <div class="task-item">
-                                <div class="flex items-center justify-between">
-                                    <div class="flex items-center">
-                                        <div class="w-10 h-10 bg-gradient-to-br from-blue-400 to-blue-600 rounded-full flex items-center justify-center mr-3">
-                                            <i class="fas fa-medal text-white"></i>
-                                        </div>
-                                        <div>
-                                            <p class="font-bold text-gray-800">Vikram Singh</p>
-                                            <p class="text-xs text-gray-500">June 3, 2023</p>
-                                        </div>
-                                    </div>
-                                    <span class="text-green-600 font-bold">$50</span>
-                                </div>
-                            </div>
+                            <!-- Winners will be loaded here -->
                         </div>
                     </div>
                 </div>
@@ -694,10 +639,7 @@
                     <div>
                         <h3 class="font-bold text-lg mb-4 text-gray-800">Transaction History</h3>
                         <div id="withdrawalHistory" class="space-y-3">
-                            <div class="text-center py-8 text-gray-500">
-                                <i class="fas fa-inbox text-4xl mb-2"></i>
-                                <p>No transactions yet</p>
-                            </div>
+                            <!-- Withdrawal history will be loaded here -->
                         </div>
                     </div>
                 </div>
@@ -756,16 +698,12 @@
             userPic: 'https://picsum.photos/seed/telegramuser/60/60.jpg',
             userId: null,
             withdrawalHistory: [],
-            giveawayEndTime: new Date().getTime() + (24 * 60 * 60 * 1000), // 24 hours
-            currentWinner: 'Rajesh Kumar',
-            previousWinners: [
-                { name: 'Priya Sharma', date: 'June 12, 2023' },
-                { name: 'Amit Patel', date: 'June 9, 2023' },
-                { name: 'Sneha Reddy', date: 'June 6, 2023' },
-                { name: 'Vikram Singh', date: 'June 3, 2023' }
-            ],
+            giveawayEndTime: null, // Will be initialized from localStorage or set to 24 hours from now
+            currentWinner: null,
+            previousWinners: [],
             adLoading: false
         };
+        
         // Indian Names Pool
         const indianNames = [
             'Rajesh Kumar', 'Priya Sharma', 'Amit Patel', 'Sneha Reddy', 'Vikram Singh',
@@ -778,6 +716,60 @@
             'Pooja Gupta', 'Amit Kumar', 'Meera Sharma', 'Rahul Patel', 'Divya Singh',
             'Sanjay Kumar', 'Neha Sharma', 'Arjun Singh', 'Kavita Patel', 'Rohit Verma'
         ];
+
+        // Local Storage Functions
+        function saveAppState() {
+            try {
+                const stateToSave = {
+                    adsWatched: appState.adsWatched,
+                    isParticipating: appState.isParticipating,
+                    balance: appState.balance,
+                    userName: appState.userName,
+                    userPic: appState.userPic,
+                    userId: appState.userId,
+                    withdrawalHistory: appState.withdrawalHistory,
+                    giveawayEndTime: appState.giveawayEndTime,
+                    currentWinner: appState.currentWinner,
+                    previousWinners: appState.previousWinners
+                };
+                localStorage.setItem('quickGiveawayState', JSON.stringify(stateToSave));
+            } catch (e) {
+                console.error('Error saving app state:', e);
+            }
+        }
+
+        function loadAppState() {
+            try {
+                const savedState = localStorage.getItem('quickGiveawayState');
+                if (savedState) {
+                    const parsedState = JSON.parse(savedState);
+                    // Merge saved state with current state
+                    Object.assign(appState, parsedState);
+                    
+                    // If giveaway end time is in the past, reset it
+                    if (appState.giveawayEndTime && new Date().getTime() > appState.giveawayEndTime) {
+                        resetGiveaway();
+                    }
+                    
+                    // If no giveaway end time, set it to 24 hours from now
+                    if (!appState.giveawayEndTime) {
+                        appState.giveawayEndTime = new Date().getTime() + (24 * 60 * 60 * 1000);
+                    }
+                    
+                    // If no current winner, select one
+                    if (!appState.currentWinner) {
+                        const randomIndex = Math.floor(Math.random() * indianNames.length);
+                        appState.currentWinner = indianNames[randomIndex];
+                    }
+                    
+                    return true;
+                }
+                return false;
+            } catch (e) {
+                console.error('Error loading app state:', e);
+                return false;
+            }
+        }
 
         // Initialize Telegram Mini App
         function initTelegramApp() {
@@ -843,16 +835,14 @@
                     setTimeout(() => {
                         showNotification(`👋 Welcome, ${appState.userName}!`);
                     }, 1000);
+                    
+                    // Save user data
+                    saveAppState();
                 } else {
                     // Fallback for testing outside Telegram
                     document.getElementById('userName').innerHTML = 'Test User';
                     document.getElementById('userProfilePic').src = 'https://picsum.photos/seed/testuser/60/60.jpg';
                     showNotification('⚠️ Running in test mode');
-                }
-                
-                // Store user data in localStorage for persistence
-                if (user) {
-                    localStorage.setItem('telegramUser', JSON.stringify(user));
                 }
             } else {
                 // Fallback for testing outside Telegram
@@ -880,23 +870,6 @@
             }
         }
 
-        // Load saved user data on page load
-        function loadSavedUserData() {
-            const savedUser = localStorage.getItem('telegramUser');
-            if (savedUser) {
-                try {
-                    const user = JSON.parse(savedUser);
-                    appState.userName = `${user.first_name}${user.last_name ? ' ' + user.last_name : ''}`;
-                    appState.userId = user.id;
-                    appState.userPic = user.photo_url || `https://api.dicebear.com/7.x/avataaars/svg?seed=${user.id}`;
-                    document.getElementById('userName').innerHTML = appState.userName;
-                    document.getElementById('userProfilePic').src = appState.userPic;
-                } catch (e) {
-                    console.error('Error loading saved user data:', e);
-                }
-            }
-        }
-
         // Tab Navigation
         document.querySelectorAll('.tab-button').forEach(button => {
             button.addEventListener('click', () => {
@@ -916,13 +889,19 @@
 
         // Countdown Timer
         function updateCountdown() {
+            if (!appState.giveawayEndTime) {
+                appState.giveawayEndTime = new Date().getTime() + (24 * 60 * 60 * 1000); // 24 hours
+                saveAppState();
+            }
+            
             const now = new Date().getTime();
             const distance = appState.giveawayEndTime - now;
+            
             if (distance < 0) {
                 selectWinner();
-                appState.giveawayEndTime = new Date().getTime() + (24 * 60 * 60 * 1000); // 24 hours
                 return;
             }
+            
             const days = Math.floor(distance / (1000 * 60 * 60 * 24));
             const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
             const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
@@ -937,6 +916,25 @@
             }
             
             document.getElementById('homeCountdown').textContent = countdownText;
+        }
+
+        // Reset Giveaway
+        function resetGiveaway() {
+            appState.giveawayEndTime = new Date().getTime() + (24 * 60 * 60 * 1000); // 24 hours
+            appState.isParticipating = false;
+            appState.adsWatched = 0;
+            
+            // Select a new winner
+            const randomIndex = Math.floor(Math.random() * indianNames.length);
+            appState.currentWinner = indianNames[randomIndex];
+            
+            // Update UI
+            updateAdProgress();
+            document.getElementById('enterGiveawayBtn').disabled = true;
+            document.getElementById('enterGiveawayBtn').innerHTML = '<i class="fas fa-rocket mr-2"></i> Enter Giveaway';
+            
+            // Save state
+            saveAppState();
         }
 
         // Show Ad Function
@@ -955,6 +953,10 @@
                     appState.adLoading = false;
                     watchAdBtn.innerHTML = originalContent;
                     watchAdBtn.disabled = false;
+                    
+                    // Save state
+                    saveAppState();
+                    
                     if (appState.adsWatched === 50) {
                         document.getElementById('enterGiveawayBtn').disabled = false;
                         showNotification('🎉 You can now enter the giveaway!');
@@ -967,7 +969,18 @@
                     watchAdBtn.disabled = false;
                 });
             } else {
-                showNotification('⚠️ Ad service is not available. Please try again later.');
+                // Fallback for testing
+                appState.adsWatched++;
+                updateAdProgress();
+                showNotification('🎬 Ad watched! Keep going!');
+                
+                // Save state
+                saveAppState();
+                
+                if (appState.adsWatched === 50) {
+                    document.getElementById('enterGiveawayBtn').disabled = false;
+                    showNotification('🎉 You can now enter the giveaway!');
+                }
             }
         }
 
@@ -983,6 +996,8 @@
             const progressPercent = (appState.adsWatched / 50) * 100;
             document.getElementById('adProgress').style.width = `${progressPercent}%`;
             document.getElementById('adProgressText').textContent = `${appState.adsWatched}/50`;
+            document.getElementById('adsWatchedCount').textContent = appState.adsWatched;
+            document.getElementById('watchAdBtn').innerHTML = `<i class="fas fa-play mr-2"></i> Enter Giveaway ${appState.adsWatched}/50`;
         }
 
         // Enter Giveaway
@@ -994,63 +1009,90 @@
                     showNotification('🚀 Successfully entered the giveaway!');
                     document.getElementById('enterGiveawayBtn').disabled = true;
                     document.getElementById('enterGiveawayBtn').innerHTML = '<i class="fas fa-check-circle mr-2"></i> You\'re in the giveaway!';
+                    
+                    // Save state
+                    saveAppState();
                 });
             }
         });
 
         // Select Winner
         function selectWinner() {
-            appState.previousWinners.unshift({
-                name: appState.currentWinner,
-                date: new Date().toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })
-            });
-            if (appState.previousWinners.length > 4) {
-                appState.previousWinners = appState.previousWinners.slice(0, 4);
+            // Add current winner to previous winners
+            if (appState.currentWinner) {
+                appState.previousWinners.unshift({
+                    name: appState.currentWinner,
+                    date: new Date().toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })
+                });
+                
+                // Keep only the last 4 winners
+                if (appState.previousWinners.length > 4) {
+                    appState.previousWinners = appState.previousWinners.slice(0, 4);
+                }
             }
+            
+            // Select a new winner
             const randomIndex = Math.floor(Math.random() * indianNames.length);
             appState.currentWinner = indianNames[randomIndex];
+            
+            // Update winners display
             updateWinnersDisplay();
+            
+            // Check if current user won
             if (appState.isParticipating && Math.random() < 0.1) {
                 appState.balance += 50;
                 updateBalanceDisplay();
                 showNotification('🎊 Congratulations! You won $50!');
                 createConfetti();
             }
-            appState.isParticipating = false;
-            appState.adsWatched = 0;
-            updateAdProgress();
-            document.getElementById('enterGiveawayBtn').disabled = true;
-            document.getElementById('enterGiveawayBtn').innerHTML = '<i class="fas fa-rocket mr-2"></i> Enter Giveaway';
+            
+            // Reset giveaway
+            resetGiveaway();
         }
 
         // Update Winners Display
         function updateWinnersDisplay() {
-            document.getElementById('currentWinner').textContent = appState.currentWinner;
-            const previousWinnersHtml = appState.previousWinners.map((winner, index) => {
+            if (appState.currentWinner) {
+                document.getElementById('currentWinner').textContent = appState.currentWinner;
+                document.getElementById('winnerDate').textContent = new Date().toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
+            }
+            
+            if (appState.previousWinners.length > 0) {
                 const medalColors = [
                     'from-yellow-400 to-orange-500',
                     'from-gray-400 to-gray-600',
                     'from-orange-600 to-red-600',
                     'from-blue-400 to-blue-600'
                 ];
-                return `
-                    <div class="task-item">
-                        <div class="flex items-center justify-between">
-                            <div class="flex items-center">
-                                <div class="w-10 h-10 bg-gradient-to-br ${medalColors[index]} rounded-full flex items-center justify-center mr-3">
-                                    <i class="fas fa-medal text-white"></i>
+                
+                const previousWinnersHtml = appState.previousWinners.map((winner, index) => {
+                    return `
+                        <div class="task-item">
+                            <div class="flex items-center justify-between">
+                                <div class="flex items-center">
+                                    <div class="w-10 h-10 bg-gradient-to-br ${medalColors[index]} rounded-full flex items-center justify-center mr-3">
+                                        <i class="fas fa-medal text-white"></i>
+                                    </div>
+                                    <div>
+                                        <p class="font-bold text-gray-800">${winner.name}</p>
+                                        <p class="text-xs text-gray-500">${winner.date}</p>
+                                    </div>
                                 </div>
-                                <div>
-                                    <p class="font-bold text-gray-800">${winner.name}</p>
-                                    <p class="text-xs text-gray-500">${winner.date}</p>
-                                </div>
+                                <span class="text-green-600 font-bold">$50</span>
                             </div>
-                            <span class="text-green-600 font-bold">$50</span>
                         </div>
+                    `;
+                }).join('');
+                
+                document.getElementById('previousWinners').innerHTML = previousWinnersHtml;
+            } else {
+                document.getElementById('previousWinners').innerHTML = `
+                    <div class="text-center py-8 text-gray-500">
+                        <i class="fas fa-history text-4xl mb-2"></i>
+                        <p>No previous winners yet</p>
                     </div>
                 `;
-            }).join('');
-            document.getElementById('previousWinners').innerHTML = previousWinnersHtml;
+            }
         }
 
         // Request Withdrawal
@@ -1060,10 +1102,11 @@
                 showNotification('⚠️ Please enter your Binance wallet address');
                 return;
             }
-            if (appState.balance <= 0) {
-                showNotification('⚠️ No balance to withdraw');
+            if (appState.balance < 10) {
+                showNotification('⚠️ Minimum withdrawal amount is $10');
                 return;
             }
+            
             showConfirmModal('💸 Withdrawal request received. Processed within 24 hours.', () => {
                 const withdrawal = {
                     id: Date.now(),
@@ -1072,11 +1115,17 @@
                     date: new Date().toLocaleDateString(),
                     status: 'pending'
                 };
+                
                 appState.withdrawalHistory.unshift(withdrawal);
                 appState.balance = 0;
+                
                 updateBalanceDisplay();
                 updateWithdrawalHistory();
                 document.getElementById('binanceAddress').value = '';
+                
+                // Save state
+                saveAppState();
+                
                 showNotification('✅ Withdrawal request submitted successfully!');
             });
         });
@@ -1085,7 +1134,7 @@
         function updateBalanceDisplay() {
             document.getElementById('userBalance').textContent = appState.balance.toFixed(2);
             document.getElementById('withdrawBalance').textContent = appState.balance.toFixed(2);
-            document.getElementById('requestWithdrawBtn').disabled = appState.balance <= 0;
+            document.getElementById('requestWithdrawBtn').disabled = appState.balance < 10;
         }
 
         // Update Withdrawal History
@@ -1099,6 +1148,7 @@
                 `;
                 return;
             }
+            
             const historyHtml = appState.withdrawalHistory.map(withdrawal => `
                 <div class="task-item">
                     <div class="flex justify-between items-start">
@@ -1117,6 +1167,7 @@
                     </div>
                 </div>
             `).join('');
+            
             document.getElementById('withdrawalHistory').innerHTML = historyHtml;
         }
 
@@ -1166,13 +1217,16 @@
                 updateBalanceDisplay();
                 showNotification('🎊 Congratulations! You won $50!');
                 createConfetti();
+                
+                // Save state
+                saveAppState();
             }
         }
 
         // Initialize App
         function initApp() {
-            // Load saved user data first
-            loadSavedUserData();
+            // Load saved app state
+            const stateLoaded = loadAppState();
             
             // Initialize Telegram Web App
             initTelegramApp();
@@ -1190,6 +1244,14 @@
             setInterval(updateCountdown, 1000);
             updateCountdown();
             setInterval(simulateWin, 30000);
+            
+            // Save state periodically
+            setInterval(saveAppState, 30000); // Save every 30 seconds
+            
+            // Show notification if state was loaded
+            if (stateLoaded) {
+                showNotification('📱 Your progress has been restored!');
+            }
         }
 
         // Handle window resize
@@ -1203,6 +1265,9 @@
                 updateViewportHeight();
             }, 100);
         });
+
+        // Save state before page unload
+        window.addEventListener('beforeunload', saveAppState);
 
         // Initialize when DOM is ready
         document.addEventListener('DOMContentLoaded', initApp);
