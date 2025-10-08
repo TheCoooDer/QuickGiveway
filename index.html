@@ -845,7 +845,10 @@
         }
     }
     function loadUserState() {
-        const today = new Date().toDateString();
+        // Use UTC date instead of local date
+        const now = new Date();
+        const todayUTC = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate())).toDateString();
+        
         if (!appState.userId) {
             resetAppState();
             return;
@@ -854,7 +857,7 @@
             const savedState = localStorage.getItem(`user_${appState.userId}`);
             if (savedState) {
                 const data = JSON.parse(savedState);
-                if (data.lastSavedDate !== today) {
+                if (data.lastSavedDate !== todayUTC) {
                     resetAppState();
                     showNotification('🌅 Daily reset! New giveaway started!');
                 } else {
@@ -866,7 +869,7 @@
                     appState.currentWinner = data.currentWinner || ' Nikhil kumar';
                     appState.winnerDate = data.winnerDate || 'Today';
                     appState.previousWinners = data.previousWinners || [...appState.previousWinners];
-                    appState.lastSavedDate = data.lastSavedDate || today;
+                    appState.lastSavedDate = data.lastSavedDate || todayUTC;
                     appState.clickedLinks = new Set(data.clickedLinks || []);
                 }
             } else {
@@ -882,7 +885,9 @@
         appState.linksWatched = 0;
         appState.isParticipating = false;
         appState.clickedLinks = new Set();
-        appState.lastSavedDate = new Date().toDateString();
+        // Save UTC date instead of local date
+        const now = new Date();
+        appState.lastSavedDate = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate())).toDateString();
     }
 
     // Telegram Init
@@ -1190,3 +1195,5 @@
     }
     document.addEventListener('DOMContentLoaded', initApp);
 </script>
+</body>
+</html>
