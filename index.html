@@ -11,10 +11,10 @@
     <!-- Telegram Web App Script -->
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <style>
-        /* ... [All your original CSS remains unchanged] ... */
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
         * {
             font-family: 'Inter', sans-serif;
+            box-sizing: border-box;
         }
         :root {
             --primary-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
@@ -81,6 +81,21 @@
             padding-bottom: calc(80px + var(--safe-area-inset-bottom));
             -webkit-overflow-scrolling: touch;
             scroll-behavior: smooth;
+        }
+        .glass-card,
+        .enter-progress,
+        .bottom-nav > .glass-card {
+            max-width: 100%;
+        }
+        .grid.grid-cols-1.md\:grid-cols-2 {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 1rem;
+        }
+        @media (min-width: 500px) {
+            .grid.grid-cols-1.md\:grid-cols-2 {
+                grid-template-columns: 1fr 1fr;
+            }
         }
         .glass-card {
             background: var(--card-bg);
@@ -335,8 +350,10 @@
         .bottom-nav {
             position: fixed;
             bottom: 0;
-            left: 0;
-            right: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 100%;
+            max-width: 500px;
             background: var(--card-bg);
             backdrop-filter: blur(20px);
             box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.1);
@@ -520,7 +537,6 @@
     </style>
 </head>
 <body>
-    <!-- ... [All your original HTML remains unchanged] ... -->
     <div class="app-wrapper">
         <div class="container">
             <i class="fas fa-gift floating-icon text-white text-6xl" style="top: 10%; left: 5%;"></i>
@@ -567,41 +583,41 @@
                     </div>
                     <i class="fas fa-gift absolute -right-10 -top-10 text-white opacity-10 text-9xl"></i>
                 </div>
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
-                    <div class="glass-card p-6">
-                        <div class="flex items-center justify-between mb-4">
-                            <h3 class="text-lg font-bold text-gray-800">
-                                <i class="fas fa-play-circle text-purple-600 mr-2"></i>
-                                Watch Ads <span id="adsWatchedCount">0</span> / 100 
-                            </h3>
-                            <span class="shimmer-badge">Required</span>
-                        </div>
-                        <div class="progress-bar mb-4">
-                            <div class="progress-fill" id="adProgress" style="width: 0%">
-                                <span id="adProgressText">0/100</span>
-                            </div>
-                        </div>
-                        <button id="watchAdBtn" class="btn btn-primary w-full">
-                            <i class="fas fa-play mr-2"></i> Watch Ad (0/100)
-                        </button>
+                <!-- Ad Card - Full Width -->
+                <div class="glass-card p-6 mb-4">
+                    <div class="flex items-center justify-between mb-4">
+                        <h3 class="text-lg font-bold text-gray-800">
+                            <i class="fas fa-play-circle text-purple-600 mr-2"></i>
+                            Watch Ads <span id="adsWatchedCount">0</span> / 100 
+                        </h3>
+                        <span class="shimmer-badge">Required</span>
                     </div>
-                    <div class="glass-card p-6">
-                        <div class="flex items-center justify-between mb-4">
-                            <h3 class="text-lg font-bold text-gray-800">
-                                <i class="fas fa-link text-pink-600 mr-2"></i>
-                                Watch Viral Links <span id="linksWatchedCount">0</span> / 19
-                            </h3>
-                            <span class="shimmer-badge">Required</span>
+                    <div class="progress-bar mb-4">
+                        <div class="progress-fill" id="adProgress" style="width: 0%">
+                            <span id="adProgressText">0/100</span>
                         </div>
-                        <div class="progress-bar mb-4">
-                            <div class="progress-fill link-progress" id="linkProgress" style="width: 0%">
-                                <span id="linkProgressText">0/19</span>
-                            </div>
-                        </div>
-                        <button id="watchLinkBtn" class="btn btn-accent w-full">
-                            <i class="fas fa-external-link-alt mr-2"></i> Watch Link (0/19)
-                        </button>
                     </div>
+                    <button id="watchAdBtn" class="btn btn-primary w-full">
+                        <i class="fas fa-play mr-2"></i> Watch Ad (0/100)
+                    </button>
+                </div>
+                <!-- Links Card - Full Width -->
+                <div class="glass-card p-6 mb-6">
+                    <div class="flex items-center justify-between mb-4">
+                        <h3 class="text-lg font-bold text-gray-800">
+                            <i class="fas fa-link text-pink-600 mr-2"></i>
+                            Watch Viral Links <span id="linksWatchedCount">0</span> / 19
+                        </h3>
+                        <span class="shimmer-badge">Required</span>
+                    </div>
+                    <div class="progress-bar mb-4">
+                        <div class="progress-fill link-progress" id="linkProgress" style="width: 0%">
+                            <span id="linkProgressText">0/19</span>
+                        </div>
+                    </div>
+                    <button id="watchLinkBtn" class="btn btn-accent w-full">
+                        <i class="fas fa-external-link-alt mr-2"></i> Watch Link (0/19)
+                    </button>
                 </div>
                 <div class="enter-progress" id="enterProgress">
                     <div class="enter-progress-fill" id="enterProgressFill" style="width: 0%"></div>
@@ -739,6 +755,7 @@
             </button>
         </div>
     </div>
+
     <script>
         // App State
         const appState = {
@@ -764,7 +781,6 @@
             clickedLinks: new Set()
         };
 
-        // Viral Links
         const viralLinks = [
             'https://www.revenuecpmgate.com/abxysby62i?key=4061879b22a9fa181066a0f2c57ae72d',
             'https://www.revenuecpmgate.com/tqypp62y2w?key=74cc971fb77af7a1038cdccbafd2432f',
@@ -786,9 +802,6 @@
             'https://otieu.com/4/9923537'
         ];
 
-        const GIVEAWAY_DURATION = 24 * 60 * 60 * 1000; // 24 hours in milliseconds
-
-        // ✅ 100 Indian + Pakistani Names
         const indianPakistaniNames = [
             ' Nikhil kumar', 'Rajesh Kumar', 'Amit Patel', 'Sneha Reddy', 'Vikram Singh',
             'Anjali Gupta', 'Rahul Verma', 'Kavita Nair', 'Sanjay Mishra', 'Meera Joshi',
@@ -812,63 +825,58 @@
             'Farhan Saeed', 'Saba Hameed', 'Noman Habib', 'Nimra Bucha', 'Adnan Jaffar'
         ];
 
-        // Helper: Get next UTC-aligned giveaway end time (every 24h at 00:00 UTC)
-        function getNextGiveawayEndTime() {
-            const now = new Date();
-            const next = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate() + 1, 0, 0, 0));
-            return next.getTime();
-        }
-
-        // Save user state
+        // Local Storage Functions
         function saveUserState() {
-            const userState = {
-                adsWatched: appState.adsWatched,
-                linksWatched: appState.linksWatched,
-                isParticipating: appState.isParticipating,
-                lastSavedDate: new Date().toDateString(),
-                balance: appState.balance,
-                withdrawalHistory: appState.withdrawalHistory,
-                currentWinner: appState.currentWinner,
-                winnerDate: appState.winnerDate,
-                previousWinners: appState.previousWinners,
-                clickedLinks: Array.from(appState.clickedLinks)
-            };
-            localStorage.setItem('userState', JSON.stringify(userState));
+            if (!appState.userId) return;
+            try {
+                const stateToSave = {
+                    adsWatched: appState.adsWatched,
+                    linksWatched: appState.linksWatched,
+                    isParticipating: appState.isParticipating,
+                    balance: appState.balance,
+                    withdrawalHistory: appState.withdrawalHistory,
+                    currentWinner: appState.currentWinner,
+                    winnerDate: appState.winnerDate,
+                    previousWinners: appState.previousWinners,
+                    lastSavedDate: appState.lastSavedDate,
+                    clickedLinks: Array.from(appState.clickedLinks)
+                };
+                localStorage.setItem(`user_${appState.userId}`, JSON.stringify(stateToSave));
+            } catch (e) {
+                console.error("Local storage save error:", e);
+            }
         }
 
-        // Load user state with daily reset logic
         function loadUserState() {
-            const savedState = localStorage.getItem('userState');
             const today = new Date().toDateString();
-            if (savedState) {
-                try {
-                    const userState = JSON.parse(savedState);
-                    if (userState.lastSavedDate !== today) {
-                        appState.adsWatched = 0;
-                        appState.linksWatched = 0;
-                        appState.isParticipating = false;
-                        appState.clickedLinks = new Set();
-                        appState.lastSavedDate = today;
+            if (!appState.userId) {
+                resetAppState();
+                return;
+            }
+            try {
+                const savedState = localStorage.getItem(`user_${appState.userId}`);
+                if (savedState) {
+                    const data = JSON.parse(savedState);
+                    if (data.lastSavedDate !== today) {
+                        resetAppState();
                         showNotification('🌅 Daily reset! New giveaway started!');
                     } else {
-                        Object.assign(appState, {
-                            adsWatched: userState.adsWatched || 0,
-                            linksWatched: userState.linksWatched || 0,
-                            isParticipating: userState.isParticipating || false,
-                            balance: userState.balance || 0,
-                            withdrawalHistory: userState.withdrawalHistory || [],
-                            currentWinner: userState.currentWinner || ' Nikhil kumar',
-                            winnerDate: userState.winnerDate || 'Today',
-                            previousWinners: userState.previousWinners || appState.previousWinners,
-                            lastSavedDate: userState.lastSavedDate || today,
-                            clickedLinks: new Set(userState.clickedLinks || [])
-                        });
+                        appState.adsWatched = data.adsWatched || 0;
+                        appState.linksWatched = data.linksWatched || 0;
+                        appState.isParticipating = data.isParticipating || false;
+                        appState.balance = data.balance || 0;
+                        appState.withdrawalHistory = data.withdrawalHistory || [];
+                        appState.currentWinner = data.currentWinner || ' Nikhil kumar';
+                        appState.winnerDate = data.winnerDate || 'Today';
+                        appState.previousWinners = data.previousWinners || [...appState.previousWinners];
+                        appState.lastSavedDate = data.lastSavedDate || today;
+                        appState.clickedLinks = new Set(data.clickedLinks || []);
                     }
-                } catch (e) {
-                    console.error('Error loading user state:', e);
+                } else {
                     resetAppState();
                 }
-            } else {
+            } catch (e) {
+                console.error("Local storage load error:", e);
                 resetAppState();
             }
         }
@@ -881,18 +889,11 @@
             appState.lastSavedDate = new Date().toDateString();
         }
 
-        // Telegram App Init
+        // Telegram Init
         function initTelegramApp() {
             if (window.Telegram?.WebApp) {
                 window.Telegram.WebApp.expand();
                 window.Telegram.WebApp.enableClosingConfirmation();
-                window.Telegram.WebApp.setHeaderColor('#667eea');
-                window.Telegram.WebApp.setBackgroundColor('#667eea');
-                window.Telegram.WebApp.onEvent('viewportChanged', () => {
-                    updateCountdown();
-                });
-                window.Telegram.WebApp.onEvent('mainButtonClicked', saveUserState);
-                window.addEventListener('beforeunload', saveUserState);
                 let user = window.Telegram.WebApp.initDataUnsafe?.user;
                 if (!user && window.Telegram.WebApp.initData) {
                     try {
@@ -909,8 +910,6 @@
                     appState.userPic = user.photo_url || `https://api.dicebear.com/7.x/avataaars/svg?seed=${user.id}`;
                     document.getElementById('userName').textContent = appState.userName;
                     document.getElementById('userProfilePic').src = appState.userPic;
-                    localStorage.setItem('telegramUser', JSON.stringify(user));
-                    setTimeout(() => showNotification(`👋 Welcome, ${appState.userName}!`), 1000);
                 }
             } else {
                 document.getElementById('userName').textContent = 'Test User';
@@ -918,13 +917,19 @@
             }
         }
 
-        // ✅ FIXED: Countdown and winner selection
+        // Countdown & Winner Logic
+        function getNextGiveawayEndTime() {
+            const now = new Date();
+            const next = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate() + 1, 0, 0, 0));
+            return next.getTime();
+        }
+
         function updateCountdown() {
             const now = Date.now();
             const giveawayEndTime = getNextGiveawayEndTime();
             const distance = giveawayEndTime - now;
             if (distance <= 0) {
-                selectWinner(); // ✅ This now correctly updates winner
+                selectWinner();
                 return;
             }
             const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
@@ -938,122 +943,28 @@
             setInterval(updateCountdown, 1000);
         }
 
-        // Ad & Link Logic (unchanged)
-        function showAd() {
-            if (typeof show_9980483 !== 'function') {
-                showNotification('⚠️ Ad service unavailable.');
-                return;
-            }
-            if (appState.adLoading || appState.adsWatched >= 100) return;
-            appState.adLoading = true;
-            const btn = document.getElementById('watchAdBtn');
-            const orig = btn.innerHTML;
-            btn.innerHTML = '<span class="ad-loading"></span> Loading Ad...';
-            btn.disabled = true;
-            show_9980483().then(() => {
-                appState.adsWatched++;
-                updateAdProgress();
-                updateEnterProgress();
-                saveUserState();
-                showNotification('🎬 Ad watched! Keep going!');
-            }).catch(err => {
-                console.error('Ad error:', err);
-                showNotification('⚠️ Ad failed. Try again.');
-            }).finally(() => {
-                appState.adLoading = false;
-                btn.innerHTML = orig;
-                btn.disabled = false;
-            });
-        }
-
-        function updateAdProgress() {
-            const pct = (appState.adsWatched / 100) * 100;
-            document.getElementById('adProgress').style.width = `${pct}%`;
-            document.getElementById('adProgressText').textContent = `${appState.adsWatched}/100`;
-            document.getElementById('adsWatchedCount').textContent = appState.adsWatched;
-            document.getElementById('watchAdBtn').innerHTML = `<i class="fas fa-play mr-2"></i> Watch Ad (${appState.adsWatched}/100)`;
-        }
-
-        function watchLink() {
-            if (appState.linkLoading || appState.linksWatched >= viralLinks.length) return;
-            let nextLinkIndex = -1;
-            for (let i = 0; i < viralLinks.length; i++) {
-                if (!appState.clickedLinks.has(i)) {
-                    nextLinkIndex = i;
-                    break;
-                }
-            }
-            if (nextLinkIndex === -1) return;
-            appState.linkLoading = true;
-            const btn = document.getElementById('watchLinkBtn');
-            const orig = btn.innerHTML;
-            btn.innerHTML = '<span class="ad-loading"></span> Opening Link...';
-            btn.disabled = true;
-            appState.clickedLinks.add(nextLinkIndex);
-            appState.linksWatched++;
-            window.open(viralLinks[nextLinkIndex], '_blank');
-            updateLinkProgress();
-            updateEnterProgress();
-            saveUserState();
-            showNotification(`🔗 Link ${appState.linksWatched}/${viralLinks.length} opened!`);
-            setTimeout(() => {
-                appState.linkLoading = false;
-                btn.innerHTML = orig;
-                btn.disabled = false;
-            }, 1000);
-        }
-
-        function updateLinkProgress() {
-            const pct = (appState.linksWatched / viralLinks.length) * 100;
-            document.getElementById('linkProgress').style.width = `${pct}%`;
-            document.getElementById('linkProgressText').textContent = `${appState.linksWatched}/${viralLinks.length}`;
-            document.getElementById('linksWatchedCount').textContent = appState.linksWatched;
-            document.getElementById('watchLinkBtn').innerHTML = `<i class="fas fa-external-link-alt mr-2"></i> Watch Link (${appState.linksWatched}/${viralLinks.length})`;
-        }
-
-        function updateEnterProgress() {
-            const totalTasks = 100 + viralLinks.length;
-            const completedTasks = appState.adsWatched + appState.linksWatched;
-            const pct = Math.round((completedTasks / totalTasks) * 100);
-            const progressFill = document.getElementById('enterProgressFill');
-            const progressText = document.getElementById('enterProgressText');
-            progressFill.style.width = `${pct}%`;
-            if (completedTasks >= totalTasks && !appState.isParticipating) {
-                progressFill.classList.add('complete');
-                progressText.innerHTML = '<i class="fas fa-rocket mr-2"></i> 🎉 CLICK TO ENTER GIVEAWAY! 🎉';
-                showNotification('🎉 All tasks completed! Click to enter the giveaway!');
-            } else if (appState.isParticipating) {
-                progressFill.classList.add('complete');
-                progressText.innerHTML = '<i class="fas fa-check-circle mr-2"></i> You\'re in the giveaway! Good luck!';
-            } else {
-                progressFill.classList.remove('complete');
-                progressText.innerHTML = `<i class="fas fa-rocket mr-2"></i> Enter Giveaway (${completedTasks}/${totalTasks})`;
-            }
-        }
-
-        // ✅ FIXED: Winner rotation logic
+        // ✅ FIXED: Winner rotation + full reset
         function selectWinner() {
-            // Move current winner to previous
+            // Move current → history
             appState.previousWinners.unshift({
-                name: appState.currentWinner,
+                name: appState.currentWinner.trim(),
                 date: appState.winnerDate
             });
-            // Keep only last 4
             appState.previousWinners = appState.previousWinners.slice(0, 4);
 
-            // Pick new winner from expanded list
+            // Pick new winner from list
             appState.currentWinner = indianPakistaniNames[Math.floor(Math.random() * indianPakistaniNames.length)];
             appState.winnerDate = 'Today';
 
-            // Check if user won (10% chance)
+            // Check if user wins
             if (appState.isParticipating && Math.random() < 0.1) {
-                appState.balance += 100; // ✅ $100 prize
+                appState.balance += 100;
                 updateBalanceDisplay();
                 showNotification('🎊 You won $100!');
                 createConfetti();
             }
 
-            // Reset for next cycle
+            // ✅ FULL RESET
             appState.isParticipating = false;
             appState.adsWatched = 0;
             appState.linksWatched = 0;
@@ -1065,6 +976,42 @@
             updateEnterProgress();
             updateWinnersDisplay();
             saveUserState();
+        }
+
+        // UI Helpers
+        function updateAdProgress() {
+            const pct = (appState.adsWatched / 100) * 100;
+            document.getElementById('adProgress').style.width = `${pct}%`;
+            document.getElementById('adProgressText').textContent = `${appState.adsWatched}/100`;
+            document.getElementById('adsWatchedCount').textContent = appState.adsWatched;
+            document.getElementById('watchAdBtn').innerHTML = `<i class="fas fa-play mr-2"></i> Watch Ad (${appState.adsWatched}/100)`;
+        }
+
+        function updateLinkProgress() {
+            const pct = (appState.linksWatched / viralLinks.length) * 100;
+            document.getElementById('linkProgress').style.width = `${pct}%`;
+            document.getElementById('linkProgressText').textContent = `${appState.linksWatched}/${viralLinks.length}`;
+            document.getElementById('linksWatchedCount').textContent = appState.linksWatched;
+            document.getElementById('watchLinkBtn').innerHTML = `<i class="fas fa-external-link-alt mr-2"></i> Watch Link (${appState.linksWatched}/${viralLinks.length})`;
+        }
+
+        function updateEnterProgress() {
+            const total = 100 + viralLinks.length;
+            const completed = appState.adsWatched + appState.linksWatched;
+            const pct = Math.round((completed / total) * 100);
+            const fill = document.getElementById('enterProgressFill');
+            const text = document.getElementById('enterProgressText');
+            fill.style.width = `${pct}%`;
+            if (completed >= total && !appState.isParticipating) {
+                fill.classList.add('complete');
+                text.innerHTML = '<i class="fas fa-rocket mr-2"></i> 🎉 CLICK TO ENTER GIVEAWAY! 🎉';
+            } else if (appState.isParticipating) {
+                fill.classList.add('complete');
+                text.innerHTML = '<i class="fas fa-check-circle mr-2"></i> You\'re in the giveaway! Good luck!';
+            } else {
+                fill.classList.remove('complete');
+                text.innerHTML = `<i class="fas fa-rocket mr-2"></i> Enter Giveaway (${completed}/${total})`;
+            }
         }
 
         function updateWinnersDisplay() {
@@ -1152,10 +1099,66 @@
             }
         }
 
-        // Initialize
-        function initApp() {
-            loadUserState();
+        function showAd() {
+            if (typeof show_9980483 !== 'function') {
+                showNotification('⚠️ Ad service unavailable.');
+                return;
+            }
+            if (appState.adLoading || appState.adsWatched >= 100) return;
+            appState.adLoading = true;
+            const btn = document.getElementById('watchAdBtn');
+            const orig = btn.innerHTML;
+            btn.innerHTML = '<span class="ad-loading"></span> Loading Ad...';
+            btn.disabled = true;
+            show_9980483().then(() => {
+                appState.adsWatched++;
+                updateAdProgress();
+                updateEnterProgress();
+                saveUserState();
+                showNotification('🎬 Ad watched! Keep going!');
+            }).catch(err => {
+                console.error('Ad error:', err);
+                showNotification('⚠️ Ad failed. Try again.');
+            }).finally(() => {
+                appState.adLoading = false;
+                btn.innerHTML = orig;
+                btn.disabled = false;
+            });
+        }
+
+        function watchLink() {
+            if (appState.linkLoading || appState.linksWatched >= viralLinks.length) return;
+            let nextLinkIndex = -1;
+            for (let i = 0; i < viralLinks.length; i++) {
+                if (!appState.clickedLinks.has(i)) {
+                    nextLinkIndex = i;
+                    break;
+                }
+            }
+            if (nextLinkIndex === -1) return;
+            appState.linkLoading = true;
+            const btn = document.getElementById('watchLinkBtn');
+            const orig = btn.innerHTML;
+            btn.innerHTML = '<span class="ad-loading"></span> Opening Link...';
+            btn.disabled = true;
+            appState.clickedLinks.add(nextLinkIndex);
+            appState.linksWatched++;
+            window.open(viralLinks[nextLinkIndex], '_blank');
+            updateLinkProgress();
+            updateEnterProgress();
+            saveUserState();
+            showNotification(`🔗 Link ${appState.linksWatched}/${viralLinks.length} opened!`);
+            setTimeout(() => {
+                appState.linkLoading = false;
+                btn.innerHTML = orig;
+                btn.disabled = false;
+            }, 1000);
+        }
+
+        // Initialize App
+        async function initApp() {
             initTelegramApp();
+            await loadUserState();
             updateAdProgress();
             updateLinkProgress();
             updateEnterProgress();
@@ -1166,11 +1169,10 @@
 
             document.getElementById('watchAdBtn').addEventListener('click', showAd);
             document.getElementById('watchLinkBtn').addEventListener('click', watchLink);
-
             document.getElementById('enterProgress').addEventListener('click', () => {
-                const totalTasks = 100 + viralLinks.length;
-                const completedTasks = appState.adsWatched + appState.linksWatched;
-                if (completedTasks >= totalTasks && !appState.isParticipating) {
+                const total = 100 + viralLinks.length;
+                const completed = appState.adsWatched + appState.linksWatched;
+                if (completed >= total && !appState.isParticipating) {
                     showConfirmModal("🎊 You're now participating in the $100 Giveaway! Good luck!", () => {
                         appState.isParticipating = true;
                         saveUserState();
@@ -1180,7 +1182,6 @@
                     });
                 }
             });
-
             document.getElementById('requestWithdrawBtn').addEventListener('click', () => {
                 const addr = document.getElementById('binanceAddress').value;
                 if (!addr) return showNotification('⚠️ Enter Binance address');
@@ -1201,7 +1202,6 @@
                     showNotification('✅ Withdrawal submitted!');
                 });
             });
-
             document.querySelectorAll('.tab-button').forEach(btn => {
                 btn.addEventListener('click', () => {
                     document.querySelectorAll('.tab-button').forEach(b => b.classList.remove('active'));
