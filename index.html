@@ -6,8 +6,9 @@
     <title>$100 QuickGiveaway</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <!-- Ad SDK Script -->
+    <!-- Ad SDK Scripts -->
     <script src='//libtl.com/sdk.js' data-zone='9891560' data-sdk='show_9891560'></script>
+    <script src='//libtl.com/sdk.js' data-zone='9980483' data-sdk='show_9980483'></script>
     <!-- Telegram Web App Script -->
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <style>
@@ -342,7 +343,7 @@
             box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.1);
             z-index: 100;
             border-top: 1px solid rgba(255, 255, 255, 0.2);
-            padding-bottom: var(--safe-area-inset-bottom);
+            padding-bottom: var(--afe-area-inset-bottom);
         }
         .balance-display {
             background: var(--primary-gradient);
@@ -537,6 +538,18 @@
             border-radius: 50%;
             animation: spin 1s linear infinite;
         }
+        .ad-status {
+            font-size: 12px;
+            color: #666;
+            margin-top: 5px;
+            text-align: center;
+        }
+        .ad-error {
+            color: #e53e3e;
+            font-size: 12px;
+            margin-top: 5px;
+            text-align: center;
+        }
     </style>
     <!-- Firebase SDK -->
     <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
@@ -624,6 +637,8 @@
                     <button id="watchAdBtn" class="btn btn-primary w-full">
                         <i class="fas fa-play mr-2"></i> Watch Ad 
                     </button>
+                    <div id="adStatus" class="ad-status"></div>
+                    <div id="adError" class="ad-error"></div>
                 </div>
                 <!-- Links Card - Full Width -->
                 <div class="glass-card p-6 mb-6">
@@ -854,7 +869,11 @@ let appState = {
   balance: 0,
   clickedLinks: new Set(),
   currentCycleId: null,
-  withdrawalHistory: []
+  withdrawalHistory: [],
+  adLoading: false,
+  adAvailable: true,
+  lastAdAttempt: 0,
+  adRetryCount: 0
 };
 
 // === FIRESTORE HELPERS ===
@@ -1095,7 +1114,18 @@ function updateAdProgress() {
   document.getElementById('adProgress').style.width = `${pct}%`;
   document.getElementById('adProgressText').textContent = `${appState.adsWatched}/100`;
   document.getElementById('adsWatchedCount').textContent = appState.adsWatched;
-  document.getElementById('watchAdBtn').innerHTML = `<i class="fas fa-play mr-2"></i> Watch Ad`;
+  
+  const btn = document.getElementById('watchAdBtn');
+  if (appState.adsWatched >= 100) {
+    btn.disabled = true;
+    btn.innerHTML = '<i class="fas fa-check mr-2"></i> Completed';
+  } else if (appState.adLoading) {
+    btn.disabled = true;
+    btn.innerHTML = '<span class="ad-loading"></span> Loading...';
+  } else {
+    btn.disabled = false;
+    btn.innerHTML = '<i class="fas fa-play mr-2"></i> Watch Ad';
+  }
 }
 
 function updateLinkProgress() {
@@ -1209,24 +1239,129 @@ function showConfirmModal(msg, cb) {
 
 // === AD & LINK HANDLERS ===
 function showAd() {
-  if (typeof show_9891560 !== 'function' || appState.adsWatched >= 100) return;
+  if (appState.adsWatched >= 100 || appState.adLoading) return;
+  
   const btn = document.getElementById('watchAdBtn');
-  btn.disabled = true;
-  btn.innerHTML = '<span class="ad-loading"></span> Loading...';
-
-  // Rewarded interstitial
-  show_9891560().then(() => {
-    // User has successfully watched the ad
-    appState.adsWatched++;
+  const statusEl = document.getElementById('adStatus');
+  const errorEl = document.getElementById('adError');
+  
+  // Clear previous status messages
+  statusEl.textContent = '';
+  errorEl.textContent = '';
+  
+  appState.adLoading = true;
+  updateAdProgress();
+  
+  // Check if ad functions are available
+  if (typeof show_9891560 !== 'function' && typeof show_9980483 !== 'function') {
+    errorEl.textContent = 'Ad scripts not loaded. Please refresh the page.';
+    appState.adLoading = false;
     updateAdProgress();
-    updateEnterProgress();
-    saveUserState();
-  }).catch(() => {
-    // Ad failed to load, but we won't show a notification
-  }).finally(() => {
-    btn.disabled = false;
-    btn.innerHTML = '<i class="fas fa-play mr-2"></i> Watch Ad';
-  });
+    return;
+  }
+  
+  // Try primary ad zone first
+  statusEl.textContent = 'Loading ad...';
+  
+  try {
+    // Use a random ad zone to distribute load
+    const useSecondaryAd = Math.random() > 0.5;
+    const adFunction = useSecondaryAd ? show_9980483 : show_9891560;
+    const zoneId = useSecondaryAd ? '9980483' : '9891560';
+    
+    console.log(`Attempting to show ad from zone ${zoneId}`);
+    
+    adFunction().then(() => {
+      // User has successfully watched the ad
+      appState.adsWatched++;
+      appState.adRetryCount = 0; // Reset retry count on success
+      statusEl.textContent = 'Ad completed successfully!';
+      updateAdProgress();
+      updateEnterProgress();
+      saveUserState();
+      
+      // Clear status message after 2 seconds
+      setTimeout(() => {
+        statusEl.textContent = '';
+      }, 2000);
+      
+      appState.adLoading = false;
+      updateAdProgress();
+    }).catch((error) => {
+      console.error('Ad failed to load:', error);
+      
+      // Try the other ad zone if the first one failed
+      if (useSecondaryAd && typeof show_9891560 === 'function') {
+        statusEl.textContent = 'Trying alternative ad...';
+        
+        show_9891560().then(() => {
+          appState.adsWatched++;
+          appState.adRetryCount = 0;
+          statusEl.textContent = 'Ad completed successfully!';
+          updateAdProgress();
+          updateEnterProgress();
+          saveUserState();
+          
+          setTimeout(() => {
+            statusEl.textContent = '';
+          }, 2000);
+          
+          appState.adLoading = false;
+          updateAdProgress();
+        }).catch((secondError) => {
+          console.error('Both ad zones failed:', secondError);
+          handleAdError('No ads available at the moment. Please try again later.');
+        });
+      } else if (!useSecondaryAd && typeof show_9980483 === 'function') {
+        statusEl.textContent = 'Trying alternative ad...';
+        
+        show_9980483().then(() => {
+          appState.adsWatched++;
+          appState.adRetryCount = 0;
+          statusEl.textContent = 'Ad completed successfully!';
+          updateAdProgress();
+          updateEnterProgress();
+          saveUserState();
+          
+          setTimeout(() => {
+            statusEl.textContent = '';
+          }, 2000);
+          
+          appState.adLoading = false;
+          updateAdProgress();
+        }).catch((secondError) => {
+          console.error('Both ad zones failed:', secondError);
+          handleAdError('No ads available at the moment. Please try again later.');
+        });
+      } else {
+        handleAdError('No ads available at the moment. Please try again later.');
+      }
+    });
+  } catch (error) {
+    console.error('Error showing ad:', error);
+    handleAdError('Error loading ad. Please try again.');
+  }
+  
+  function handleAdError(message) {
+    errorEl.textContent = message;
+    statusEl.textContent = '';
+    appState.adRetryCount++;
+    
+    // If we've tried multiple times, suggest waiting
+    if (appState.adRetryCount > 2) {
+      errorEl.textContent = 'Ads are temporarily unavailable. Please try again in a few minutes.';
+      appState.adAvailable = false;
+      
+      // Reset availability after 5 minutes
+      setTimeout(() => {
+        appState.adAvailable = true;
+        appState.adRetryCount = 0;
+      }, 5 * 60 * 1000);
+    }
+    
+    appState.adLoading = false;
+    updateAdProgress();
+  }
 }
 
 function watchLink() {
