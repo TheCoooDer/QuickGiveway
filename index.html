@@ -926,18 +926,25 @@
     }
 let countdownInterval = null;
 
+let countdownInterval = null;
+
 function updateCountdown() {
     const now = Date.now();
     const giveawayEndTime = getNextGiveawayEndTime();
     const distance = giveawayEndTime - now;
 
     if (distance <= 0) {
-        // ✅ Stop repeated execution
+        // ✅ Stop current interval to avoid multiple calls
         if (countdownInterval) {
             clearInterval(countdownInterval);
             countdownInterval = null;
         }
-        selectWinner(); // This handles reset + winner + new cycle
+
+        // ✅ Perform all 3 actions at once
+        selectWinner();
+
+        // ✅ Auto-start next 24h cycle immediately
+        setTimeout(startCountdown, 1000); // Small delay to ensure clean state
         return;
     }
 
