@@ -265,23 +265,6 @@
             font-size: 2rem;
             margin-bottom: 8px;
         }
-        .notification {
-            position: fixed;
-            top: 20px;
-            right: 20px;
-            padding: 16px 24px;
-            border-radius: 12px;
-            background: var(--primary-gradient);
-            color: white;
-            font-weight: 600;
-            box-shadow: 0 10px 30px rgba(102, 126, 234, 0.4);
-            z-index: 1000;
-            transform: translateX(120%);
-            transition: transform 0.3s ease;
-        }
-        .notification.show {
-            transform: translateX(0);
-        }
         .modal {
             display: none;
             position: fixed;
@@ -779,9 +762,6 @@
             </div>
         </div>
     </div>
-    <div id="notification" class="notification">
-        <span id="notificationText">Notification message</span>
-    </div>
     <div id="confirmModal" class="modal">
         <div class="modal-content">
             <div class="text-center mb-4">
@@ -997,7 +977,6 @@ async function saveUserState() {
     console.log('User state saved successfully');
   } catch (error) {
     console.error('Error saving user state:', error);
-    showNotification('⚠️ Error saving progress');
   }
 }
 
@@ -1054,7 +1033,6 @@ function initTelegramApp() {
     // Generate unique test user ID
     appState.userId = 'test_user_' + Math.random().toString(36).substr(2, 9);
     appState.userName = 'Test User';
-    showNotification('⚠️ Test mode - Data will persist in this session');
   }
 }
 
@@ -1096,7 +1074,6 @@ function startCountdown() {
 
 // Refresh the giveaway cycle when timer ends
 async function refreshGiveawayCycle() {
-  showNotification('🔄 Refreshing giveaway...');
   currentGiveawayCycle = await getOrCreateGiveawayCycle();
   appState.currentCycleId = currentGiveawayCycle.id;
   
@@ -1110,7 +1087,6 @@ async function refreshGiveawayCycle() {
   
   updateWinnersDisplay(currentGiveawayCycle);
   startCountdown();
-  showNotification('✅ New giveaway started!');
 }
 
 // === UI UPDATERS ===
@@ -1206,14 +1182,7 @@ function updateBalanceDisplay() {
   document.getElementById('requestWithdrawBtn').disabled = appState.balance < 10;
 }
 
-// === NOTIFICATIONS & CONFETTI ===
-function showNotification(msg) {
-  const el = document.getElementById('notification');
-  document.getElementById('notificationText').textContent = msg;
-  el.classList.add('show');
-  setTimeout(() => el.classList.remove('show'), 3000);
-}
-
+// === CONFETTI ===
 function createConfetti() {
   const colors = ['#667eea', '#764ba2', '#f093fb', '#f5576c', '#fa709a', '#fee140'];
   for (let i = 0; i < 100; i++) {
@@ -1245,13 +1214,16 @@ function showAd() {
   btn.disabled = true;
   btn.innerHTML = '<span class="ad-loading"></span> Loading...';
 
+  // Rewarded interstitial
   show_9980483().then(() => {
+    // User has successfully watched the ad
     appState.adsWatched++;
     updateAdProgress();
     updateEnterProgress();
     saveUserState();
-    showNotification('🎬 Ad watched!');
-  }).catch(() => showNotification('⚠️ Ad failed')).finally(() => {
+  }).catch(() => {
+    // Ad failed to load, but we won't show a notification
+  }).finally(() => {
     btn.disabled = false;
     btn.innerHTML = '<i class="fas fa-play mr-2"></i> Watch Ad';
   });
@@ -1272,7 +1244,6 @@ function watchLink() {
   updateLinkProgress();
   updateEnterProgress();
   saveUserState();
-  showNotification('🔗 Link opened!');
 }
 
 // === EVENT LISTENERS SETUP ===
@@ -1288,7 +1259,6 @@ function setupEventListeners() {
         appState.isParticipating = true;
         saveUserState();
         createConfetti();
-        showNotification('🚀 Entered giveaway!');
         updateEnterProgress();
       });
     }
@@ -1297,8 +1267,8 @@ function setupEventListeners() {
   // Withdrawal logic
   document.getElementById('requestWithdrawBtn').addEventListener('click', () => {
     const addr = document.getElementById('binanceAddress').value.trim();
-    if (!addr) return showNotification('⚠️ Enter Binance address');
-    if (appState.balance < 10) return showNotification('⚠️ Min $10');
+    if (!addr) return;
+    if (appState.balance < 10) return;
     appState.withdrawalHistory.unshift({
       id: Date.now(),
       amount: appState.balance,
@@ -1310,7 +1280,6 @@ function setupEventListeners() {
     saveUserState();
     updateBalanceDisplay();
     document.getElementById('binanceAddress').value = '';
-    showNotification('✅ Withdrawal submitted!');
   });
 
   // Tabs
@@ -1392,7 +1361,6 @@ async function initApp() {
 
   } catch (error) {
     console.error("Initialization error:", error);
-    showNotification("❌ Failed to initialize app");
     document.getElementById('loadingOverlay').style.display = 'none';
   }
 }
