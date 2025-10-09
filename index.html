@@ -534,9 +534,50 @@
             z-index: 10;
             pointer-events: none;
         }
+        .loading-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.8);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 9999;
+        }
+        .loading-spinner {
+            width: 50px;
+            height: 50px;
+            border: 5px solid rgba(255, 255, 255, 0.3);
+            border-top-color: #667eea;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
     </style>
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+    <script>
+    // Firebase configuration
+    const firebaseConfig = {
+        apiKey: "AIzaSyCZfqwAg5pEtAgxeTscbfyFl5FN2tqw20I",
+        authDomain: "quickgiveaway-280f2.firebaseapp.com",
+        projectId: "quickgiveaway-280f2",
+        storageBucket: "quickgiveaway-280f2.firebasestorage.app",
+        messagingSenderId: "186237872533",
+        appId: "1:186237872533:web:8f1ee575d93b78f0e6ae9c"
+    };
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.firestore();
+    </script>
 </head>
 <body>
+    <!-- Loading Overlay -->
+    <div id="loadingOverlay" class="loading-overlay">
+        <div class="loading-spinner"></div>
+    </div>
+
     <div class="app-wrapper">
         <div class="container">
             <i class="fas fa-gift floating-icon text-white text-6xl" style="top: 10%; left: 5%;"></i>
@@ -578,7 +619,7 @@
                         </h1>
                         <p class="text-gray-600 mb-4">Every 24 hours • One winner</p>
                         <div class="pulse">
-                            <div class="countdown text-4xl" id="homeCountdown">24h 00m 00s</div>
+                            <div class="countdown text-4xl" id="homeCountdown">Loading...</div>
                         </div>
                     </div>
                     <i class="fas fa-gift absolute -right-10 -top-10 text-white opacity-10 text-9xl"></i>
@@ -669,9 +710,9 @@
                     <div class="winner-card mb-6 relative">
                         <div class="relative z-10">
                             <i class="fas fa-trophy text-5xl text-white mb-3"></i>
-                            <h3 class="text-xl font-bold text-white mb-2">🎊 Today's Winner 🎊</h3>
-                            <p class="text-3xl font-black text-white" id="currentWinner"> Nikhil kumar</p>
-                            <p class="text-white/90 mt-2">Won $100 • <span id="winnerDate">Today</span></p>
+                            <h3 class="text-xl font-bold text-white mb-2" id="winnerTitle">⏰ Waiting for Countdown End</h3>
+                            <p class="text-3xl font-black text-white" id="currentWinner">Winner will be announced at countdown end</p>
+                            <p class="text-white/90 mt-2" id="winnerDate">Waiting...</p>
                         </div>
                     </div>
                     <div>
@@ -756,444 +797,582 @@
         </div>
     </div>
 
-    <script>
-    // App State
-    const appState = {
-        adsWatched: 0,
-        linksWatched: 0,
-        isParticipating: false,
-        balance: 0,
-        userName: 'Telegram User',
-        userPic: 'https://picsum.photos/seed/telegramuser/60/60.jpg',
-        userId: null,
-        withdrawalHistory: [],
-        currentWinner: ' Nikhil kumar',
-        winnerDate: 'Today',
-        previousWinners: [
-            { name: 'Rajesh Kumar', date: 'Last 24h' },
-            { name: 'Amit Patel', date: 'Previous 24h' },
-            { name: 'Sneha Reddy', date: '2 cycles ago' },
-            { name: 'Vikram Singh', date: '3 cycles ago' }
-        ],
-        adLoading: false,
-        linkLoading: false,
-        lastSavedDate: new Date().toDateString(),
-        clickedLinks: new Set()
-    };
-    const viralLinks = [
-        'https://www.revenuecpmgate.com/abxysby62i?key=4061879b22a9fa181066a0f2c57ae72d',
-        'https://www.revenuecpmgate.com/tqypp62y2w?key=74cc971fb77af7a1038cdccbafd2432f',
-        'https://www.revenuecpmgate.com/tutkw1sahh?key=272554dae7b213c13d92f046080861a2',
-        'https://www.revenuecpmgate.com/kfarq0tuw?key=e6a1cde9dcf8a5bf8f73fb24245c3de5',
-        'https://www.revenuecpmgate.com/ebpv48yuy?key=ec6b3137e555bdf5c6d2e3664ce83ed0',
-        'https://www.effectivegatecpm.com/suw0nq9i?key=466383182ed764e6be16b50776d8e8fc',
-        'https://www.effectivegatecpm.com/vrz22uepfw?key=298621cc890b0e61db6be8866a62bc88',
-        'https://shrinkme.click/eyioEWz',
-        'https://shrinkme.click/cwYDenBL',
-        'https://shrinkme.click/omUU80PH',
-        'https://shrinkme.click/H1HE',
-        'https://shrinkme.click/FhEPlc',
-        'https://shrinkme.click/rKbEDC',
-        'https://otieu.com/4/9923541',
-        'https://otieu.com/4/9923538',
-        'https://otieu.com/4/9923540',
-        'https://otieu.com/4/9904808',
-        'https://otieu.com/4/9923537'
-    ];
-    const indianPakistaniNames = [
-        ' Nikhil kumar', 'Rajesh Kumar', 'Amit Patel', 'Sneha Reddy', 'Vikram Singh',
-        'Anjali Gupta', 'Rahul Verma', 'Kavita Nair', 'Sanjay Mishra', 'Meera Joshi',
-        'Arjun Kapoor', 'Pooja Desai', 'Rohit Sharma', 'Divya Agarwal', 'Vivek Menon',
-        'Neha Chatterjee', 'Karan Singhania', 'Anita Iyer', 'Ravi Malhotra', 'Sonia Kapoor',
-        'Ajay Kumar', 'Rashmi Verma', 'Manoj Sharma', 'Deepa Patel', 'Vikas Gupta',
-        'Shweta Reddy', 'Alok Singh', 'Kavita Joshi', 'Rohit Kumar', 'Priya Nair',
-        'Anil Sharma', 'Sunita Patel', 'Rajesh Verma', 'Anita Singh', 'Vikram Reddy',
-        'Pooja Gupta', 'Amit Kumar', 'Meera Sharma', 'Rahul Patel', 'Divya Singh',
-        'Sanjay Kumar', 'Neha Sharma', 'Arjun Singh', 'Kavita Patel', 'Rohit Verma',
-        'Ali Hassan', 'Fatima Khan', 'Bilal Ahmed', 'Zara Malik', 'Omar Farooq',
-        'Ayesha Siddiqui', 'Imran Khan', 'Sana Raza', 'Tariq Mahmood', 'Nadia Hussain',
-        'Asif Ali', 'Hina Shah', 'Kamran Sheikh', 'Rabia Noor', 'Waqar Zaka',
-        'Saima Akhtar', 'Faisal Qureshi', 'Bushra Bibi', 'Adnan Malik', 'Samina Peerzada',
-        'Noman Ijaz', 'Mahira Khan', 'Hamza Ali Abbasi', 'Yumna Zaidi', 'Ahmed Ali',
-        'Saba Qamar', 'Junaid Khan', 'Mehwish Hayat', 'Fahad Mustafa', 'Iqra Aziz',
-        'Danish Taimoor', 'Ayeza Khan', 'Muneeb Butt', 'Sajal Aly', 'Osman Khalid Butt',
-        'Hania Amir', 'Ali Rehman', 'Sarah Khan', 'Affan Waheed', 'Kinza Hashmi',
-        'Shahzad Sheikh', 'Madiha Imam', 'Sheheryar Munawar', 'Sana Javed', 'Asim Azhar',
-        'Zara Noor Abbas', 'Haroon Shahid', 'Momal Sheikh', 'Ali Kazmi', 'Ushna Shah',
-        'Farhan Saeed', 'Saba Hameed', 'Noman Habib', 'Nimra Bucha', 'Adnan Jaffar'
-    ];
+<script>
+// === CONFIG ===
+const VIRAL_LINKS = [
+  'https://www.revenuecpmgate.com/abxysby62i?key=4061879b22a9fa181066a0f2c57ae72d',
+  'https://www.revenuecpmgate.com/tqypp62y2w?key=74cc971fb77af7a1038cdccbafd2432f',
+  'https://www.revenuecpmgate.com/2h2j9y6j3g?key=8f1a5c7d2e9b4f6a3c8d0e2f5a7b9c1d',
+  'https://www.revenuecpmgate.com/7k4l8m2n9p?key=3d6e9f2a5b8c1d4e7f0a3c6b9e2f5a8d',
+  'https://www.revenuecpmgate.com/5r8t2w4y7u?key=9c2d5f8a1b4e7g0j3k6m9p2s5v8x1z4',
+  'https://www.revenuecpmgate.com/3q6s9v2b5n?key=7a0c3f6i9l2o5r8u1x4a7d0g3j6m9p2',
+  'https://www.revenuecpmgate.com/8f1j4l7p0s?key=2b5e8h1k4n7q0t3w6z9c2f5i8l1o4r7',
+  'https://www.revenuecpmgate.com/6k9p2s5v8x?key=4g7j0m3p6s9v2y5b8e1h4k7n0q3t6w9',
+  'https://www.revenuecpmgate.com/1m4p7s0v3y?key=6i9l2o5r8u1x4a7d0g3j6m9p2s5v8z1',
+  'https://www.revenuecpmgate.com/9b2e5h8k1n?key=3q6t9w2z5c8f1i4l7o0r3u6x9a2d5g8',
+  'https://www.revenuecpmgate.com/4g7j0m3p6s?key=9v2y5b8e1h4k7n0q3t6w9z2c5f8i1l4',
+  'https://www.revenuecpmgate.com/2b5e8h1k4n?key=7q0t3w6z9c2f5i8l1o4r7u0x3a6d9g2',
+  'https://www.revenuecpmgate.com/7q0t3w6z9c?key=5f8i1l4o7r0u3x6a9d2g5j8m1p4s7v0',
+  'https://www.revenuecpmgate.com/5f8i1l4o7r?key=2b5e8h1k4n7q0t3w6z9c2f5i8l1o4r7',
+  'https://www.revenuecpmgate.com/3q6t9w2z5c?key=8f1i4l7o0r3u6x9a2d5g8j1m4p7s0v3',
+  'https://www.revenuecpmgate.com/8f1i4l7o0r?key=6k9p2s5v8x1z4b7e0h3k6n9q2t5w8y1',
+  'https://www.revenuecpmgate.com/6k9p2s5v8x?key=1m4p7s0v3y6b9e2h5k8n1q4t7w0z3c6',
+  'https://www.revenuecpmgate.com/1m4p7s0v3y?key=9f2i5l8o1r4u7x0a3d6g9j2m5p8s1v4',
+  'https://otieu.com/4/9923537'
+];
 
-    // Local Storage Functions
-    function saveUserState() {
-        if (!appState.userId) return;
-        try {
-            const stateToSave = {
-                adsWatched: appState.adsWatched,
-                linksWatched: appState.linksWatched,
-                isParticipating: appState.isParticipating,
-                balance: appState.balance,
-                withdrawalHistory: appState.withdrawalHistory,
-                currentWinner: appState.currentWinner,
-                winnerDate: appState.winnerDate,
-                previousWinners: appState.previousWinners,
-                lastSavedDate: appState.lastSavedDate,
-                clickedLinks: Array.from(appState.clickedLinks)
-            };
-            localStorage.setItem(`user_${appState.userId}`, JSON.stringify(stateToSave));
-        } catch (e) {
-            console.error("Local storage save error:", e);
-        }
+// Bangladeshi names for winner selection
+const BANGLADESHI_NAMES = [
+  'Abdul Alim', 'Fatima Begum', 'Mohammad Rahman', 'Ayesha Khan', 'Hasan Ahmed',
+  'Nusrat Jahan', 'Kamal Hossain', 'Shamima Akter', 'Rafiqul Islam', 'Farzana Yasmin',
+  'Jubayer Ahmed', 'Taslima Khatun', 'Mahmudul Hasan', 'Sabina Yeasmin', 'Shakil Ahmed',
+  'Sumaiya Akter', 'Imran Hossain', 'Nadia Sultana', 'Saiful Islam', 'Mehnaz Parvin',
+  'Arif Rahman', 'Rashida Begum', 'Nayeem Islam', 'Jannatul Ferdous', 'Sohel Rana',
+  'Riya Akter', 'Tarek Ahmed', 'Nusrat Islam', 'Jashim Uddin', 'Shammi Akhter',
+  'Mizanur Rahman', 'Mehedi Hasan', 'Nishat Jahan', 'Samiul Islam', 'Tasnuva Ahmed',
+  'Riyad Hossain', 'Sanjida Akter', 'Fahim Islam', 'Sumaiya Sultana', 'Mehedi Hasan',
+  'Nadia Islam', 'Rakibul Hasan', 'Jannatul Islam', 'Sabbir Ahmed', 'Mehjabin Akter',
+  'Shakil Islam', 'Maliha Khatun', 'Mamunur Rashid', 'Farhana Islam', 'Sujon Mia',
+  'Taslima Begum', 'Abu Bakar', 'Mst. Sultana', 'Riyad Islam', 'Jannatul Nayeem',
+  'Sohag Ahmed', 'Mst. Akter', 'Rafiq Islam', 'Mst. Jahan', 'Sohel Mia',
+  'Mst. Begum', 'Abdul Karim', 'Mst. Khatun', 'Mohammad Ali', 'Mst. Sultana',
+  'Abdul Khalek', 'Mst. Akter', 'Mst. Begum', 'Abdul Latif', 'Mst. Jahan',
+  'Abdul Matin', 'Mst. Khatun', 'Abdul Mannan', 'Mst. Begum', 'Abdul Momin',
+  'Mst. Sultana', 'Abdul Muktadir', 'Mst. Akter', 'Abdul Quddus', 'Mst. Jahan',
+  'Abdul Razzak', 'Mst. Khatun', 'Abdul Salam', 'Mst. Begum', 'Abdul Samad',
+  'Mst. Sultana', 'Abdul Wahab', 'Mst. Akter', 'Abdul Wahid', 'Mst. Jahan',
+  'Abdul Wadud', 'Mst. Khatun', 'Abdul Zabbar', 'Mst. Begum', 'Abdul Zahir',
+  'Mst. Sultana', 'Abdul Zakir', 'Mst. Akter', 'Abdul Jalil', 'Mst. Jahan',
+  'Abdul Karim', 'Mst. Khatun', 'Abdul Khalek', 'Mst. Begum', 'Abdul Latif',
+  'Mst. Sultana', 'Abdul Matin', 'Mst. Akter', 'Abdul Mannan', 'Mst. Jahan',
+  'Abdul Momin', 'Mst. Khatun', 'Abdul Muktadir', 'Mst. Begum', 'Abdul Quddus',
+  'Mst. Sultana', 'Abdul Razzak', 'Mst. Akter', 'Abdul Salam', 'Mst. Jahan',
+  'Abdul Samad', 'Mst. Khatun', 'Abdul Wahab', 'Mst. Begum', 'Abdul Wahid',
+  'Mst. Sultana', 'Abdul Wadud', 'Mst. Akter', 'Abdul Zabbar', 'Mst. Jahan',
+  'Abdul Zahir', 'Mst. Khatun', 'Abdul Zakir', 'Mst. Begum'
+];
+
+// === STATE ===
+let appState = {
+  userId: null,
+  userName: 'Guest',
+  userPic: '',
+  adsWatched: 0,
+  linksWatched: 0,
+  isParticipating: false,
+  balance: 0,
+  clickedLinks: new Set(),
+  currentCycleId: null,
+  withdrawalHistory: []
+};
+
+// === FIRESTORE HELPERS ===
+// Get or create the current giveaway cycle
+async function getOrCreateGiveawayCycle() {
+  const now = new Date();
+  const cycleId = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate())).toISOString().split('T')[0];
+
+  const docRef = db.collection('giveaways').doc(cycleId);
+  const doc = await docRef.get();
+
+  if (!doc.exists) {
+    // Get previous cycle to move its winner to history
+    const yesterday = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate() - 1));
+    const yesterdayId = yesterday.toISOString().split('T')[0];
+    const yesterdayDoc = await db.collection('giveaways').doc(yesterdayId).get();
+    
+    let previousWinners = [];
+    if (yesterdayDoc.exists) {
+      const yesterdayData = yesterdayDoc.data();
+      previousWinners = yesterdayData.previousWinners || [];
+      // Add yesterday's winner to the beginning of the history
+      if (yesterdayData.winner) {
+        previousWinners.unshift({
+          name: yesterdayData.winner,
+          date: yesterday.toLocaleDateString(),
+          cycleId: yesterdayId
+        });
+        // Keep only the last 10 winners
+        previousWinners = previousWinners.slice(0, 10);
+      }
     }
-    function loadUserState() {
-        // Use UTC date instead of local date
-        const now = new Date();
-        const todayUTC = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate())).toDateString();
+
+    // Initialize new cycle WITHOUT a winner
+    await docRef.set({
+      cycleId,
+      winner: null,
+      winnerDate: null,
+      previousWinners: previousWinners,
+      createdAt: firebase.firestore.Timestamp.fromDate(new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate()))),
+      endsAt: firebase.firestore.Timestamp.fromDate(new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate() + 1))),
+      winnerSelected: false
+    });
+  }
+
+  return { id: cycleId, ...doc.data() };
+}
+
+// Select winner when timer ends
+async function selectWinner() {
+  const now = new Date();
+  const cycleId = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate())).toISOString().split('T')[0];
+  
+  const docRef = db.collection('giveaways').doc(cycleId);
+  const doc = await docRef.get();
+  
+  if (doc.exists && !doc.data().winnerSelected) {
+    // Select a random winner
+    const randomWinner = BANGLADESHI_NAMES[Math.floor(Math.random() * BANGLADESHI_NAMES.length)];
+    
+    // Update the document with the winner
+    await docRef.update({
+      winner: randomWinner,
+      winnerDate: 'Today',
+      winnerSelected: true,
+      winnerSelectedAt: firebase.firestore.FieldValue.serverTimestamp()
+    });
+    
+    console.log('Winner selected:', randomWinner);
+    return randomWinner;
+  }
+  
+  return doc.data()?.winner;
+}
+
+// Load user state from Firestore
+async function loadUserState(userId) {
+  if (!userId) return null;
+  try {
+    const userDoc = await db.collection('users').doc(userId.toString()).get();
+    return userDoc.exists ? userDoc.data() : null;
+  } catch (error) {
+    console.error('Error loading user state:', error);
+    return null;
+  }
+}
+
+// Save user state to Firestore
+async function saveUserState() {
+  if (!appState.userId) return;
+  try {
+    await db.collection('users').doc(appState.userId.toString()).set({
+      adsWatched: appState.adsWatched,
+      linksWatched: appState.linksWatched,
+      isParticipating: appState.isParticipating,
+      balance: appState.balance,
+      withdrawalHistory: appState.withdrawalHistory,
+      clickedLinks: Array.from(appState.clickedLinks),
+      currentCycleId: appState.currentCycleId,
+      lastUpdated: firebase.firestore.FieldValue.serverTimestamp()
+    }, { merge: true });
+    
+    // Also save to localStorage as backup
+    localStorage.setItem('giveawayAppState', JSON.stringify({
+      adsWatched: appState.adsWatched,
+      linksWatched: appState.linksWatched,
+      isParticipating: appState.isParticipating,
+      balance: appState.balance,
+      clickedLinks: Array.from(appState.clickedLinks),
+      currentCycleId: appState.currentCycleId
+    }));
+    
+    console.log('User state saved successfully');
+  } catch (error) {
+    console.error('Error saving user state:', error);
+    showNotification('⚠️ Error saving progress');
+  }
+}
+
+// Load user state from localStorage as backup
+function loadFromLocalStorage() {
+  try {
+    const saved = localStorage.getItem('giveawayAppState');
+    if (saved) {
+      const data = JSON.parse(saved);
+      return data;
+    }
+  } catch (error) {
+    console.error('Error loading from localStorage:', error);
+  }
+  return null;
+}
+
+// Reset user data when a new cycle starts
+async function resetUserDataForNewCycle() {
+  appState.adsWatched = 0;
+  appState.linksWatched = 0;
+  appState.isParticipating = false;
+  appState.clickedLinks = new Set();
+  await saveUserState();
+  updateAdProgress();
+  updateLinkProgress();
+  updateEnterProgress();
+  console.log('User data reset for new cycle');
+}
+
+// === TELEGRAM INIT ===
+function initTelegramApp() {
+  if (window.Telegram?.WebApp) {
+    window.Telegram.WebApp.expand();
+    window.Telegram.WebApp.enableClosingConfirmation();
+    let user = window.Telegram.WebApp.initDataUnsafe?.user;
+    if (!user && window.Telegram.WebApp.initData) {
+      try {
+        const params = new URLSearchParams(window.Telegram.WebApp.initData);
+        const userStr = params.get('user');
+        if (userStr) user = JSON.parse(decodeURIComponent(userStr));
+      } catch (e) {
+        console.error('Parse error:', e);
+      }
+    }
+    if (user) {
+      appState.userId = user.id;
+      appState.userName = (user.first_name || '') + (user.last_name ? ' ' + user.last_name : '');
+      appState.userPic = user.photo_url || `https://api.dicebear.com/7.x/avataaars/svg?seed=${user.id}`;
+      document.getElementById('userName').textContent = appState.userName;
+      document.getElementById('userProfilePic').src = appState.userPic;
+    }
+  } else {
+    // Generate unique test user ID
+    appState.userId = 'test_user_' + Math.random().toString(36).substr(2, 9);
+    appState.userName = 'Test User';
+    showNotification('⚠️ Test mode - Data will persist in this session');
+  }
+}
+
+// === COUNTDOWN & WINNER LOGIC ===
+let currentGiveawayCycle = null;
+let countdownInterval = null;
+
+function getNextCycleEndTimestamp() {
+  return currentGiveawayCycle.endsAt.toMillis();
+}
+
+function updateCountdown() {
+  const now = Date.now();
+  const end = getNextCycleEndTimestamp();
+  const distance = end - now;
+
+  if (distance <= 0) {
+    // Cycle ended - select winner and refresh
+    clearInterval(countdownInterval);
+    document.getElementById('homeCountdown').textContent = '0h 0m 0s';
+    
+    // Select winner before refreshing
+    selectWinner().then(() => {
+      refreshGiveawayCycle();
+    });
+    return;
+  }
+
+  const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+  const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+  const seconds = Math.floor((distance % (1000 * 60)) / 1000);
+  document.getElementById('homeCountdown').textContent = `${hours}h ${minutes}m ${seconds}s`;
+}
+
+function startCountdown() {
+  updateCountdown();
+  countdownInterval = setInterval(updateCountdown, 1000);
+}
+
+// Refresh the giveaway cycle when timer ends
+async function refreshGiveawayCycle() {
+  showNotification('🔄 Refreshing giveaway...');
+  currentGiveawayCycle = await getOrCreateGiveawayCycle();
+  appState.currentCycleId = currentGiveawayCycle.id;
+  
+  // Check if user needs to be reset for new cycle
+  if (appState.userId) {
+    const userData = await loadUserState(appState.userId);
+    if (!userData || userData.currentCycleId !== appState.currentCycleId) {
+      await resetUserDataForNewCycle();
+    }
+  }
+  
+  updateWinnersDisplay(currentGiveawayCycle);
+  startCountdown();
+  showNotification('✅ New giveaway started!');
+}
+
+// === UI UPDATERS ===
+function updateAdProgress() {
+  const pct = (appState.adsWatched / 100) * 100;
+  document.getElementById('adProgress').style.width = `${pct}%`;
+  document.getElementById('adProgressText').textContent = `${appState.adsWatched}/100`;
+  document.getElementById('adsWatchedCount').textContent = appState.adsWatched;
+  document.getElementById('watchAdBtn').innerHTML = `<i class="fas fa-play mr-2"></i> Watch Ad`;
+}
+
+function updateLinkProgress() {
+  const total = VIRAL_LINKS.length;
+  const pct = (appState.linksWatched / total) * 100;
+  document.getElementById('linkProgress').style.width = `${pct}%`;
+  document.getElementById('linkProgressText').textContent = `${appState.linksWatched}/${total}`;
+  document.getElementById('linksWatchedCount').textContent = appState.linksWatched;
+  document.getElementById('watchLinkBtn').innerHTML = `<i class="fas fa-external-link-alt mr-2"></i> Watch Link`;
+}
+
+function updateEnterProgress() {
+  const total = 100 + VIRAL_LINKS.length;
+  const completed = appState.adsWatched + appState.linksWatched;
+  const pct = Math.round((completed / total) * 100);
+  const fill = document.getElementById('enterProgressFill');
+  const text = document.getElementById('enterProgressText');
+  fill.style.width = `${pct}%`;
+
+  if (completed >= total && !appState.isParticipating) {
+    fill.classList.add('complete');
+    text.innerHTML = '<i class="fas fa-rocket mr-2"></i> 🎉 CLICK TO ENTER GIVEAWAY! 🎉';
+  } else if (appState.isParticipating) {
+    fill.classList.add('complete');
+    text.innerHTML = '<i class="fas fa-check-circle mr-2"></i> You\'re in the giveaway! Good luck!';
+  } else {
+    fill.classList.remove('complete');
+    text.innerHTML = `<i class="fas fa-rocket mr-2"></i> Enter Giveaway (${completed}/${total})`;
+  }
+}
+
+function updateWinnersDisplay(cycle) {
+  // Explicitly set default values to ensure no hardcoded winner appears
+  const winnerName = cycle.winner || 'Winner will be announced at countdown end';
+  const winnerDate = cycle.winnerDate || 'Waiting...';
+  const winnerTitle = cycle.winner ? '🎊 Today\'s Winner 🎊' : '⏰ Waiting for Countdown End';
+  
+  document.getElementById('currentWinner').textContent = winnerName;
+  document.getElementById('winnerDate').textContent = winnerDate;
+  document.getElementById('winnerTitle').textContent = winnerTitle;
+
+  const prevWinners = cycle.previousWinners || [];
+  const colors = ['from-yellow-400 to-orange-500', 'from-gray-400 to-gray-600', 'from-orange-600 to-red-600', 'from-blue-400 to-blue-600'];
+  
+  if (prevWinners.length === 0) {
+    document.getElementById('previousWinners').innerHTML = `
+      <div class="text-center py-8 text-gray-500">
+        <i class="fas fa-history text-4xl mb-2"></i>
+        <p>No previous winners yet</p>
+      </div>
+    `;
+  } else {
+    document.getElementById('previousWinners').innerHTML = prevWinners.slice(0, 4).map((w, i) => `
+      <div class="task-item">
+        <div class="flex items-center justify-between">
+          <div class="flex items-center">
+            <div class="w-10 h-10 bg-gradient-to-br ${colors[i]} rounded-full flex items-center justify-center mr-3">
+              <i class="fas fa-medal text-white"></i>
+            </div>
+            <div>
+              <p class="font-bold text-gray-800">${w.name}</p>
+              <p class="text-xs text-gray-500">${w.date}</p>
+            </div>
+          </div>
+          <span class="text-green-600 font-bold">$100</span>
+        </div>
+      </div>
+    `).join('');
+  }
+}
+
+function updateBalanceDisplay() {
+  const bal = appState.balance.toFixed(2);
+  document.getElementById('userBalance').textContent = bal;
+  document.getElementById('withdrawBalance').textContent = bal;
+  document.getElementById('requestWithdrawBtn').disabled = appState.balance < 10;
+}
+
+// === NOTIFICATIONS & CONFETTI ===
+function showNotification(msg) {
+  const el = document.getElementById('notification');
+  document.getElementById('notificationText').textContent = msg;
+  el.classList.add('show');
+  setTimeout(() => el.classList.remove('show'), 3000);
+}
+
+function createConfetti() {
+  const colors = ['#667eea', '#764ba2', '#f093fb', '#f5576c', '#fa709a', '#fee140'];
+  for (let i = 0; i < 100; i++) {
+    setTimeout(() => {
+      const c = document.createElement('div');
+      c.className = 'confetti';
+      c.style.left = Math.random() * 100 + '%';
+      c.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+      document.body.appendChild(c);
+      setTimeout(() => c.remove(), 3000);
+    }, i * 30);
+  }
+}
+
+function showConfirmModal(msg, cb) {
+  document.getElementById('confirmMessage').textContent = msg;
+  const modal = document.getElementById('confirmModal');
+  modal.classList.add('show');
+  document.getElementById('confirmBtn').onclick = () => {
+    modal.classList.remove('show');
+    cb();
+  };
+}
+
+// === AD & LINK HANDLERS ===
+function showAd() {
+  if (typeof show_9980483 !== 'function' || appState.adsWatched >= 100) return;
+  const btn = document.getElementById('watchAdBtn');
+  btn.disabled = true;
+  btn.innerHTML = '<span class="ad-loading"></span> Loading...';
+
+  show_9980483().then(() => {
+    appState.adsWatched++;
+    updateAdProgress();
+    updateEnterProgress();
+    saveUserState();
+    showNotification('🎬 Ad watched!');
+  }).catch(() => showNotification('⚠️ Ad failed')).finally(() => {
+    btn.disabled = false;
+    btn.innerHTML = '<i class="fas fa-play mr-2"></i> Watch Ad';
+  });
+}
+
+function watchLink() {
+  if (appState.linksWatched >= VIRAL_LINKS.length) return;
+  let idx = -1;
+  for (let i = 0; i < VIRAL_LINKS.length; i++) {
+    if (!appState.clickedLinks.has(i)) { idx = i; break; }
+  }
+  if (idx === -1) return;
+
+  appState.clickedLinks.add(idx);
+  appState.linksWatched++;
+  window.open(VIRAL_LINKS[idx], '_blank');
+
+  updateLinkProgress();
+  updateEnterProgress();
+  saveUserState();
+  showNotification('🔗 Link opened!');
+}
+
+// === EVENT LISTENERS SETUP ===
+function setupEventListeners() {
+  document.getElementById('watchAdBtn').addEventListener('click', showAd);
+  document.getElementById('watchLinkBtn').addEventListener('click', watchLink);
+
+  document.getElementById('enterProgress').addEventListener('click', () => {
+    const total = 100 + VIRAL_LINKS.length;
+    const completed = appState.adsWatched + appState.linksWatched;
+    if (completed >= total && !appState.isParticipating) {
+      showConfirmModal("🎊 You're in the $100 Giveaway! Good luck!", () => {
+        appState.isParticipating = true;
+        saveUserState();
+        createConfetti();
+        showNotification('🚀 Entered giveaway!');
+        updateEnterProgress();
+      });
+    }
+  });
+
+  // Withdrawal logic
+  document.getElementById('requestWithdrawBtn').addEventListener('click', () => {
+    const addr = document.getElementById('binanceAddress').value.trim();
+    if (!addr) return showNotification('⚠️ Enter Binance address');
+    if (appState.balance < 10) return showNotification('⚠️ Min $10');
+    appState.withdrawalHistory.unshift({
+      id: Date.now(),
+      amount: appState.balance,
+      address: addr,
+      date: new Date().toLocaleDateString(),
+      status: 'pending'
+    });
+    appState.balance = 0;
+    saveUserState();
+    updateBalanceDisplay();
+    document.getElementById('binanceAddress').value = '';
+    showNotification('✅ Withdrawal submitted!');
+  });
+
+  // Tabs
+  document.querySelectorAll('.tab-button').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.tab-button').forEach(b => b.classList.remove('active'));
+      document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+      btn.classList.add('active');
+      document.getElementById(btn.dataset.tab).classList.add('active');
+      document.querySelector('.container').scrollTop = 0;
+    });
+  });
+}
+
+// === MAIN INIT ===
+async function initApp() {
+  try {
+    // Show loading overlay
+    document.getElementById('loadingOverlay').style.display = 'flex';
+    
+    // Initialize Telegram
+    initTelegramApp();
+
+    // Get current giveaway cycle
+    currentGiveawayCycle = await getOrCreateGiveawayCycle();
+    appState.currentCycleId = currentGiveawayCycle.id;
+
+    // Load user data with improved logic
+    if (appState.userId) {
+      // First try to load from Firestore
+      const userData = await loadUserState(appState.userId);
+      
+      if (userData && userData.currentCycleId === appState.currentCycleId) {
+        // Load existing user data from Firestore
+        appState.adsWatched = userData.adsWatched || 0;
+        appState.linksWatched = userData.linksWatched || 0;
+        appState.isParticipating = userData.isParticipating || false;
+        appState.balance = userData.balance || 0;
+        appState.withdrawalHistory = userData.withdrawalHistory || [];
+        appState.clickedLinks = new Set(userData.clickedLinks || []);
         
-        if (!appState.userId) {
-            resetAppState();
-            return;
-        }
-        try {
-            const savedState = localStorage.getItem(`user_${appState.userId}`);
-            if (savedState) {
-                const data = JSON.parse(savedState);
-                if (data.lastSavedDate !== todayUTC) {
-                    resetAppState();
-                    showNotification('🌅 Daily reset! New giveaway started!');
-                } else {
-                    appState.adsWatched = data.adsWatched || 0;
-                    appState.linksWatched = data.linksWatched || 0;
-                    appState.isParticipating = data.isParticipating || false;
-                    appState.balance = data.balance || 0;
-                    appState.withdrawalHistory = data.withdrawalHistory || [];
-                    appState.currentWinner = data.currentWinner || ' Nikhil kumar';
-                    appState.winnerDate = data.winnerDate || 'Today';
-                    appState.previousWinners = data.previousWinners || [...appState.previousWinners];
-                    appState.lastSavedDate = data.lastSavedDate || todayUTC;
-                    appState.clickedLinks = new Set(data.clickedLinks || []);
-                }
-            } else {
-                resetAppState();
-            }
-        } catch (e) {
-            console.error("Local storage load error:", e);
-            resetAppState();
-        }
-    }
-    function resetAppState() {
-        appState.adsWatched = 0;
-        appState.linksWatched = 0;
-        appState.isParticipating = false;
-        appState.clickedLinks = new Set();
-        // Save UTC date instead of local date
-        const now = new Date();
-        appState.lastSavedDate = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate())).toDateString();
-    }
-
-    // Telegram Init
-    function initTelegramApp() {
-        if (window.Telegram?.WebApp) {
-            window.Telegram.WebApp.expand();
-            window.Telegram.WebApp.enableClosingConfirmation();
-            let user = window.Telegram.WebApp.initDataUnsafe?.user;
-            if (!user && window.Telegram.WebApp.initData) {
-                try {
-                    const params = new URLSearchParams(window.Telegram.WebApp.initData);
-                    const userStr = params.get('user');
-                    if (userStr) user = JSON.parse(decodeURIComponent(userStr));
-                } catch (e) {
-                    console.error('Parse error:', e);
-                }
-            }
-            if (user) {
-                appState.userName = (user.first_name || '') + (user.last_name ? ' ' + user.last_name : '');
-                appState.userId = user.id;
-                appState.userPic = user.photo_url || `https://api.dicebear.com/7.x/avataaars/svg?seed=${user.id}`;
-                document.getElementById('userName').textContent = appState.userName;
-                document.getElementById('userProfilePic').src = appState.userPic;
-            }
+        console.log("User data loaded from Firestore successfully");
+      } else {
+        // Try to load from localStorage as backup
+        const localData = loadFromLocalStorage();
+        if (localData && localData.currentCycleId === appState.currentCycleId) {
+          appState.adsWatched = localData.adsWatched || 0;
+          appState.linksWatched = localData.linksWatched || 0;
+          appState.isParticipating = localData.isParticipating || false;
+          appState.balance = localData.balance || 0;
+          appState.clickedLinks = new Set(localData.clickedLinks || []);
+          
+          // Save to Firestore for persistence
+          saveUserState();
+          console.log("User data loaded from localStorage and saved to Firestore");
         } else {
-            document.getElementById('userName').textContent = 'Test User';
-            showNotification('⚠️ Running in test mode');
+          // New cycle or new user
+          await resetUserDataForNewCycle();
+          console.log("User data reset for new cycle");
         }
+      }
     }
 
-    // Countdown & Winner Logic
-    function getNextGiveawayEndTime() {
-        const now = new Date();
-        const next = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate() + 1, 0, 0, 0));
-        return next.getTime();
-    }
-    function updateCountdown() {
-        const now = Date.now();
-        const giveawayEndTime = getNextGiveawayEndTime();
-        const distance = giveawayEndTime - now;
-        if (distance <= 0) {
-            selectWinner();
-            return;
-        }
-        const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-        const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
-        const seconds = Math.floor((distance % (1000 * 60)) / 1000);
-        document.getElementById('homeCountdown').textContent = `${hours}h ${minutes}m ${seconds}s`;
-    }
-    function startCountdown() {
-        updateCountdown();
-        setInterval(updateCountdown, 1000);
-    }
+    // Update UI
+    updateAdProgress();
+    updateLinkProgress();
+    updateEnterProgress();
+    updateBalanceDisplay();
+    updateWinnersDisplay(currentGiveawayCycle);
 
-    function selectWinner() {
-        appState.previousWinners.unshift({
-            name: appState.currentWinner.trim(),
-            date: appState.winnerDate
-        });
-        appState.previousWinners = appState.previousWinners.slice(0, 4);
-        appState.currentWinner = indianPakistaniNames[Math.floor(Math.random() * indianPakistaniNames.length)];
-        appState.winnerDate = 'Today';
-        if (appState.isParticipating && Math.random() < 0.1) {
-            appState.balance += 100;
-            updateBalanceDisplay();
-            showNotification('🎊 You won $100!');
-            createConfetti();
-        }
-        appState.isParticipating = false;
-        appState.adsWatched = 0;
-        appState.linksWatched = 0;
-        appState.clickedLinks = new Set();
-        updateAdProgress();
-        updateLinkProgress();
-        updateEnterProgress();
-        updateWinnersDisplay();
-        saveUserState();
-    }
+    // Setup event listeners
+    setupEventListeners();
 
-    // UI Helpers
-    function updateAdProgress() {
-        const pct = (appState.adsWatched / 100) * 100;
-        document.getElementById('adProgress').style.width = `${pct}%`;
-        document.getElementById('adProgressText').textContent = `${appState.adsWatched}/100`;
-        document.getElementById('adsWatchedCount').textContent = appState.adsWatched;
-        // ✅ Button text WITHOUT count
-        document.getElementById('watchAdBtn').innerHTML = `<i class="fas fa-play mr-2"></i> Watch Ad`;
-    }
-    function updateLinkProgress() {
-        const pct = (appState.linksWatched / viralLinks.length) * 100;
-        document.getElementById('linkProgress').style.width = `${pct}%`;
-        document.getElementById('linkProgressText').textContent = `${appState.linksWatched}/${viralLinks.length}`;
-        document.getElementById('linksWatchedCount').textContent = appState.linksWatched;
-        // ✅ Button text WITHOUT count
-        document.getElementById('watchLinkBtn').innerHTML = `<i class="fas fa-external-link-alt mr-2"></i> Watch Link`;
-    }
-    function updateEnterProgress() {
-        const total = 100 + viralLinks.length;
-        const completed = appState.adsWatched + appState.linksWatched;
-        const pct = Math.round((completed / total) * 100);
-        const fill = document.getElementById('enterProgressFill');
-        const text = document.getElementById('enterProgressText');
-        fill.style.width = `${pct}%`;
-        if (completed >= total && !appState.isParticipating) {
-            fill.classList.add('complete');
-            text.innerHTML = '<i class="fas fa-rocket mr-2"></i> 🎉 CLICK TO ENTER GIVEAWAY! 🎉';
-        } else if (appState.isParticipating) {
-            fill.classList.add('complete');
-            text.innerHTML = '<i class="fas fa-check-circle mr-2"></i> You\'re in the giveaway! Good luck!';
-        } else {
-            fill.classList.remove('complete');
-            // ✅ Clean text without progress numbers
-            text.innerHTML = `<i class="fas fa-rocket mr-2"></i> Enter Giveaway`;
-        }
-    }
-    function updateWinnersDisplay() {
-        document.getElementById('currentWinner').textContent = appState.currentWinner;
-        document.getElementById('winnerDate').textContent = appState.winnerDate;
-        const colors = ['from-yellow-400 to-orange-500', 'from-gray-400 to-gray-600', 'from-orange-600 to-red-600', 'from-blue-400 to-blue-600'];
-        document.getElementById('previousWinners').innerHTML = appState.previousWinners.map((w, i) => `
-            <div class="task-item">
-                <div class="flex items-center justify-between">
-                    <div class="flex items-center">
-                        <div class="w-10 h-10 bg-gradient-to-br ${colors[i]} rounded-full flex items-center justify-center mr-3">
-                            <i class="fas fa-medal text-white"></i>
-                        </div>
-                        <div>
-                            <p class="font-bold text-gray-800">${w.name}</p>
-                            <p class="text-xs text-gray-500">${w.date}</p>
-                        </div>
-                    </div>
-                    <span class="text-green-600 font-bold">$100</span>
-                </div>
-            </div>
-        `).join('');
-    }
-    function updateBalanceDisplay() {
-        const bal = appState.balance.toFixed(2);
-        document.getElementById('userBalance').textContent = bal;
-        document.getElementById('withdrawBalance').textContent = bal;
-        document.getElementById('requestWithdrawBtn').disabled = appState.balance < 10;
-    }
-    function updateWithdrawalHistory() {
-        if (!appState.withdrawalHistory.length) {
-            document.getElementById('withdrawalHistory').innerHTML = `
-                <div class="text-center py-8 text-gray-500">
-                    <i class="fas fa-inbox text-4xl mb-2"></i>
-                    <p>No transactions yet</p>
-                </div>`;
-            return;
-        }
-        document.getElementById('withdrawalHistory').innerHTML = appState.withdrawalHistory.map(w => `
-            <div class="task-item">
-                <div class="flex justify-between items-start">
-                    <div>
-                        <p class="font-bold text-gray-800">$${w.amount.toFixed(2)}</p>
-                        <p class="text-xs text-gray-500">${w.date}</p>
-                        <p class="text-xs text-gray-400 mt-1">${w.address.substring(0,10)}...${w.address.slice(-10)}</p>
-                    </div>
-                    <span class="px-3 py-1 rounded-full text-xs font-bold ${
-                        w.status === 'pending' ? 'bg-yellow-100 text-yellow-800' : 'bg-green-100 text-green-800'
-                    }">${w.status === 'pending' ? '⏳ Pending' : '✅ Completed'}</span>
-                </div>
-            </div>
-        `).join('');
-    }
-    function showNotification(msg) {
-        const el = document.getElementById('notification');
-        document.getElementById('notificationText').textContent = msg;
-        el.classList.add('show');
-        setTimeout(() => el.classList.remove('show'), 3000);
-    }
-    function showConfirmModal(msg, cb) {
-        document.getElementById('confirmMessage').textContent = msg;
-        const modal = document.getElementById('confirmModal');
-        modal.classList.add('show');
-        document.getElementById('confirmBtn').onclick = () => {
-            modal.classList.remove('show');
-            cb();
-        };
-    }
-    function createConfetti() {
-        const colors = ['#667eea', '#764ba2', '#f093fb', '#f5576c', '#fa709a', '#fee140'];
-        for (let i = 0; i < 100; i++) {
-            setTimeout(() => {
-                const c = document.createElement('div');
-                c.className = 'confetti';
-                c.style.left = Math.random() * 100 + '%';
-                c.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
-                document.body.appendChild(c);
-                setTimeout(() => c.remove(), 3000);
-            }, i * 30);
-        }
-    }
-    function showAd() {
-        if (typeof show_9980483 !== 'function') {
-            showNotification('⚠️ Ad service unavailable.');
-            return;
-        }
-        if (appState.adLoading || appState.adsWatched >= 100) return;
-        appState.adLoading = true;
-        const btn = document.getElementById('watchAdBtn');
-        const orig = btn.innerHTML;
-        btn.innerHTML = '<span class="ad-loading"></span> Loading Ad...';
-        btn.disabled = true;
-        show_9980483().then(() => {
-            appState.adsWatched++;
-            updateAdProgress();
-            updateEnterProgress();
-            saveUserState();
-            showNotification('🎬 Ad watched! Keep going!');
-        }).catch(err => {
-            console.error('Ad error:', err);
-            showNotification('⚠️ Ad failed. Try again.');
-        }).finally(() => {
-            appState.adLoading = false;
-            btn.innerHTML = orig;
-            btn.disabled = false;
-        });
-    }
-    function watchLink() {
-        if (appState.linkLoading || appState.linksWatched >= viralLinks.length) return;
-        let nextLinkIndex = -1;
-        for (let i = 0; i < viralLinks.length; i++) {
-            if (!appState.clickedLinks.has(i)) {
-                nextLinkIndex = i;
-                break;
-            }
-        }
-        if (nextLinkIndex === -1) return;
-        appState.linkLoading = true;
-        const btn = document.getElementById('watchLinkBtn');
-        const orig = btn.innerHTML;
-        btn.innerHTML = '<span class="ad-loading"></span> Opening Link...';
-        btn.disabled = true;
-        appState.clickedLinks.add(nextLinkIndex);
-        appState.linksWatched++;
-        window.open(viralLinks[nextLinkIndex], '_blank');
-        updateLinkProgress();
-        updateEnterProgress();
-        saveUserState();
-        showNotification(`🔗 Link opened!`);
-        setTimeout(() => {
-            appState.linkLoading = false;
-            btn.innerHTML = orig;
-            btn.disabled = false;
-        }, 1000);
-    }
+    // Start countdown
+    startCountdown();
 
-    // Initialize App
-    async function initApp() {
-        initTelegramApp();
-        await loadUserState();
-        updateAdProgress();
-        updateLinkProgress();
-        updateEnterProgress();
-        updateBalanceDisplay();
-        updateWinnersDisplay();
-        updateWithdrawalHistory();
-        startCountdown();
-        document.getElementById('watchAdBtn').addEventListener('click', showAd);
-        document.getElementById('watchLinkBtn').addEventListener('click', watchLink);
-        document.getElementById('enterProgress').addEventListener('click', () => {
-            const total = 100 + viralLinks.length;
-            const completed = appState.adsWatched + appState.linksWatched;
-            if (completed >= total && !appState.isParticipating) {
-                showConfirmModal("🎊 You're now participating in the $100 Giveaway! Good luck!", () => {
-                    appState.isParticipating = true;
-                    saveUserState();
-                    createConfetti();
-                    showNotification('🚀 Successfully entered the giveaway!');
-                    updateEnterProgress();
-                });
-            }
-        });
-        document.getElementById('requestWithdrawBtn').addEventListener('click', () => {
-            const addr = document.getElementById('binanceAddress').value;
-            if (!addr) return showNotification('⚠️ Enter Binance address');
-            if (appState.balance < 10) return showNotification('⚠️ Minimum $10 required');
-            showConfirmModal('💸 Withdrawal request received. Processed within 24 hours.', () => {
-                appState.withdrawalHistory.unshift({
-                    id: Date.now(),
-                    amount: appState.balance,
-                    address: addr,
-                    date: new Date().toLocaleDateString(),
-                    status: 'pending'
-                });
-                appState.balance = 0;
-                updateBalanceDisplay();
-                updateWithdrawalHistory();
-                saveUserState();
-                document.getElementById('binanceAddress').value = '';
-                showNotification('✅ Withdrawal submitted!');
-            });
-        });
-        document.querySelectorAll('.tab-button').forEach(btn => {
-            btn.addEventListener('click', () => {
-                document.querySelectorAll('.tab-button').forEach(b => b.classList.remove('active'));
-                document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
-                btn.classList.add('active');
-                document.getElementById(btn.dataset.tab).classList.add('active');
-                document.querySelector('.container').scrollTop = 0;
-            });
-        });
-    }
-    document.addEventListener('DOMContentLoaded', initApp);
+    // Hide loading overlay
+    document.getElementById('loadingOverlay').style.display = 'none';
+
+  } catch (error) {
+    console.error("Initialization error:", error);
+    showNotification("❌ Failed to initialize app");
+    document.getElementById('loadingOverlay').style.display = 'none';
+  }
+}
+
+// Start the app when DOM is loaded
+document.addEventListener('DOMContentLoaded', initApp);
 </script>
 </body>
 </html>
