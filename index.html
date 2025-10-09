@@ -924,23 +924,35 @@
         const next = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate() + 1, 0, 0, 0));
         return next.getTime();
     }
-    function updateCountdown() {
-        const now = Date.now();
-        const giveawayEndTime = getNextGiveawayEndTime();
-        const distance = giveawayEndTime - now;
-        if (distance <= 0) {
-            selectWinner();
-            return;
+let countdownInterval = null;
+
+function updateCountdown() {
+    const now = Date.now();
+    const giveawayEndTime = getNextGiveawayEndTime();
+    const distance = giveawayEndTime - now;
+
+    if (distance <= 0) {
+        // ✅ Stop repeated execution
+        if (countdownInterval) {
+            clearInterval(countdownInterval);
+            countdownInterval = null;
         }
-        const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-        const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
-        const seconds = Math.floor((distance % (1000 * 60)) / 1000);
-        document.getElementById('homeCountdown').textContent = `${hours}h ${minutes}m ${seconds}s`;
+        selectWinner(); // This handles reset + winner + new cycle
+        return;
     }
-    function startCountdown() {
-        updateCountdown();
-        setInterval(updateCountdown, 1000);
+
+    const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+    const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+    const seconds = Math.floor((distance % (1000 * 60)) / 1000);
+    document.getElementById('homeCountdown').textContent = `${hours}h ${minutes}m ${seconds}s`;
+}
+
+function startCountdown() {
+    updateCountdown();
+    if (!countdownInterval) {
+        countdownInterval = setInterval(updateCountdown, 1000);
     }
+}
 
     function selectWinner() {
         appState.previousWinners.unshift({
