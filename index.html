@@ -710,15 +710,15 @@
                     <div class="winner-card mb-6 relative">
                         <div class="relative z-10">
                             <i class="fas fa-trophy text-5xl text-white mb-3"></i>
-                            <h3 class="text-xl font-bold text-white mb-2" id="winnerTitle">⏰ Waiting for Countdown End</h3>
-                            <p class="text-3xl font-black text-white" id="currentWinner">Winner will be announced at countdown end</p>
-                            <p class="text-white/90 mt-2" id="winnerDate">Waiting...</p>
+                            <h3 class="text-xl font-bold text-white mb-2" id="winnerTitle">🎊 Today's Winner 🎊</h3>
+                            <p class="text-3xl font-black text-white" id="currentWinner">Abdul Alim</p>
+                            <p class="text-white/90 mt-2" id="winnerDate">Today</p>
                         </div>
                     </div>
                     <div>
                         <h3 class="font-bold text-lg mb-4 text-gray-800">Recent Winners</h3>
                         <div class="space-y-3" id="previousWinners">
-                            <!-- populated by JS -->
+                            <!-- Default winners will be populated by JS -->
                         </div>
                     </div>
                 </div>
@@ -821,6 +821,16 @@ const VIRAL_LINKS = [
   'https://otieu.com/4/9923537'
 ];
 
+// Default winners for display
+const DEFAULT_WINNERS = [
+  { name: 'Abdul Alim', date: 'Today' },
+  { name: 'Fatima Begum', date: 'Yesterday' },
+  { name: 'Mohammad Rahman', date: '2 days ago' },
+  { name: 'Ayesha Khan', date: '3 days ago' },
+  { name: 'Hasan Ahmed', date: '4 days ago' },
+  { name: 'Nusrat Jahan', date: '5 days ago' }
+];
+
 // Bangladeshi names for winner selection
 const BANGLADESHI_NAMES = [
   'Abdul Alim', 'Fatima Begum', 'Mohammad Rahman', 'Ayesha Khan', 'Hasan Ahmed',
@@ -895,6 +905,13 @@ async function getOrCreateGiveawayCycle() {
         // Keep only the last 10 winners
         previousWinners = previousWinners.slice(0, 10);
       }
+    } else {
+      // If no previous cycle, use default winners
+      previousWinners = DEFAULT_WINNERS.slice(1).map((w, i) => ({
+        name: w.name,
+        date: w.date,
+        cycleId: 'default_' + i
+      }));
     }
 
     // Initialize new cycle WITHOUT a winner
@@ -1134,16 +1151,24 @@ function updateEnterProgress() {
 }
 
 function updateWinnersDisplay(cycle) {
-  // Explicitly set default values to ensure no hardcoded winner appears
-  const winnerName = cycle.winner || 'Winner will be announced at countdown end';
-  const winnerDate = cycle.winnerDate || 'Waiting...';
-  const winnerTitle = cycle.winner ? '🎊 Today\'s Winner 🎊' : '⏰ Waiting for Countdown End';
+  // Use default winners if no winner is selected yet
+  const winnerName = cycle.winner || DEFAULT_WINNERS[0].name;
+  const winnerDate = cycle.winnerDate || DEFAULT_WINNERS[0].date;
+  const winnerTitle = cycle.winner ? '🎊 Today\'s Winner 🎊' : '🎊 Today\'s Winner 🎊';
   
   document.getElementById('currentWinner').textContent = winnerName;
   document.getElementById('winnerDate').textContent = winnerDate;
   document.getElementById('winnerTitle').textContent = winnerTitle;
 
-  const prevWinners = cycle.previousWinners || [];
+  // Use default winners if no previous winners exist
+  const prevWinners = cycle.previousWinners && cycle.previousWinners.length > 0 
+    ? cycle.previousWinners 
+    : DEFAULT_WINNERS.slice(1).map((w, i) => ({
+        name: w.name,
+        date: w.date,
+        cycleId: 'default_' + i
+      }));
+  
   const colors = ['from-yellow-400 to-orange-500', 'from-gray-400 to-gray-600', 'from-orange-600 to-red-600', 'from-blue-400 to-blue-600'];
   
   if (prevWinners.length === 0) {
@@ -1154,7 +1179,7 @@ function updateWinnersDisplay(cycle) {
       </div>
     `;
   } else {
-    document.getElementById('previousWinners').innerHTML = prevWinners.slice(0, 4).map((w, i) => `
+    document.getElementById('previousWinners').innerHTML = prevWinners.slice(0, 5).map((w, i) => `
       <div class="task-item">
         <div class="flex items-center justify-between">
           <div class="flex items-center">
