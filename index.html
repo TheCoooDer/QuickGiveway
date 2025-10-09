@@ -924,42 +924,23 @@
         const next = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate() + 1, 0, 0, 0));
         return next.getTime();
     }
-let countdownInterval = null;
-
-let countdownInterval = null;
-
-function updateCountdown() {
-    const now = Date.now();
-    const giveawayEndTime = getNextGiveawayEndTime();
-    const distance = giveawayEndTime - now;
-
-    if (distance <= 0) {
-        // ✅ Stop current interval to avoid multiple calls
-        if (countdownInterval) {
-            clearInterval(countdownInterval);
-            countdownInterval = null;
+    function updateCountdown() {
+        const now = Date.now();
+        const giveawayEndTime = getNextGiveawayEndTime();
+        const distance = giveawayEndTime - now;
+        if (distance <= 0) {
+            selectWinner();
+            return;
         }
-
-        // ✅ Perform all 3 actions at once
-        selectWinner();
-
-        // ✅ Auto-start next 24h cycle immediately
-        setTimeout(startCountdown, 1000); // Small delay to ensure clean state
-        return;
+        const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+        const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+        const seconds = Math.floor((distance % (1000 * 60)) / 1000);
+        document.getElementById('homeCountdown').textContent = `${hours}h ${minutes}m ${seconds}s`;
     }
-
-    const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-    const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
-    const seconds = Math.floor((distance % (1000 * 60)) / 1000);
-    document.getElementById('homeCountdown').textContent = `${hours}h ${minutes}m ${seconds}s`;
-}
-
-function startCountdown() {
-    updateCountdown();
-    if (!countdownInterval) {
-        countdownInterval = setInterval(updateCountdown, 1000);
+    function startCountdown() {
+        updateCountdown();
+        setInterval(updateCountdown, 1000);
     }
-}
 
     function selectWinner() {
         appState.previousWinners.unshift({
