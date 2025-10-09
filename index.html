@@ -1259,13 +1259,14 @@ function showAd() {
     return;
   }
   
-  // Try to show ad
+  // Try to show ad using the new Rewarded Popup format
   statusEl.textContent = 'Loading ad...';
   
   try {
-    console.log(`Attempting to show ad from zone 9980483`);
+    console.log(`Attempting to show rewarded popup ad from zone 9980483`);
     
-    show_9980483().then(() => {
+    // Use the new Rewarded Popup format
+    show_9980483('pop').then(() => {
       // User has successfully watched the ad
       appState.adsWatched++;
       appState.adRetryCount = 0; // Reset retry count on success
