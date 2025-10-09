@@ -7,7 +7,7 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <!-- Ad SDK Script -->
-    <script src='//libtl.com/sdk.js' data-zone='9916224' data-sdk='show_9916224'></script>
+    <script src='//libtl.com/sdk.js' data-zone='9891560' data-sdk='show_9891560'></script>
     <!-- Telegram Web App Script -->
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <style>
@@ -1209,13 +1209,13 @@ function showConfirmModal(msg, cb) {
 
 // === AD & LINK HANDLERS ===
 function showAd() {
-  if (typeof show_9916224 !== 'function' || appState.adsWatched >= 100) return;
+  if (typeof show_9891560 !== 'function' || appState.adsWatched >= 100) return;
   const btn = document.getElementById('watchAdBtn');
   btn.disabled = true;
   btn.innerHTML = '<span class="ad-loading"></span> Loading...';
 
   // Rewarded interstitial
-  show_9916224().then(() => {
+  show_9891560().then(() => {
     // User has successfully watched the ad
     appState.adsWatched++;
     updateAdProgress();
