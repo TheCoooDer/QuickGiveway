@@ -813,7 +813,6 @@ const VIRAL_LINKS = [
 'https://otieu.com/4/9923540',
 'https://otieu.com/4/9904808',
 'https://otieu.com/4/9923537'
-
 ];
 
 // Default winners for display
@@ -923,42 +922,6 @@ async function getOrCreateGiveawayCycle() {
       endsAt: firebase.firestore.Timestamp.fromDate(new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate() + 1))),
       winnerSelected: false
     });
-  } else if (doc.exists && doc.data().winnerSelected) {
-    // If winner has been selected for today's cycle, create a new cycle for tomorrow
-    const tomorrow = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate() + 1));
-    const tomorrowId = tomorrow.toISOString().split('T')[0];
-    const tomorrowDocRef = db.collection('giveaways').doc(tomorrowId);
-    const tomorrowDoc = await tomorrowDocRef.get();
-    
-    if (!tomorrowDoc.exists) {
-      // Get current cycle data to move winner to history
-      const currentData = doc.data();
-      let previousWinners = currentData.previousWinners || [];
-      
-      // Add today's winner to the beginning of the history
-      if (currentData.winner) {
-        previousWinners.unshift({
-          name: currentData.winner,
-          date: 'Today',
-          cycleId: cycleId
-        });
-        // Keep only the last 10 winners
-        previousWinners = previousWinners.slice(0, 10);
-      }
-      
-      // Create new cycle for tomorrow
-      await tomorrowDocRef.set({
-        cycleId: tomorrowId,
-        winner: null,
-        winnerDate: null,
-        previousWinners: previousWinners,
-        createdAt: firebase.firestore.Timestamp.fromDate(tomorrow),
-        endsAt: firebase.firestore.Timestamp.fromDate(new Date(Date.UTC(tomorrow.getUTCFullYear(), tomorrow.getUTCMonth(), tomorrow.getUTCDate() + 1))),
-        winnerSelected: false
-      });
-      
-      return { id: tomorrowId, ...(await tomorrowDocRef.get()).data() };
-    }
   }
 
   return { id: cycleId, ...doc.data() };
@@ -976,12 +939,26 @@ async function selectWinner() {
     // Select a random winner
     const randomWinner = BANGLADESHI_NAMES[Math.floor(Math.random() * BANGLADESHI_NAMES.length)];
     
-    // Update the document with the winner
+    // Get current data to preserve previous winners
+    const currentData = doc.data();
+    let previousWinners = currentData.previousWinners || [];
+    
+    // Add today's winner to the beginning of the history
+    previousWinners.unshift({
+      name: randomWinner,
+      date: 'Today',
+      cycleId: cycleId
+    });
+    // Keep only the last 10 winners
+    previousWinners = previousWinners.slice(0, 10);
+    
+    // Update the document with the winner and updated previous winners
     await docRef.update({
       winner: randomWinner,
       winnerDate: 'Today',
       winnerSelected: true,
-      winnerSelectedAt: firebase.firestore.FieldValue.serverTimestamp()
+      winnerSelectedAt: firebase.firestore.FieldValue.serverTimestamp(),
+      previousWinners: previousWinners
     });
     
     console.log('Winner selected:', randomWinner);
@@ -991,6 +968,9 @@ async function selectWinner() {
     document.getElementById('winnerDate').textContent = 'Today';
     document.getElementById('winnerTitle').textContent = '🎊 Today\'s Winner 🎊';
     
+    // Update the previous winners display
+    updatePreviousWinnersDisplay(previousWinners);
+    
     // Add confetti effect
     createConfetti();
     
@@ -998,6 +978,37 @@ async function selectWinner() {
   }
   
   return doc.data()?.winner;
+}
+
+// Add this new function to update just the previous winners display
+function updatePreviousWinnersDisplay(previousWinners) {
+  const colors = ['from-yellow-400 to-orange-500', 'from-gray-400 to-gray-600', 'from-orange-600 to-red-600', 'from-blue-400 to-blue-600'];
+  
+  if (previousWinners.length === 0) {
+    document.getElementById('previousWinners').innerHTML = `
+      <div class="text-center py-8 text-gray-500">
+        <i class="fas fa-history text-4xl mb-2"></i>
+        <p>No previous winners yet</p>
+      </div>
+    `;
+  } else {
+    document.getElementById('previousWinners').innerHTML = previousWinners.slice(0, 5).map((w, i) => `
+      <div class="task-item">
+        <div class="flex items-center justify-between">
+          <div class="flex items-center">
+            <div class="w-10 h-10 bg-gradient-to-br ${colors[i]} rounded-full flex items-center justify-center mr-3">
+              <i class="fas fa-medal text-white"></i>
+            </div>
+            <div>
+              <p class="font-bold text-gray-800">${w.name}</p>
+              <p class="text-xs text-gray-500">${w.date}</p>
+            </div>
+          </div>
+          <span class="text-green-600 font-bold">$100</span>
+        </div>
+      </div>
+    `).join('');
+  }
 }
 
 // Load user state from Firestore
@@ -1144,11 +1155,46 @@ async function refreshGiveawayCycle() {
   if (now >= end) {
     // Time is up, select a winner
     await selectWinner();
+    
+    // Wait a moment to ensure the winner is saved
+    await new Promise(resolve => setTimeout(resolve, 1000));
+    
+    // Create a new cycle for tomorrow
+    const tomorrow = new Date(Date.UTC(new Date().getUTCFullYear(), new Date().getUTCMonth(), new Date().getUTCDate() + 1));
+    const tomorrowId = tomorrow.toISOString().split('T')[0];
+    const tomorrowDocRef = db.collection('giveaways').doc(tomorrowId);
+    const tomorrowDoc = await tomorrowDocRef.get();
+    
+    if (!tomorrowDoc.exists) {
+      // Get today's cycle data to move winner to history
+      const todayId = new Date(Date.UTC(new Date().getUTCFullYear(), new Date().getUTCMonth(), new Date().getUTCDate())).toISOString().split('T')[0];
+      const todayDoc = await db.collection('giveaways').doc(todayId).get();
+      
+      if (todayDoc.exists) {
+        const todayData = todayDoc.data();
+        let previousWinners = todayData.previousWinners || [];
+        
+        // Create new cycle for tomorrow with the updated previous winners
+        await tomorrowDocRef.set({
+          cycleId: tomorrowId,
+          winner: null,
+          winnerDate: null,
+          previousWinners: previousWinners,
+          createdAt: firebase.firestore.Timestamp.fromDate(tomorrow),
+          endsAt: firebase.firestore.Timestamp.fromDate(new Date(Date.UTC(tomorrow.getUTCFullYear(), tomorrow.getUTCMonth(), tomorrow.getUTCDate() + 1))),
+          winnerSelected: false
+        });
+        
+        // Update the current cycle to the new one
+        currentGiveawayCycle = { id: tomorrowId, ...(await tomorrowDocRef.get()).data() };
+        appState.currentCycleId = currentGiveawayCycle.id;
+      }
+    }
+  } else {
+    // Get the current cycle (which might be a new one)
+    currentGiveawayCycle = await getOrCreateGiveawayCycle();
+    appState.currentCycleId = currentGiveawayCycle.id;
   }
-  
-  // Then get the current cycle (which might be a new one)
-  currentGiveawayCycle = await getOrCreateGiveawayCycle();
-  appState.currentCycleId = currentGiveawayCycle.id;
   
   // Check if user needs to be reset for new cycle
   if (appState.userId) {
@@ -1230,33 +1276,7 @@ function updateWinnersDisplay(cycle) {
         cycleId: 'default_' + i
       }));
   
-  const colors = ['from-yellow-400 to-orange-500', 'from-gray-400 to-gray-600', 'from-orange-600 to-red-600', 'from-blue-400 to-blue-600'];
-  
-  if (prevWinners.length === 0) {
-    document.getElementById('previousWinners').innerHTML = `
-      <div class="text-center py-8 text-gray-500">
-        <i class="fas fa-history text-4xl mb-2"></i>
-        <p>No previous winners yet</p>
-      </div>
-    `;
-  } else {
-    document.getElementById('previousWinners').innerHTML = prevWinners.slice(0, 5).map((w, i) => `
-      <div class="task-item">
-        <div class="flex items-center justify-between">
-          <div class="flex items-center">
-            <div class="w-10 h-10 bg-gradient-to-br ${colors[i]} rounded-full flex items-center justify-center mr-3">
-              <i class="fas fa-medal text-white"></i>
-            </div>
-            <div>
-              <p class="font-bold text-gray-800">${w.name}</p>
-              <p class="text-xs text-gray-500">${w.date}</p>
-            </div>
-          </div>
-          <span class="text-green-600 font-bold">$100</span>
-        </div>
-      </div>
-    `).join('');
-  }
+  updatePreviousWinnersDisplay(prevWinners);
 }
 
 function updateBalanceDisplay() {
@@ -1505,7 +1525,6 @@ async function initApp() {
 
 // Start the app when DOM is loaded
 document.addEventListener('DOMContentLoaded', initApp);
-
 </script>
 </body>
 </html>
