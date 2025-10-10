@@ -6,8 +6,8 @@
     <title>$100 QuickGiveaway</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <!-- Ad SDK Script -->
-    <script src='//libtl.com/sdk.js' data-zone='9980483' data-sdk='show_9980483'></script>
+    <!-- Ad SDK Script - Updated -->
+    <script src='//libtl.com/sdk.js' data-zone='10019074' data-sdk='show_10019074'></script>
     <!-- Telegram Web App Script -->
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <style>
@@ -1322,7 +1322,7 @@ function showAd() {
   updateAdProgress();
   
   // Check if ad function is available
-  if (typeof show_9980483 !== 'function') {
+  if (typeof show_10019074 !== 'function') {
     errorEl.textContent = 'Ad script not loaded. Please refresh the page.';
     appState.adLoading = false;
     updateAdProgress();
@@ -1333,9 +1333,9 @@ function showAd() {
   statusEl.textContent = 'Loading ad...';
   
   try {
-    console.log(`Attempting to show ad from zone 9980483`);
+    console.log(`Attempting to show ad from zone 10019074`);
     
-    show_9980483().then(() => {
+    show_10019074().then(() => {
       // User has successfully watched the ad
       appState.adsWatched++;
       appState.adRetryCount = 0; // Reset retry count on success
