@@ -549,6 +549,14 @@
             margin-top: 5px;
             text-align: center;
         }
+        .winner-updating {
+            animation: pulse 1s infinite;
+        }
+        @keyframes winnerUpdate {
+            0% { opacity: 1; }
+            50% { opacity: 0.3; }
+            100% { opacity: 1; }
+        }
     </style>
     <!-- Firebase SDK -->
     <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
@@ -708,7 +716,7 @@
                         <div class="relative z-10">
                             <i class="fas fa-trophy text-5xl text-white mb-3"></i>
                             <h3 class="text-xl font-bold text-white mb-2" id="winnerTitle">🎊 Today's Winner 🎊</h3>
-                            <p class="text-3xl font-black text-white" id="currentWinner">Abdul Alim</p>
+                            <p class="text-3xl font-black text-white" id="currentWinner">Loading...</p>
                             <p class="text-white/90 mt-2" id="winnerDate">Today</p>
                         </div>
                     </div>
@@ -815,12 +823,6 @@ const VIRAL_LINKS = [
 'https://otieu.com/4/9923537'
 ];
 
-// Default winners for display
-const DEFAULT_WINNERS = [
-  { name: 'Abdul Alim', date: 'Today' },
-  { name: 'Abdul Alim', date: 'Yesterday' }
-];
-
 // Bangladeshi names for winner selection
 const BANGLADESHI_NAMES = [
   'Nasir Khan', 'Fatima Begum', 'Mohammad Rahman', 'Ayesha Khan', 'Hasan Ahmed',
@@ -867,7 +869,9 @@ let appState = {
   adLoading: false,
   adAvailable: true,
   lastAdAttempt: 0,
-  adRetryCount: 0
+  adRetryCount: 0,
+  currentWinner: null,
+  previousWinner: null
 };
 
 // === FIRESTORE HELPERS ===
@@ -886,38 +890,49 @@ async function getOrCreateGiveawayCycle() {
     const yesterdayDoc = await db.collection('giveaways').doc(yesterdayId).get();
     
     let previousWinners = [];
+    let previousWinnerName = null;
+    
     if (yesterdayDoc.exists) {
       const yesterdayData = yesterdayDoc.data();
       previousWinners = yesterdayData.previousWinners || [];
       // Add yesterday's winner to the beginning of the history
       if (yesterdayData.winner) {
+        previousWinnerName = yesterdayData.winner;
         previousWinners.unshift({
           name: yesterdayData.winner,
-          date: yesterday.toLocaleDateString(),
+          date: 'Yesterday',
           cycleId: yesterdayId
         });
         // Keep only the last winner
         previousWinners = previousWinners.slice(0, 1);
       }
-    } else {
-      // If no previous cycle, use default winner
-      previousWinners = DEFAULT_WINNERS.slice(1).map((w, i) => ({
-        name: w.name,
-        date: w.date,
-        cycleId: 'default_' + i
-      }));
     }
 
-    // Initialize new cycle WITHOUT a winner
+    // Select a random winner from Bangladeshi names
+    const randomWinner = BANGLADESHI_NAMES[Math.floor(Math.random() * BANGLADESHI_NAMES.length)];
+
+    // Initialize new cycle WITH a winner
     await docRef.set({
       cycleId,
-      winner: null,
-      winnerDate: null,
+      winner: randomWinner,
+      winnerDate: 'Today',
       previousWinners: previousWinners,
       createdAt: firebase.firestore.Timestamp.fromDate(new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate()))),
       endsAt: firebase.firestore.Timestamp.fromDate(new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate() + 1))),
-      winnerSelected: false
+      winnerSelected: true,
+      winnerSelectedAt: firebase.firestore.FieldValue.serverTimestamp()
     });
+    
+    // Set the current and previous winners in app state
+    appState.currentWinner = randomWinner;
+    appState.previousWinner = previousWinnerName;
+  } else {
+    // If the cycle exists, set the winners from the data
+    const cycleData = doc.data();
+    appState.currentWinner = cycleData.winner;
+    appState.previousWinner = cycleData.previousWinners && cycleData.previousWinners.length > 0 
+      ? cycleData.previousWinners[0].name 
+      : null;
   }
 
   return { id: cycleId, ...doc.data() };
@@ -931,49 +946,73 @@ async function selectWinner() {
   const docRef = db.collection('giveaways').doc(cycleId);
   const doc = await docRef.get();
   
-  if (doc.exists && !doc.data().winnerSelected) {
-    // Select a random winner
-    const randomWinner = BANGLADESHI_NAMES[Math.floor(Math.random() * BANGLADESHI_NAMES.length)];
-    
+  if (doc.exists) {
     // Get current data to preserve previous winners
     const currentData = doc.data();
     let previousWinners = currentData.previousWinners || [];
     
     // Add today's winner to the beginning of the history
     previousWinners.unshift({
-      name: randomWinner,
-      date: 'Today',
+      name: currentData.winner,
+      date: 'Yesterday',
       cycleId: cycleId
     });
     // Keep only the last winner
     previousWinners = previousWinners.slice(0, 1);
     
-    // Update the document with the winner and updated previous winners
+    // Select a new random winner from Bangladeshi names
+    const newWinner = BANGLADESHI_NAMES[Math.floor(Math.random() * BANGLADESHI_NAMES.length)];
+    
+    // Update the document with the new winner and updated previous winners
     await docRef.update({
-      winner: randomWinner,
+      winner: newWinner,
       winnerDate: 'Today',
       winnerSelected: true,
       winnerSelectedAt: firebase.firestore.FieldValue.serverTimestamp(),
       previousWinners: previousWinners
     });
     
-    console.log('Winner selected:', randomWinner);
+    console.log('New winner selected:', newWinner);
     
-    // Update the UI immediately to show the new winner
-    document.getElementById('currentWinner').textContent = randomWinner;
-    document.getElementById('winnerDate').textContent = 'Today';
-    document.getElementById('winnerTitle').textContent = '🎊 Today\'s Winner 🎊';
+    // Update the app state
+    appState.previousWinner = appState.currentWinner;
+    appState.currentWinner = newWinner;
     
-    // Update the previous winners display
-    updatePreviousWinnersDisplay(previousWinners);
+    // Update the UI with animation
+    updateWinnerWithAnimation(newWinner);
     
     // Add confetti effect
     createConfetti();
     
-    return randomWinner;
+    return newWinner;
   }
   
   return doc.data()?.winner;
+}
+
+// Update winner with animation
+function updateWinnerWithAnimation(winnerName) {
+  const winnerElement = document.getElementById('currentWinner');
+  const winnerCard = document.querySelector('.winner-card');
+  
+  // Add animation class
+  winnerCard.classList.add('winner-updating');
+  
+  // Fade out
+  winnerElement.style.opacity = '0.3';
+  
+  setTimeout(() => {
+    // Update the winner name
+    winnerElement.textContent = winnerName;
+    
+    // Fade in
+    winnerElement.style.opacity = '1';
+    
+    // Remove animation class
+    setTimeout(() => {
+      winnerCard.classList.remove('winner-updating');
+    }, 1000);
+  }, 500);
 }
 
 // Add this new function to update just the previous winners display
@@ -1169,20 +1208,28 @@ async function refreshGiveawayCycle() {
         const todayData = todayDoc.data();
         let previousWinners = todayData.previousWinners || [];
         
-        // Create new cycle for tomorrow with the updated previous winners
+        // Select a random winner from Bangladeshi names for tomorrow
+        const randomWinner = BANGLADESHI_NAMES[Math.floor(Math.random() * BANGLADESHI_NAMES.length)];
+        
+        // Create new cycle for tomorrow with the updated previous winners and a winner
         await tomorrowDocRef.set({
           cycleId: tomorrowId,
-          winner: null,
-          winnerDate: null,
+          winner: randomWinner,
+          winnerDate: 'Today',
           previousWinners: previousWinners,
           createdAt: firebase.firestore.Timestamp.fromDate(tomorrow),
           endsAt: firebase.firestore.Timestamp.fromDate(new Date(Date.UTC(tomorrow.getUTCFullYear(), tomorrow.getUTCMonth(), tomorrow.getUTCDate() + 1))),
-          winnerSelected: false
+          winnerSelected: true,
+          winnerSelectedAt: firebase.firestore.FieldValue.serverTimestamp()
         });
         
         // Update the current cycle to the new one
         currentGiveawayCycle = { id: tomorrowId, ...(await tomorrowDocRef.get()).data() };
         appState.currentCycleId = currentGiveawayCycle.id;
+        
+        // Update the app state with the new winner
+        appState.previousWinner = appState.currentWinner;
+        appState.currentWinner = randomWinner;
       }
     }
   } else {
@@ -1253,23 +1300,19 @@ function updateEnterProgress() {
 }
 
 function updateWinnersDisplay(cycle) {
-  // Use default winners if no winner is selected yet
-  const winnerName = cycle.winner || DEFAULT_WINNERS[0].name;
-  const winnerDate = cycle.winnerDate || DEFAULT_WINNERS[0].date;
+  // Always use the winner from the app state
+  const winnerName = appState.currentWinner || 'Loading...';
+  const winnerDate = cycle.winnerDate || 'Today';
   const winnerTitle = cycle.winner ? '🎊 Today\'s Winner 🎊' : '🎊 Today\'s Winner 🎊';
   
   document.getElementById('currentWinner').textContent = winnerName;
   document.getElementById('winnerDate').textContent = winnerDate;
   document.getElementById('winnerTitle').textContent = winnerTitle;
 
-  // Use default winners if no previous winners exist
+  // Use previous winners if they exist
   const prevWinners = cycle.previousWinners && cycle.previousWinners.length > 0 
     ? cycle.previousWinners 
-    : DEFAULT_WINNERS.slice(1).map((w, i) => ({
-        name: w.name,
-        date: w.date,
-        cycleId: 'default_' + i
-      }));
+    : [];
   
   updatePreviousWinnersDisplay(prevWinners);
 }
