@@ -903,10 +903,14 @@ async function getOrCreateGiveawayCycle() {
       }];
     }
 
-    // Initialize new cycle WITHOUT a winner
+    // Generate a random Bangladeshi name for display (this will be saved to DB)
+    const displayWinner = BANGLADESHI_NAMES[Math.floor(Math.random() * BANGLADESHI_NAMES.length)];
+
+    // Initialize new cycle with a display winner (not the actual winner yet)
     await docRef.set({
       cycleId,
-      winner: null,
+      displayWinner: displayWinner, // This is the name shown until timer ends
+      winner: null, // This will be set when timer ends
       winnerDate: null,
       previousWinners: previousWinners,
       createdAt: firebase.firestore.Timestamp.fromDate(new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate()))),
@@ -1172,6 +1176,7 @@ async function refreshGiveawayCycle() {
         // Create new cycle for tomorrow with the updated previous winners
         await tomorrowDocRef.set({
           cycleId: tomorrowId,
+          displayWinner: BANGLADESHI_NAMES[Math.floor(Math.random() * BANGLADESHI_NAMES.length)], // New display winner
           winner: null,
           winnerDate: null,
           previousWinners: previousWinners,
@@ -1253,15 +1258,10 @@ function updateEnterProgress() {
 }
 
 function updateWinnersDisplay(cycle) {
-  // If no winner is selected yet, pick a random Bangladeshi name for display
-  let winnerName = cycle.winner;
-  let winnerDate = cycle.winnerDate;
-  
-  if (!winnerName) {
-    // Pick a random Bangladeshi name for display until the timer ends
-    winnerName = BANGLADESHI_NAMES[Math.floor(Math.random() * BANGLADESHI_NAMES.length)];
-    winnerDate = 'Today';
-  }
+  // Use the displayWinner field for showing the name until timer ends
+  // If winner is selected, use that instead
+  let winnerName = cycle.winner || cycle.displayWinner;
+  let winnerDate = cycle.winnerDate || 'Today';
   
   const winnerTitle = '🎊 Today\'s Winner 🎊';
   
