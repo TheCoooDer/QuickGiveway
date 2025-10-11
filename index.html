@@ -708,7 +708,7 @@
                         <div class="relative z-10">
                             <i class="fas fa-trophy text-5xl text-white mb-3"></i>
                             <h3 class="text-xl font-bold text-white mb-2" id="winnerTitle">🎊 Today's Winner 🎊</h3>
-                            <p class="text-3xl font-black text-white" id="currentWinner">Abdul Alim</p>
+                            <p class="text-3xl font-black text-white" id="currentWinner">Nila Islam</p>
                             <p class="text-white/90 mt-2" id="winnerDate">Today</p>
                         </div>
                     </div>
@@ -815,12 +815,6 @@ const VIRAL_LINKS = [
 'https://otieu.com/4/9923537'
 ];
 
-// Default winners for display
-const DEFAULT_WINNERS = [
-  { name: 'Abdul Alim', date: 'Today' },
-  { name: 'Abdul Alim', date: 'Yesterday' }
-];
-
 // Bangladeshi names for winner selection
 const BANGLADESHI_NAMES = [
   'Nasir Khan', 'Fatima Begum', 'Mohammad Rahman', 'Ayesha Khan', 'Hasan Ahmed',
@@ -893,19 +887,20 @@ async function getOrCreateGiveawayCycle() {
       if (yesterdayData.winner) {
         previousWinners.unshift({
           name: yesterdayData.winner,
-          date: yesterday.toLocaleDateString(),
+          date: 'Yesterday',
           cycleId: yesterdayId
         });
         // Keep only the last winner
         previousWinners = previousWinners.slice(0, 1);
       }
     } else {
-      // If no previous cycle, use default winner
-      previousWinners = DEFAULT_WINNERS.slice(1).map((w, i) => ({
-        name: w.name,
-        date: w.date,
-        cycleId: 'default_' + i
-      }));
+      // If no previous cycle, create a random Bangladeshi name as the previous winner
+      const randomWinner = BANGLADESHI_NAMES[Math.floor(Math.random() * BANGLADESHI_NAMES.length)];
+      previousWinners = [{
+        name: randomWinner,
+        date: 'Yesterday',
+        cycleId: 'default'
+      }];
     }
 
     // Initialize new cycle WITHOUT a winner
@@ -932,21 +927,23 @@ async function selectWinner() {
   const doc = await docRef.get();
   
   if (doc.exists && !doc.data().winnerSelected) {
-    // Select a random winner
+    // Select a random winner from Bangladeshi names
     const randomWinner = BANGLADESHI_NAMES[Math.floor(Math.random() * BANGLADESHI_NAMES.length)];
     
     // Get current data to preserve previous winners
     const currentData = doc.data();
     let previousWinners = currentData.previousWinners || [];
     
-    // Add today's winner to the beginning of the history
-    previousWinners.unshift({
-      name: randomWinner,
-      date: 'Today',
-      cycleId: cycleId
-    });
-    // Keep only the last winner
-    previousWinners = previousWinners.slice(0, 1);
+    // Move current winner to previous winners if exists
+    if (currentData.winner) {
+      previousWinners.unshift({
+        name: currentData.winner,
+        date: 'Yesterday',
+        cycleId: cycleId
+      });
+      // Keep only the last winner
+      previousWinners = previousWinners.slice(0, 1);
+    }
     
     // Update the document with the winner and updated previous winners
     await docRef.update({
@@ -1253,23 +1250,30 @@ function updateEnterProgress() {
 }
 
 function updateWinnersDisplay(cycle) {
-  // Use default winners if no winner is selected yet
-  const winnerName = cycle.winner || DEFAULT_WINNERS[0].name;
-  const winnerDate = cycle.winnerDate || DEFAULT_WINNERS[0].date;
+  // Use Bangladeshi names if no winner is selected yet
+  let winnerName = cycle.winner;
+  let winnerDate = cycle.winnerDate;
+  
+  if (!winnerName) {
+    // If no winner is selected yet, show "Loading..." instead of a default name
+    winnerName = "Loading...";
+    winnerDate = "Today";
+  }
+  
   const winnerTitle = cycle.winner ? '🎊 Today\'s Winner 🎊' : '🎊 Today\'s Winner 🎊';
   
   document.getElementById('currentWinner').textContent = winnerName;
   document.getElementById('winnerDate').textContent = winnerDate;
   document.getElementById('winnerTitle').textContent = winnerTitle;
 
-  // Use default winners if no previous winners exist
+  // Use Bangladeshi names if no previous winners exist
   const prevWinners = cycle.previousWinners && cycle.previousWinners.length > 0 
     ? cycle.previousWinners 
-    : DEFAULT_WINNERS.slice(1).map((w, i) => ({
-        name: w.name,
-        date: w.date,
-        cycleId: 'default_' + i
-      }));
+    : [{
+        name: BANGLADESHI_NAMES[Math.floor(Math.random() * BANGLADESHI_NAMES.length)],
+        date: 'Yesterday',
+        cycleId: 'default'
+      }];
   
   updatePreviousWinnersDisplay(prevWinners);
 }
