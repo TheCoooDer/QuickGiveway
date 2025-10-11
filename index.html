@@ -29,6 +29,7 @@
             --safe-area-inset-bottom: env(safe-area-inset-bottom, 0px);
             --tg-bg-primary: #667eea;
             --tg-bg-secondary: #764ba2;
+            --bottom-nav-height: 70px; /* Fixed height for bottom nav */
         }
         html, body {
             margin: 0;
@@ -78,7 +79,8 @@
             overflow-y: auto;
             overflow-x: hidden;
             padding: 16px;
-            padding-bottom: calc(80px + var(--safe-area-inset-bottom));
+            /* Increased bottom padding to ensure content is visible above the nav */
+            padding-bottom: calc(var(--bottom-nav-height) + 20px + var(--safe-area-inset-bottom));
             -webkit-overflow-scrolling: touch;
             scroll-behavior: smooth;
         }
@@ -112,6 +114,8 @@
         .tab-content {
             display: none;
             animation: fadeIn 0.3s ease;
+            /* Ensure tab content has bottom margin */
+            margin-bottom: 20px;
         }
         .tab-content.active {
             display: block;
@@ -343,6 +347,8 @@
             z-index: 100;
             border-top: 1px solid rgba(255, 255, 255, 0.2);
             padding-bottom: var(--safe-area-inset-bottom);
+            /* Set explicit height for the bottom nav */
+            height: var(--bottom-nav-height);
         }
         .balance-display {
             background: var(--primary-gradient);
@@ -477,6 +483,8 @@
             position: relative;
             cursor: pointer;
             transition: all 0.3s ease;
+            /* Add margin bottom to ensure it's visible above the nav */
+            margin-bottom: 20px;
         }
         .enter-progress:hover {
             transform: translateY(-2px);
@@ -558,7 +566,8 @@
             
             .container {
                 padding: 12px;
-                padding-bottom: calc(70px + var(--safe-area-inset-bottom));
+                /* Increased bottom padding for smaller screens */
+                padding-bottom: calc(var(--bottom-nav-height) + 30px + var(--safe-area-inset-bottom));
             }
             
             .glass-card {
@@ -589,6 +598,8 @@
             
             .enter-progress {
                 height: 50px;
+                /* Increased margin for smaller screens */
+                margin-bottom: 30px;
             }
             
             .enter-progress-text {
@@ -623,11 +634,18 @@
             input[type="text"] {
                 padding: 12px;
             }
+            
+            /* Adjust bottom nav height for smaller screens */
+            :root {
+                --bottom-nav-height: 65px;
+            }
         }
         
         @media (max-width: 380px) {
             .container {
                 padding: 10px;
+                /* Further increased bottom padding for very small screens */
+                padding-bottom: calc(var(--bottom-nav-height) + 40px + var(--safe-area-inset-bottom));
             }
             
             .glass-card {
@@ -649,6 +667,8 @@
             
             .enter-progress {
                 height: 45px;
+                /* Increased margin for very small screens */
+                margin-bottom: 40px;
             }
             
             .enter-progress-text {
@@ -695,14 +715,17 @@
                 font-size: 0.6rem;
             }
             
-            .bottom-nav {
-                height: 60px;
+            /* Adjust bottom nav height for very small screens */
+            :root {
+                --bottom-nav-height: 60px;
             }
         }
         
         @media (max-width: 320px) {
             .container {
                 padding: 8px;
+                /* Maximum bottom padding for ultra small screens */
+                padding-bottom: calc(var(--bottom-nav-height) + 50px + var(--safe-area-inset-bottom));
             }
             
             .glass-card {
@@ -724,6 +747,8 @@
             
             .enter-progress {
                 height: 40px;
+                /* Maximum margin for ultra small screens */
+                margin-bottom: 50px;
             }
             
             .enter-progress-text {
@@ -770,8 +795,9 @@
                 font-size: 0.55rem;
             }
             
-            .bottom-nav {
-                height: 55px;
+            /* Adjust bottom nav height for ultra small screens */
+            :root {
+                --bottom-nav-height: 55px;
             }
             
             .shimmer-badge {
@@ -960,6 +986,8 @@
         @media (max-width: 300px) {
             .container {
                 padding: 6px;
+                /* Maximum bottom padding for ultra small screens */
+                padding-bottom: calc(var(--bottom-nav-height) + 60px + var(--safe-area-inset-bottom));
             }
             
             .glass-card {
@@ -981,6 +1009,8 @@
             
             .enter-progress {
                 height: 35px;
+                /* Maximum margin for ultra small screens */
+                margin-bottom: 60px;
             }
             
             .enter-progress-text {
@@ -1027,8 +1057,9 @@
                 font-size: 0.5rem;
             }
             
-            .bottom-nav {
-                height: 50px;
+            /* Adjust bottom nav height for ultra small screens */
+            :root {
+                --bottom-nav-height: 50px;
             }
             
             .shimmer-badge {
