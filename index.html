@@ -917,6 +917,16 @@ async function getOrCreateGiveawayCycle() {
       endsAt: firebase.firestore.Timestamp.fromDate(new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate() + 1))),
       winnerSelected: false
     });
+  } else {
+    // Check if the document exists but doesn't have displayWinner field
+    const data = doc.data();
+    if (!data.displayWinner) {
+      // Add displayWinner field if it doesn't exist
+      const displayWinner = BANGLADESHI_NAMES[Math.floor(Math.random() * BANGLADESHI_NAMES.length)];
+      await docRef.update({ displayWinner });
+      data.displayWinner = displayWinner;
+    }
+    return { id: cycleId, ...data };
   }
 
   return { id: cycleId, ...doc.data() };
